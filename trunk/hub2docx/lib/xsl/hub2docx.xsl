@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:docx2hub = "http://www.le-tex.de/namespace/docx2hub"
+  xmlns:hub = "http://www.le-tex.de/namespace/hub"
+  xmlns:dbk = "http://docbook.org/ns/docbook"
+
+  xpath-default-namespace = "http://docbook.org/ns/docbook"
+  exclude-result-prefixes="xs docx2hub hub"
+  version="2.0">
+  
+  <xsl:import href="http://transpect.le-tex.de/docx_modify/xsl/identity.xsl"/>
+  <xsl:import href="http://transpect.le-tex.de/docx_modify/xsl/props.xsl"/>
+
+  <xsl:import href="module/lib_catch-all.xsl"/>
+  <xsl:import href="module/lib_color.xsl"/>
+  <xsl:import href="module/lib_query.xsl"/>
+  <xsl:import href="module/lib_props.xsl"/>
+
+  <xsl:import href="module/text-runs.xsl"/>
+  <xsl:import href="module/document-structure.xsl"/>
+  <xsl:import href="module/para.xsl"/>
+  <xsl:import href="module/bibliography.xsl"/>
+  <xsl:import href="module/equation.xsl"/>
+  <xsl:import href="module/footnote.xsl"/>
+  <xsl:import href="module/glossary.xsl"/>
+  <xsl:import href="module/images.xsl"/>
+  <xsl:import href="module/index.xsl"/>
+  <xsl:import href="module/links.xsl"/>
+  <xsl:import href="module/lists.xsl"/>
+  <xsl:import href="module/table.xsl"/>
+
+
+  <xsl:param  name="a3paper" select="'no'"/>					<!-- DIN A3 paper -->
+  <xsl:param  name="heading-prefix" select="'Heading'" as="xs:string"/> <!-- Heading w:styleId prefix; use 'berschrift' for German normal.dot -->
+  <xsl:param  name="landscape" select="'no'"/>				<!-- page orientation landscape -->
+  
+  <xsl:template 
+    match="* | @*" 
+    mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current" />
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="/*" mode="hub:merge">
+    <w:root>
+      <xsl:apply-templates select="collection()/w:root/node()" mode="#current" />
+    </w:root>
+  </xsl:template>
+
+  <xsl:template match="w:document" mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@xml:base" mode="docx2hub:modify"/>
+      <xsl:apply-templates select="collection()/w:document/node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="@xml:base" mode="hub:merge">
+    <xsl:apply-templates select="." mode="docx2hub:modify"/>
+  </xsl:template>
+
+</xsl:stylesheet>
