@@ -66,11 +66,24 @@
   <xsl:variable name="root" select="/" as="document-node(element(*))" />
 
   <xsl:template  match="/*"  mode="hub:default">
-    <w:document>
-      <w:body>
-        <xsl:next-match/>
-      </w:body>
-    </w:document>
+    <w:root_converted>
+      <w:styles />
+      <w:numbering>
+        <xsl:apply-templates mode="numbering"/>
+      </w:numbering>
+      <w:footnotes>
+        <xsl:apply-templates mode="footnotes"/>
+      </w:footnotes>
+      <w:endnotes />
+      <w:settings />
+      <w:fonts />
+      <w:docRels />
+      <w:document>
+        <w:body>
+          <xsl:next-match/>
+        </w:body>
+      </w:document>
+    </w:root_converted>
   </xsl:template>
 
   <xsl:template  match="book | Body"  mode="hub:default">

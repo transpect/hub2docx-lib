@@ -32,32 +32,13 @@
   <xsl:import href="module/links.xsl"/>
   <xsl:import href="module/lists.xsl"/>
   <xsl:import href="module/table.xsl"/>
+  <xsl:import href="module/merge-with-template.xsl"/>
 
 
   <xsl:param  name="a3paper" select="'no'"/>					<!-- DIN A3 paper -->
   <xsl:param  name="heading-prefix" select="'Heading'" as="xs:string"/> <!-- Heading w:styleId prefix; use 'berschrift' for German normal.dot -->
   <xsl:param  name="landscape" select="'no'"/>				<!-- page orientation landscape -->
-  
-  <xsl:template 
-    match="* | @*" 
-    mode="hub:merge">
-    <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="#current" />
-    </xsl:copy>
-  </xsl:template>
 
-  <xsl:template match="/*" mode="hub:merge">
-    <w:root>
-      <xsl:apply-templates select="collection()/w:root/node()" mode="#current" />
-    </w:root>
-  </xsl:template>
-
-  <xsl:template match="w:document" mode="hub:merge">
-    <xsl:copy>
-      <xsl:apply-templates select="@xml:base" mode="docx2hub:modify"/>
-      <xsl:apply-templates select="collection()/w:document/node()" mode="#current"/>
-    </xsl:copy>
-  </xsl:template>
   
   <xsl:template match="@xml:base" mode="hub:merge">
     <xsl:apply-templates select="." mode="docx2hub:modify"/>

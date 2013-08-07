@@ -32,7 +32,9 @@
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r"
+    xpath-default-namespace = "http://docbook.org/ns/docbook"
+
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub dbk xlink o w m wp r"
 >
 
 
