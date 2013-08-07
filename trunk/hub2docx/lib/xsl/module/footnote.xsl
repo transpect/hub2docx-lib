@@ -64,8 +64,8 @@
     </w:r>
   </xsl:template>
 
-  <xsl:variable name="originalFootnoteIds" select="//footnote/@xml:id" as="xs:string*" />
-  <xsl:variable name="footnoteIdOffset" select="(xs:integer(max(document(concat('VARTEMPLATEDIR', '/word/footnotes.xml'))//w:footnote/@w:id)), 0)[1]" as="xs:integer" />
+  <xsl:variable name="originalFootnoteIds" as="xs:string*"
+    select="for $f in //footnote return generate-id($f)" />
   
   <xsl:template  match="footnote"  mode="hub:default">
     <!-- 200000 arbitrary number to make the bookmark id hopefully unique. Need a better mechanism -->
@@ -96,7 +96,7 @@
 
   <xsl:function name="letex:fn-id" as="xs:integer">
     <xsl:param name="fn" as="element(footnote)" />
-    <xsl:sequence select="0(:index-of($originalFootnoteIds, $fn/@xml:id) + $footnoteIdOffset:)" />
+    <xsl:sequence select="index-of($originalFootnoteIds, generate-id($fn))" />
   </xsl:function>
 
   <xsl:function name="letex:fn-bm-id" as="xs:integer">
