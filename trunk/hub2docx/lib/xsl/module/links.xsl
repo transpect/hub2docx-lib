@@ -22,34 +22,18 @@
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:r		= "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-    xmlns:rr		= "http://schemas.openxmlformats.org/package/2006/relationships"
+    xmlns:rel		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m r rr wp"
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m r rel wp"
 >
 
 
 <!-- ================================================================================ -->
 <!-- VARIABLES -->
 <!-- ================================================================================ -->
-
-  <!-- lies word/_rels/document.xml.rels... -->
-  <xsl:variable  name="documentXmlRels">
-    <xsl:variable  name="completeTemplateSourceFileName"  select="concat( if ( 'VARTEMPLATEDIR' ) then 'VARTEMPLATEDIR' else '.', '/word/_rels/document.xml.rels')"/>
-    <xsl:choose>
-      <xsl:when  test="doc-available( $completeTemplateSourceFileName)">
-        <xsl:sequence  select="doc( $completeTemplateSourceFileName)"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:message  terminate="yes"  select="concat( 'ERROR: template file &quot;', $completeTemplateSourceFileName, '&quot; could not be read.')"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
-  <!-- ...um die höchste bereits verwendete Relationship/@Id zu finden -->
-  <xsl:variable  name="relationIdOffset"  select="max( for $rId in ( $documentXmlRels//*[local-name() eq 'Relationship']/@Id ) return number( substring( $rId, 4)))"/>
 
   <!-- speed up the index-of() a little bit -->
   <xsl:variable  name="hyperlinks"  select="//link[@role eq 'uri' or (not(@role) and @xlink:href)]"/>
@@ -291,7 +275,7 @@
 
   <xsl:template  match="link[@role eq 'uri' or (not(@role) and @xlink:href)]"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
-    <w:hyperlink  r:id="rId{$relationIdOffset + index-of( $hyperlinks, .)}"  w:history="1">
+    <w:hyperlink  r:id="{index-of( $hyperlinks, .)}"  w:history="1">
       <xsl:apply-templates  select="node()"  mode="#current" >
         <xsl:with-param  name="rPrContent"  tunnel="yes">
           <xsl:call-template  name="mergeRunProperties">
@@ -316,7 +300,7 @@
 			<xsl:message select="'WARNING: space in target replaced with underscore', ."/>
 		</xsl:if>
 		<xsl:variable name="Target" select="if( matches( ., ' ' ) ) then replace( ., ' ', '_' ) else ."/>
-    <rr:Relationship Id="rId{$relationIdOffset + index-of( $hyperlinks, .)}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"  Target="{$Target}"  TargetMode="External"/>
+    <rel:Relationship Id="{index-of( $hyperlinks, .)}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"  Target="{$Target}"  TargetMode="External"/>
   </xsl:template>
 
   <xsl:template  match="node()"  mode="documentRels">

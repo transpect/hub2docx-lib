@@ -23,6 +23,7 @@
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
+    xmlns:rel		= "http://schemas.openxmlformats.org/package/2006/relationships"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
@@ -77,7 +78,11 @@
       <w:endnotes />
       <w:settings />
       <w:fonts />
-      <w:docRels />
+      <w:docRels>
+        <rel:Relationships>
+          <xsl:apply-templates mode="documentRels"/>
+        </rel:Relationships>
+      </w:docRels>
       <w:document>
         <w:body>
           <xsl:next-match/>

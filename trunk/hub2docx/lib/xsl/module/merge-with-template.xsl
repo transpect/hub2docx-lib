@@ -2,6 +2,7 @@
 <xsl:stylesheet 
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
   xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships"
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
   xmlns:docx2hub = "http://www.le-tex.de/namespace/docx2hub"
@@ -17,13 +18,16 @@
        collection()/w:root: docx template w:root
   -->
 
+  <!-- "initial" template:
+       apply nodes of docx template in mode hub:merge
+  -->
   <xsl:template match="/*" mode="hub:merge">
     <w:root>
       <xsl:apply-templates select="collection()/w:root/node()" mode="#current">
         <xsl:with-param name="footnoteIdOffset" tunnel="yes"
           select="(xs:integer(max(collection()/w:root/w:footnotes/w:footnote/@w:id)), 0)[1]" />
         <xsl:with-param name="relationIdOffset" tunnel="yes"
-          select="max( for $rId in ( collection()/w:root/w:docRels//r:Relationships/w:Relationship/@Id ) return number( substring( $rId, 4)))" />
+          select="max( for $rId in ( collection()/w:root/w:docRels//rel:Relationships/rel:Relationship/@Id ) return number( substring( $rId, 4)))" />
       </xsl:apply-templates>
     </w:root>
   </xsl:template>
@@ -47,28 +51,28 @@
 
   <xsl:template 
     mode="hub:merge"
-    match=" //w:root_converted//w:footnote/@w:id
-          | //w:root_converted//w:footnoteReference/@w:id
-          | //w:root_converted//w:bookmarkEnd[
-                                  preceding-sibling::*[1][
-                                    self::w:r[
-                                      w:footnoteReference
-                                    ]
+    match=" w:root_converted//w:footnote/@w:id
+          | w:root_converted//w:footnoteReference/@w:id
+          | w:root_converted//w:bookmarkEnd[
+                                preceding-sibling::*[1][
+                                  self::w:r[
+                                    w:footnoteReference
                                   ]
-                                ]/@w:id">
+                                ]
+                              ]/@w:id">
     <xsl:param name="footnoteIdOffset" tunnel="yes" />
     <xsl:attribute name="w:id" select=". + $footnoteIdOffset"/>
   </xsl:template>
 
   <xsl:template 
     mode="hub:merge"
-    match="//w:root_converted//w:bookmarkStart[
-                                 following-sibling::*[1][
-                                   self::w:r[
-                                     w:footnoteReference
-                                   ]
+    match="w:root_converted//w:bookmarkStart[
+                               following-sibling::*[1][
+                                 self::w:r[
+                                   w:footnoteReference
                                  ]
-                               ]">
+                               ]
+                             ]">
     <xsl:param name="footnoteIdOffset" tunnel="yes" />
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
@@ -83,10 +87,28 @@
 
   <xsl:template 
     mode="hub:merge"
-    match="w:hyperlink/@r:idd">
+    match="//w:root_converted//w:hyperlink/@r:id">
     <xsl:param name="relationIdOffset" tunnel="yes" />
     <xsl:attribute name="r:id" select="$relationIdOffset + . "/>
   </xsl:template>
+
+  <xsl:template 
+    mode="hub:merge"
+    match="rel:Relationships">
+    <xsl:param name="relationIdOffset" tunnel="yes" />
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="collection()/w:root_converted/w:docRels/rel:Relationships/*" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template 
+    mode="hub:merge"
+    match="//w:root_converted//rel:Relationship/@Id">
+    <xsl:param name="relationIdOffset" tunnel="yes" />
+    <xsl:attribute name="Id" select="concat('rId', $relationIdOffset + . )"/>
+  </xsl:template>
+
 
 
   <xsl:template 
