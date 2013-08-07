@@ -22,6 +22,8 @@
       <xsl:apply-templates select="collection()/w:root/node()" mode="#current">
         <xsl:with-param name="footnoteIdOffset" tunnel="yes"
           select="(xs:integer(max(collection()/w:root/w:footnotes/w:footnote/@w:id)), 0)[1]" />
+        <xsl:with-param name="relationIdOffset" tunnel="yes"
+          select="max( for $rId in ( collection()/w:root/w:docRels//r:Relationships/w:Relationship/@Id ) return number( substring( $rId, 4)))" />
       </xsl:apply-templates>
     </w:root>
   </xsl:template>
@@ -32,6 +34,9 @@
       <xsl:apply-templates select="collection()/w:root_converted/w:document/node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
+
+
+  <!-- footnote changes/additions -->
 
   <xsl:template match="w:footnotes" mode="hub:merge">
     <xsl:copy>
@@ -57,13 +62,13 @@
 
   <xsl:template 
     mode="hub:merge"
-    match=" //w:root_converted//w:bookmarkStart[
-                                  following-sibling::*[1][
-                                    self::w:r[
-                                      w:footnoteReference
-                                    ]
-                                  ]
-                                ]">
+    match="//w:root_converted//w:bookmarkStart[
+                                 following-sibling::*[1][
+                                   self::w:r[
+                                     w:footnoteReference
+                                   ]
+                                 ]
+                               ]">
     <xsl:param name="footnoteIdOffset" tunnel="yes" />
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
@@ -72,6 +77,17 @@
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
+
+
+  <!-- relationship changes/additions -->
+
+  <xsl:template 
+    mode="hub:merge"
+    match="w:hyperlink/@r:idd">
+    <xsl:param name="relationIdOffset" tunnel="yes" />
+    <xsl:attribute name="r:id" select="$relationIdOffset + . "/>
+  </xsl:template>
+
 
   <xsl:template 
     match="* | @*" 
