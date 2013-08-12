@@ -156,7 +156,6 @@
     </xsl:choose>
   </xsl:template>
 
-
   <!-- because of the transformation used to create the DocBook-document to be transformed now, emphasis does never contain anything else then a single textnode -->
   <!-- In the DocBook-data to be converted, I used the phrase element at places where emphasis would not be allowed. Currently, this is the only use of phrase.
        § If phrase is used otherwise in the future, the assumed analogy to emphasis does not stand further. -->
@@ -190,7 +189,8 @@
                 <w:smallCaps  w:val="true"/>
                 <w:i/>
               </xsl:when>
-              <xsl:when  test="@role = ( 'br' )" />
+              <xsl:when  test="@role eq 'br'" />
+              <xsl:when  test="@role eq 'pageBreakBefore'" />
               <xsl:when  test="not(@role)">
                 <xsl:message  select="concat( 'Warning: missing role attribute for element ', name(), ' - falling back to &quot;italic&quot;')"/>
                 <w:i/>
