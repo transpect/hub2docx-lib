@@ -42,7 +42,7 @@
   <xsl:template  match="para[ not( parent::listitem) ]"  mode="hub:default">
     <xsl:variable name="pPr">
       <!-- § mode not yet implemented -->
-      <xsl:apply-templates  select="@role"  mode="props" />
+      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore']"  mode="props" />
     </xsl:variable>
     <w:p>
       <xsl:if  test="$pPr">
@@ -62,7 +62,7 @@
 
   <xsl:template  match="para[ parent::blockquote ]"  mode="hub:default" priority="2">
     <xsl:variable name="pPr">
-      <xsl:apply-templates  select="@role"  mode="props" />
+      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore']"  mode="props" />
       <w:pStyle w:val="BlockText"/>
     </xsl:variable>
     <w:p>
@@ -97,5 +97,8 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="phrase[@role eq 'pageBreakBefore']" mode="props">
+    <w:pageBreakBefore/>
+  </xsl:template>
 
 </xsl:stylesheet>
