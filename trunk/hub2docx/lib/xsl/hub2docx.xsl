@@ -20,6 +20,7 @@
   <xsl:import href="module/lib_query.xsl"/>
   <xsl:import href="module/lib_props.xsl"/>
 
+  <xsl:import href="module/comments.xsl"/>
   <xsl:import href="module/text-runs.xsl"/>
   <xsl:import href="module/document-structure.xsl"/>
   <xsl:import href="module/para.xsl"/>

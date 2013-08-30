@@ -120,7 +120,7 @@
                     xs:double(
                       replace(
                         (@width, @colwidth)[1], 
-                        'pt$',
+                        '(mm|pt)$',
                         ''
                       )
                     ) * $table-scale
