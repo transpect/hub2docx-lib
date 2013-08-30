@@ -57,6 +57,12 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="w:root_converted/w:document/w:body" mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="collection()/w:root/w:document/w:body/w:sectPr" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
 
   <!-- footnote changes/additions -->
 
