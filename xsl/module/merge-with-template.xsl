@@ -26,6 +26,8 @@
       <xsl:apply-templates select="collection()/w:root/node()" mode="#current">
         <xsl:with-param name="footnoteIdOffset" tunnel="yes"
           select="(xs:integer(max(collection()/w:root/w:footnotes/w:footnote/@w:id)), 0)[1]" />
+        <xsl:with-param name="commentIdOffset" tunnel="yes"
+          select="(xs:integer(max(collection()/w:root/w:comments/w:comment/@w:id)), 0)[1]" />
         <xsl:with-param name="relationIdOffset" tunnel="yes"
           select="max( for $rId in ( collection()/w:root/w:docRels//rel:Relationships/rel:Relationship/@Id ) return number( substring( $rId, 4)))" />
       </xsl:apply-templates>
@@ -33,10 +35,26 @@
   </xsl:template>
 
   <xsl:template match="w:document" mode="hub:merge">
-    <xsl:copy copy-namespaces="no">
+    <xsl:variable name="xml-base-modified" as="attribute(xml:base)">
       <xsl:apply-templates select="@xml:base" mode="docx2hub:modify"/>
-      <xsl:apply-templates select="collection()/w:root_converted/w:document/node()" mode="#current"/>
+    </xsl:variable>
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="$xml-base-modified, collection()/w:root_converted/w:document/node()" mode="#current"/>
     </xsl:copy>
+
+    <!-- no footnotes in template: create the footnote root element separately for converted hub footnotes -->
+    <xsl:if test="not(../w:footnotes)  and 
+                  collection()/w:root_converted/w:footnotes/node()">
+      <w:footnotes xml:base="{replace($xml-base-modified, 'document\.xml', 'footnotes.xml')}">
+        <xsl:apply-templates select="collection()/w:root_converted/w:footnotes/node()" mode="#current"/>
+      </w:footnotes>
+    </xsl:if>
+    <xsl:if test="not(../w:comments)  and
+                  collection()/w:root_converted/w:comments/node()">
+      <w:comments xml:base="{replace($xml-base-modified, 'document\.xml', 'comments.xml')}">
+        <xsl:apply-templates select="collection()/w:root_converted/w:comments/node()" mode="#current"/>
+      </w:comments>
+    </xsl:if>
   </xsl:template>
 
 
@@ -83,6 +101,24 @@
   </xsl:template>
 
 
+  <!-- comment chages/additions -->
+
+  <xsl:template match="w:comments" mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="hub:merge" />
+      <xsl:apply-templates select="collection()/w:root_converted/w:comments/node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template 
+    mode="hub:merge"
+    match="  w:root_converted//w:comment/@w:id
+           | w:root_converted//w:commentReference/@w:id">
+    <xsl:param name="commentIdOffset" tunnel="yes" />
+    <xsl:attribute name="w:id" select=". + $commentIdOffset"/>
+  </xsl:template>
+
+
   <!-- relationship changes/additions -->
 
   <xsl:template 
@@ -99,6 +135,12 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
       <xsl:apply-templates select="collection()/w:root_converted/w:docRels/rel:Relationships/*" mode="#current"/>
+      <xsl:if test="not(collection()/w:root/w:comments)">
+        <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
+          Id="rId{$relationIdOffset + count(//w:root_converted//rel:Relationship) + 1}" 
+          Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" 
+          Target="comments.xml" />
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
 

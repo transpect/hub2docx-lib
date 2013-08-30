@@ -77,6 +77,9 @@
       </w:footnotes>
       <w:endnotes />
       <w:settings />
+      <w:comments>
+        <xsl:apply-templates mode="comments"/>
+      </w:comments>
       <w:fonts />
       <w:docRels>
         <rel:Relationships>
@@ -91,7 +94,7 @@
     </w:root_converted>
   </xsl:template>
 
-  <xsl:template  match="book | Body"  mode="hub:default">
+  <xsl:template  match="book | Body | hub"  mode="hub:default">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
