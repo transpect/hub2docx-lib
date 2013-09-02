@@ -5,6 +5,7 @@
   xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
   xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships"
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:ct="http://schemas.openxmlformats.org/package/2006/content-types"
   xmlns:docx2hub = "http://www.le-tex.de/namespace/docx2hub"
   xmlns:hub = "http://www.le-tex.de/namespace/hub"
   xmlns:dbk = "http://docbook.org/ns/docbook"
@@ -57,12 +58,29 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="ct:Types" mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:if test="not(Override[@PartName eq '/word/comments.xml'])  and  
+                    collection()/w:root_converted/w:comments/node()">
+        <Override PartName="/word/comments.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
+          ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml"/>
+      </xsl:if>
+      <xsl:if test="not(Override[@PartName eq '/word/endnotes.xml'])  and  
+                    collection()/w:root_converted/w:endnotes/node()">
+        <Override PartName="/word/endnotes.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
+          ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml"/>
+      </xsl:if>
+    </xsl:copy>
+  </xsl:template>
+
   <xsl:template match="w:root_converted/w:document/w:body" mode="hub:merge">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
       <xsl:apply-templates select="collection()/w:root/w:document/w:body/w:sectPr" mode="#current"/>
     </xsl:copy>
   </xsl:template>
+
 
   <!-- footnote changes/additions -->
 
