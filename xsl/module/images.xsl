@@ -40,7 +40,7 @@
     <xsl:apply-templates  mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="mediaobject" mode="hub:default">
+  <xsl:template match="mediaobject[not(parent::para)]" mode="hub:default">
     <w:p>
       <w:pPr>
         <w:pStyle w:val="ObjectPlaceholder"/>
@@ -53,7 +53,7 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template match="inlinemediaobject" mode="hub:default">
+  <xsl:template match="inlinemediaobject | para/mediaobject" mode="hub:default">
     <w:r>
       <w:t> INLINE MEDIA OBJECT: <xsl:value-of select=".//*/@fileref"/>
       </w:t>
