@@ -8,6 +8,7 @@
   xmlns:ct="http://schemas.openxmlformats.org/package/2006/content-types"
   xmlns:docx2hub = "http://www.le-tex.de/namespace/docx2hub"
   xmlns:hub = "http://www.le-tex.de/namespace/hub"
+  xmlns:hub2docx = "http://www.le-tex.de/namespace/hub2docx"
   xmlns:dbk = "http://docbook.org/ns/docbook"
 
   xpath-default-namespace = "http://docbook.org/ns/docbook"
@@ -176,6 +177,41 @@
   </xsl:template>
 
 
+  <!-- paragraph changes/additions -->
+
+  <xsl:template 
+    mode="hub:merge"
+    match="//w:root_converted//w:pStyle[@hub:val]">
+    <xsl:choose> 
+      <xsl:when test="@hub:val = collection()//w:styles/w:style[@w:type eq 'paragraph']/@w:styleId">
+      <w:pStyle w:val="{@hub:val}"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message  select="concat( '&#xa;&#x9;Warning: unexpected role attribute value &quot;', @role, '&quot; for element ', name())"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+  <!-- character changes/additions -->
+
+
+  <xsl:template 
+    mode="hub:merge"
+    match="//w:root_converted//w:rStyle[@hub:val]">
+    <xsl:choose>
+      <xsl:when test="@hub:val = collection()//w:styles/w:style[@w:type eq 'character']/@w:styleId">
+        <w:rStyle w:val="{@hub:val}"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message  select="concat( '&#xa;&#x9;Warning: unexpected role attribute value &quot;', @role, '&quot; for element ', name(), ' - falling back to &quot;italic&quot;')"/>
+        <w:i/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+
+  <!-- catch all -->
 
   <xsl:template 
     match="* | @*" 
