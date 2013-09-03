@@ -196,8 +196,7 @@
                 <w:i/>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:message  select="concat( 'Warning: unexpected role attribute value &quot;', @role, '&quot; for element ', name(), ' - falling back to &quot;italic&quot;')"/>
-                <w:i/>
+                <w:rStyle hub:val="{@role}"/>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:with-param>

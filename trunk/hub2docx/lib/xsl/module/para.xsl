@@ -41,7 +41,6 @@
 
   <xsl:template  match="para[ not( parent::listitem) ]"  mode="hub:default">
     <xsl:variable name="pPr">
-      <!-- § mode not yet implemented -->
       <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore']"  mode="props" />
     </xsl:variable>
     <w:p>
@@ -87,14 +86,16 @@
     </w:p>
   </xsl:template>
 
-  <!-- §§ vorlaeufig -->
   <xsl:template match="@role" mode="props">
     <xsl:if test="matches(., 'item')">
       <w:ind w:left="360" />
     </xsl:if>
+    <w:pStyle hub:val="{.}" />
+<!--
     <xsl:if test="matches(., 'unreferencedFootnote')">
       <w:pStyle w:val="UnreferencedFootnote" />
     </xsl:if>
+-->
   </xsl:template>
 
   <xsl:template match="phrase[@role eq 'pageBreakBefore']" mode="props">

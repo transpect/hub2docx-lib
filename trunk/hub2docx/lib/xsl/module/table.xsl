@@ -71,11 +71,11 @@
         <w:tblW w:w="0" w:type="auto"/>
         <w:tblBorders>
           <xsl:for-each select="('top', 'left', 'bottom', 'right' )">
-            <xsl:element name="w:{replace(., 'Border', '')}">
+            <xsl:element name="w:{current()}">
               <xsl:attribute name="w:val"    select="'single'" />
               <xsl:attribute name="w:sz"     select="10" />
               <xsl:attribute name="w:space " select="0" />
-              <xsl:attribute name="w:color " select="$current-color" />
+              <xsl:attribute name="w:color " select="if($current-color ne '') then $current-color else '000000'" />
             </xsl:element>
           </xsl:for-each>
         </w:tblBorders>
