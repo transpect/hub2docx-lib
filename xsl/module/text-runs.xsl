@@ -108,7 +108,14 @@
           </xsl:non-matching-substring>
         </xsl:analyze-string>
         -->
-        <xsl:value-of select="replace(., '\s+', ' ')"/>
+        <xsl:choose>
+          <xsl:when test="ancestor::*[@xml:space][1]/@xml:space eq 'preserve'">
+            <xsl:value-of select="."/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="replace(., '\s+', ' ')"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </w:t>
     </w:r>
   </xsl:template>
@@ -161,50 +168,55 @@
        § If phrase is used otherwise in the future, the assumed analogy to emphasis does not stand further. -->
   <xsl:template  match="emphasis | phrase"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:variable name="role" select="@role" as="attribute(role)"/>
     <xsl:apply-templates  select="node()"  mode="#current" >
       <xsl:with-param  name="rPrContent"  tunnel="yes">
         <xsl:call-template  name="mergeRunProperties">
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
           <xsl:with-param  name="new_rPrContent">
             <!-- §§ the combination of nested font properties may not suit the rendering expactions defined by the DocBook standard -->
-            <xsl:choose>
-              <xsl:when  test="@role = ( 'strong' , 'bold' , 'Bold' )">
-                <w:b/>
-              </xsl:when>
-              <xsl:when  test="@role = ( 'em' , 'it' , 'italic' , 'Italic' )">
-                <w:i/>
-              </xsl:when>
-              <xsl:when  test="@role = ( 'Italicstrong' , 'BoldItalic' )">
-                <w:b/>
-                <w:i/>
-              </xsl:when>
-              <xsl:when  test="@role = ( 'SmallCaps' )">
-                <w:smallCaps  w:val="true"/>
-              </xsl:when>
-              <xsl:when  test="@role = ( 'SmallCapsstrong' )">
-                <w:smallCaps  w:val="true"/>
-                <w:b/>
-              </xsl:when>
-              <xsl:when  test="@role = ( 'ItalicSmallCaps' )">
-                <w:smallCaps  w:val="true"/>
-                <w:i/>
-              </xsl:when>
-              <xsl:when  test="@role eq 'br'" />
-              <xsl:when  test="@role eq 'pageBreakBefore'" />
-              <xsl:when  test="not(@role)">
-                <xsl:message  select="concat( 'Warning: missing role attribute for element ', name(), ' - falling back to &quot;italic&quot;')"/>
-                <w:i/>
-              </xsl:when>
-              <xsl:otherwise>
-                <w:rStyle hub:val="{@role}"/>
-              </xsl:otherwise>
-            </xsl:choose>
+            <xsl:for-each select="distinct-values(tokenize(lower-case(@role), '&#x20;'))">
+              <xsl:choose>
+                <xsl:when  test=". = ( 'strong', 'bold' )">
+                  <w:b/>
+                </xsl:when>
+                <xsl:when  test=". = ( 'em', 'it', 'italic' )">
+                  <w:i/>
+                </xsl:when>
+                <xsl:when  test=". = ( 'italicstrong' , 'bolditalic' )">
+                  <w:b/>
+                  <w:i/>
+                </xsl:when>
+                <xsl:when  test=". = ( 'underline' )">
+                  <w:u w:val="single"/>
+                </xsl:when>
+                <xsl:when  test=". = ( 'smallcaps' )">
+                  <w:smallCaps  w:val="true"/>
+                </xsl:when>
+                <xsl:when  test=". = ( 'smallcapsstrong' )">
+                  <w:smallCaps  w:val="true"/>
+                  <w:b/>
+                </xsl:when>
+                <xsl:when  test=". = ( 'italicsmallcaps' )">
+                  <w:smallCaps  w:val="true"/>
+                  <w:i/>
+                </xsl:when>
+                <xsl:when  test=". eq 'br'" />
+                <xsl:when  test=". eq 'pagebreakbefore'" />
+                <xsl:otherwise>
+                  <w:rStyle hub:val="{$role}"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:for-each>
+            <xsl:if  test="not(@role)">
+              <xsl:message  select="concat( 'Warning: missing role attribute for element ', name(), ' - falling back to &quot;italic&quot;')"/>
+              <w:i/>
+            </xsl:if>
           </xsl:with-param>
         </xsl:call-template>
       </xsl:with-param>
     </xsl:apply-templates>
   </xsl:template>
-  
 
   <xsl:template  match="subscript | superscript"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
