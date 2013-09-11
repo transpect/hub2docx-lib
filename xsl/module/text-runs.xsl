@@ -24,6 +24,7 @@
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
     xmlns:dbk		= "http://docbook.org/ns/docbook"
+    xmlns:css           = "http://www.w3.org/1996/css"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
@@ -34,7 +35,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub dbk xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub dbk xlink o w m wp r css"
 >
 
 
@@ -175,41 +176,24 @@
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
           <xsl:with-param  name="new_rPrContent">
             <!-- §§ the combination of nested font properties may not suit the rendering expactions defined by the DocBook standard -->
-            <xsl:for-each select="distinct-values(tokenize(lower-case(@role), '&#x20;'))">
-              <xsl:choose>
-                <xsl:when  test=". = ( 'strong', 'bold' )">
-                  <w:b/>
-                </xsl:when>
-                <xsl:when  test=". = ( 'em', 'it', 'italic' )">
-                  <w:i/>
-                </xsl:when>
-                <xsl:when  test=". = ( 'italicstrong' , 'bolditalic' )">
-                  <w:b/>
-                  <w:i/>
-                </xsl:when>
-                <xsl:when  test=". = ( 'underline' )">
-                  <w:u w:val="single"/>
-                </xsl:when>
-                <xsl:when  test=". = ( 'smallcaps' )">
-                  <w:smallCaps  w:val="true"/>
-                </xsl:when>
-                <xsl:when  test=". = ( 'smallcapsstrong' )">
-                  <w:smallCaps  w:val="true"/>
-                  <w:b/>
-                </xsl:when>
-                <xsl:when  test=". = ( 'italicsmallcaps' )">
-                  <w:smallCaps  w:val="true"/>
-                  <w:i/>
-                </xsl:when>
-                <xsl:when  test=". eq 'br'" />
-                <xsl:when  test=". eq 'pagebreakbefore'" />
-                <xsl:otherwise>
-                  <w:rStyle hub:val="{$role}"/>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:for-each>
+
+            <xsl:choose>
+              <xsl:when test="/hub/info/styles/inlinestyles/style[@role eq $role]/@css:* or @css:*">
+                <hub:styles>
+                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(/hub/info/styles/inlinestyles/style[@role eq $role]/@css:*)"/>
+                </hub:styles>
+                <hub:deviations>
+                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(@css:*)"/>
+                </hub:deviations>
+                <w:rStyle hub:val="{$role}"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:sequence select="letex:resolve-text-props-by-role-name($role)"/>
+              </xsl:otherwise>
+            </xsl:choose>
+
             <xsl:if  test="not(@role)">
-              <xsl:message  select="concat( 'Warning: missing role attribute for element ', name(), ' - falling back to &quot;italic&quot;')"/>
+              <xsl:message  select="concat( 'Warning: missing role attribute for element ', name(), ' - falling back to &quot;italic&quot;' )"/>
               <w:i/>
             </xsl:if>
           </xsl:with-param>
@@ -220,7 +204,7 @@
 
   <xsl:template  match="subscript | superscript"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
-    <xsl:apply-templates  select="node()"  mode="#current" >
+    <xsl:apply-templates  select="node()"  mode="#current">
       <xsl:with-param  name="rPrContent"  tunnel="yes">
         <xsl:call-template  name="mergeRunProperties">
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
@@ -235,6 +219,145 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:apply-templates>
+  </xsl:template>
+
+  <xsl:function name="letex:resolve-text-props-by-css-attribs" as="element()*">
+    <xsl:param name="cssattribs" as="attribute()*"/>
+    <xsl:for-each select="$cssattribs">
+      <xsl:choose>
+        <xsl:when test="local-name() eq 'font-style' and . = ('italic', 'oblique')">
+          <w:i/>
+        </xsl:when>
+        <xsl:when test="local-name() eq 'font-weight' and . = ('bold', '450', '500')">
+          <w:b/>
+        </xsl:when>
+        <xsl:when test="local-name() eq 'font-variant' and . = 'small-caps'">
+          <w:smallCaps w:val="true"/>
+        </xsl:when>
+        <xsl:when test="local-name() eq 'color'">
+          <w:color w:val="{letex:retrieve-color-attribute-val(.)}"/>
+        </xsl:when>
+        <xsl:when test="local-name() eq 'text-decoration-line' and . eq 'underline'">
+          <w:u w:val="single">
+            <xsl:if test="$cssattribs[local-name() eq 'text-decoration-color']">
+              <xsl:attribute name="w:color" select="letex:retrieve-color-attribute-val($cssattribs[local-name() eq 'text-decoration-color'])"/>
+            </xsl:if>
+          </w:u>
+        </xsl:when>
+        <xsl:when test="local-name() eq 'text-decoration-line' and . eq 'line-through'">
+          <w:strike w:val="on" />
+        </xsl:when>
+        <xsl:when test="local-name() eq 'background-color'">
+          <w:shd w:fill="{letex:retrieve-color-attribute-val(.)}" w:val="clear"/>
+        </xsl:when>
+        <!-- ignored css attributes (already handled above) -->
+        <xsl:when test="matches(local-name(.), '^(border|text-decoration-([^l]))')" />
+        <xsl:otherwise>
+          <xsl:message select="'Text run: unimplemented css attribute', local-name(.), 'with value', xs:string(.)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each>
+
+    <!-- border properties -->
+    <xsl:if test="$cssattribs
+                    [matches(local-name(), '^border.*width$')]
+                    [not(matches(., '^0+[^0]*$'))]">
+        <xsl:if test="$cssattribs[matches(local-name(), 'border.(top|right|bottom|left).+$')]">
+          <xsl:message select="'Border direction attribute: not implemented yet.'"/>
+        </xsl:if>
+        <xsl:variable name="borderstyle" as="xs:string">
+          <xsl:choose>
+            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'solid']">
+              <xsl:sequence select="'single'"/>
+            </xsl:when>
+            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'dotted']">
+              <xsl:sequence select="'dotted'"/>
+            </xsl:when>
+            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'dashed']">
+              <xsl:sequence select="'dashed'"/>
+            </xsl:when>
+            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'double']">
+              <xsl:sequence select="'double'"/>
+            </xsl:when>
+            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. = ('none', 'hidden')]">
+              <xsl:sequence select="'none'"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:sequence select="'single'"/>
+              <xsl:message select="'Border style: unimplemented value', xs:string($cssattribs[local-name() eq 'border-style']), ' - falling back to solid.'"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <xsl:variable name="borderwidth" as="xs:string">
+          <xsl:sequence select="if($cssattribs[local-name() eq 'border-width'][matches(., 'pt$')]) 
+                                then xs:integer(replace($cssattribs[local-name() eq 'border-width'], '\s*pt$', '')) * 12 
+                                else '12'"/>
+        </xsl:variable>
+        <xsl:variable name="bordercolor" as="xs:string">
+          <xsl:choose>
+            <xsl:when test="$cssattribs[local-name() eq 'border-color']">
+              <xsl:sequence select="letex:retrieve-color-attribute-val($cssattribs[local-name() eq 'border-color'])"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:sequence select="'auto'"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <w:bdr w:val="{$borderstyle}" w:sz="12" w:space="0" w:color="{$bordercolor}"/>
+    </xsl:if>
+  </xsl:function>
+
+  <xsl:function name="letex:resolve-text-props-by-role-name" as="element()*">
+    <xsl:param name="role" as="xs:string"/>
+    <xsl:for-each select="distinct-values(tokenize(lower-case($role), '&#x20;'))">
+      <xsl:choose>
+        <xsl:when  test=". = ( 'strong', 'bold' )">
+          <w:b/>
+        </xsl:when>
+        <xsl:when  test=". = ( 'em', 'it', 'italic' )">
+          <w:i/>
+        </xsl:when>
+        <xsl:when  test=". = ( 'italicstrong' , 'bolditalic' )">
+          <w:b/>
+          <w:i/>
+        </xsl:when>
+        <xsl:when  test=". = ( 'underline' )">
+          <w:u w:val="single"/>
+        </xsl:when>
+        <xsl:when  test=". = ( 'smallcaps' )">
+          <w:smallCaps  w:val="true"/>
+        </xsl:when>
+        <xsl:when  test=". = ( 'smallcapsstrong' )">
+          <w:smallCaps  w:val="true"/>
+          <w:b/>
+        </xsl:when>
+        <xsl:when  test=". = ( 'italicsmallcaps' )">
+          <w:smallCaps  w:val="true"/>
+          <w:i/>
+        </xsl:when>
+        <xsl:when test=". = 'antsblack'">
+          <w:effect w:val="antsBlack"/><!-- builtin 'Black Dashed Line Animation' -->
+        </xsl:when>
+        <xsl:when test=". = 'antsred'">
+          <w:effect w:val="antsRed"/><!-- builtin 'Marching Red Ants' -->
+        </xsl:when>
+        <xsl:when test=". = 'blinkbackground'">
+          <w:effect w:val="blinkBackground"/><!-- builtin 'Blinking Background Animation' -->
+        </xsl:when>
+        <xsl:when test=". = 'noeffect'">
+          <w:effect w:val="none"/>
+        </xsl:when>
+        <xsl:when  test=". eq 'br'" />
+        <xsl:when  test=". eq 'pagebreakbefore'" />
+        <xsl:otherwise>
+          <w:rStyle hub:val="{$role}"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:for-each>
+  </xsl:function>
+
+  <xsl:template  match="@css:*"  mode="hub:default">
+    <xsl:copy />
   </xsl:template>
 
   <xsl:template  match="dbk:tabs"  mode="hub:default" />
