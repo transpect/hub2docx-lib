@@ -202,14 +202,32 @@
     <xsl:choose>
       <xsl:when test="@hub:val = collection()//w:styles/w:style[@w:type eq 'character']/@w:styleId">
         <w:rStyle w:val="{@hub:val}"/>
+        <!-- do we have to check for already given properties in existingstyle? -->
+        <xsl:apply-templates select="../hub:deviations/node()" mode="#current"/>
+      </xsl:when>
+      <xsl:when test="../hub:deviations[node()] or ../hub:styles[node()]">
+        <xsl:variable name="deviations" as="element()*"
+          select="../hub:deviations/node()"/>
+        <xsl:apply-templates mode="#current"
+          select="../hub:styles/node()[
+                    not(
+                      name() = (
+                        for $i 
+                        in $deviations
+                        return name($i)
+                      )
+                    )
+                  ], $deviations" />
       </xsl:when>
       <xsl:otherwise>
-        <xsl:message  select="concat( '&#xa;&#x9;Warning: unexpected role attribute value &quot;', @role, '&quot; for element ', name(), ' - falling back to &quot;italic&quot;')"/>
+        <xsl:message  select="concat( '&#xa;&#x9;Warning: unexpected role attribute value &quot;', @role, '&quot; for element ', name(), ' - falling back to &quot;italic&quot;, text:', substring(string-join(ancestor::w:r[1]//w:t/text(), ''), 10) )"/>
         <w:i/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
+  <xsl:template match="//w:root_converted//w:rPr/hub:deviations" mode="hub:merge" />
+  <xsl:template match="//w:root_converted//w:rPr/hub:styles" mode="hub:merge" />
 
   <!-- catch all -->
 
