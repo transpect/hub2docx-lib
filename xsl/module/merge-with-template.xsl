@@ -229,6 +229,23 @@
   <xsl:template match="//w:root_converted//w:rPr/hub:deviations" mode="hub:merge" />
   <xsl:template match="//w:root_converted//w:rPr/hub:styles" mode="hub:merge" />
 
+
+  <!-- image changes/additions -->
+
+  <xsl:template match="@hub:fileref" mode="hub:merge">
+    <xsl:variable name="rel-element" as="element(rel:Relationship)?"
+      select="collection()/w:root/w:docRels//rel:Relationships/rel:Relationship[@Target eq current()]"/>
+    <xsl:choose>
+      <xsl:when test="$rel-element">
+        <xsl:attribute name="r:id" select="$rel-element/@Id"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message select="'Warning: Relationship for image', xs:string(.), 'could not be found in template. Image can not be displayed!'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
   <!-- catch all -->
 
   <xsl:template 
