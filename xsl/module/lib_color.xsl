@@ -66,4 +66,19 @@
     <letex:color name="red"     light="#e9bca6"  medium="#ce898a"  dark="#a0191e" />
   </letex:colors>
 
+  <xsl:function name="letex:retrieve-color-attribute-val" as="xs:string">
+    <xsl:param name="css-color-attrib" as="attribute()?"/>
+    <xsl:variable name="hex-code" as="xs:string"
+      select="replace(letex:convert-css-color-attr($css-color-attrib, 'hex'), '^#', '')"/>
+    <xsl:choose>
+      <xsl:when test="matches($hex-code, '^[0-9a-fA-F]{6}$')">
+        <xsl:sequence select="$hex-code"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message select="'Input color pattern', xs:string($css-color-attrib), 'not convertible. Implement me in colors/colors.xsl! Falling back to &quot;auto&quot; (may be invalid).'"/>
+        <xsl:sequence select="'auto'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+
 </xsl:stylesheet>
