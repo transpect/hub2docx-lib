@@ -64,7 +64,7 @@
   <xsl:template match="inlinemediaobject | para/mediaobject" mode="hub:default">
     <xsl:choose>
       <xsl:when test="count(.//imagedata) eq 1 and
-                      .//imagedata/@remap eq 'template'">
+                      matches(.//imagedata/@fileref, '^container[:]')">
         <xsl:variable name="pictstyle" as="xs:string">
           <xsl:choose>
             <xsl:when test="@css:width[matches(., 'pt$')] and 
@@ -79,7 +79,7 @@
         <w:r>
           <w:pict>
             <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{$pictstyle}">
-              <v:imagedata hub:fileref="{.//@fileref}" o:title=""/>
+              <v:imagedata hub:fileref="{replace(.//@fileref, '^container[:]', '')}" o:title=""/>
             </v:shape>
           </w:pict>
         </w:r>
