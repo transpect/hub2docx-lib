@@ -169,7 +169,7 @@
        § If phrase is used otherwise in the future, the assumed analogy to emphasis does not stand further. -->
   <xsl:template  match="emphasis | phrase"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
-    <xsl:variable name="role" select="@role" as="attribute(role)"/>
+    <xsl:variable name="role" select="@role" as="attribute(role)?"/>
     <xsl:apply-templates  select="node()"  mode="#current" >
       <xsl:with-param  name="rPrContent"  tunnel="yes">
         <xsl:call-template  name="mergeRunProperties">
@@ -192,7 +192,7 @@
               </xsl:otherwise>
             </xsl:choose>
 
-            <xsl:if  test="not(@role)">
+            <xsl:if  test="not(@role) and self::emphasis">
               <xsl:message  select="concat( 'Warning: missing role attribute for element ', name(), ' - falling back to &quot;italic&quot;' )"/>
               <w:i/>
             </xsl:if>

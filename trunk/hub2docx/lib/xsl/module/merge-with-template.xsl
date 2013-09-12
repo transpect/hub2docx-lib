@@ -220,8 +220,7 @@
                   ], $deviations" />
       </xsl:when>
       <xsl:otherwise>
-        <xsl:message  select="concat( '&#xa;&#x9;Warning: unexpected role attribute value &quot;', @role, '&quot; for element ', name(), ' - falling back to &quot;italic&quot;, text:', substring(string-join(ancestor::w:r[1]//w:t/text(), ''), 10) )"/>
-        <w:i/>
+<!--        <xsl:message  select="concat( '&#xa;&#x9;Warning: unexpected role attribute value &quot;', @role, '&quot; for element ', name(), text: ', substring(string-join(ancestor::w:r[1]//w:t/text(), ''), 10) )"/>-->
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
