@@ -56,7 +56,7 @@
 
   <!-- The value numId/@val identifies a list unambiguously.
        This function returns an unambiguous numId/@val for the list-node given as argument, which is not already in use in the template numbering.xml document. -->
-  <xsl:function  name="letex:getNumId"  saxon:memo-function="yes">
+  <xsl:function  name="letex:getNumId">
     <xsl:param  name="generatedIdOfList"  as="xs:string"/>
     <xsl:choose>
       <xsl:when  test="$generatedIdOfAllLists//letex:list[ ./letex:id eq $generatedIdOfList ]">
@@ -70,7 +70,7 @@
     </xsl:choose>
   </xsl:function>
 
-  <xsl:function  name="letex:getAbstractNumId"  saxon:memo-function="yes" as="xs:integer">
+  <xsl:function  name="letex:getAbstractNumId" as="xs:integer">
     <xsl:param  name="list"  as="node()"/>
     <!-- §§§ This assignment is source data specific and has to be adapted according to the list types occuring.
              Please note that is very easy to adapt the style-information related to this abstractNumIds by running Microbugs Office 2007 Word. -->
