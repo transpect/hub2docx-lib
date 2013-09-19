@@ -40,14 +40,21 @@
 
   <xsl:template  match="table | informaltable"  mode="hub:default">
     <xsl:apply-templates  select="self::informaltable/@xml:id | caption | info"  mode="#current" />
+    <xsl:variable name="tblPrContent" as="element(*)*">
+      <xsl:apply-templates select="@frame" mode="tblPr"/>
+    </xsl:variable>
     <xsl:choose>
       <xsl:when test="tgroup">
         <xsl:for-each select="tgroup">
-          <xsl:call-template name="create-table"/>
+          <xsl:call-template name="create-table">
+            <xsl:with-param name="tblPrContent" select="$tblPrContent" tunnel="yes"/>
+          </xsl:call-template>
         </xsl:for-each>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name="create-table"/>
+        <xsl:call-template name="create-table">
+          <xsl:with-param name="tblPrContent" select="$tblPrContent" tunnel="yes"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
     <w:p/>
@@ -165,7 +172,7 @@
     <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
     <w:tc>
       <xsl:variable  name="tcPr">
-        <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class"  mode="tcPr" />
+        <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1]"  mode="tcPr" />
         <xsl:if test="self::th or ../../self::thead">
           <w:shd w:val="clear" w:color="auto" 
             w:fill="{replace( letex:current-color(., 'grey', if(../../self::thead) then 'medium' else 'light'), '#', '' )}"/>
@@ -217,8 +224,33 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template  match="@*"  mode="trPr tcPr"  priority="-4" />
+  <xsl:template match="@colsep | @rowsep" mode="tcPr">
+    <w:tcBorders>
+      <xsl:for-each select="parent::*/@colsep | parent::*/@rowsep">
+        <xsl:element name="w:{if (name(.)='colsep') then 'right' else 'bottom'}">
+          <xsl:attribute name="w:val" select="if (.='0') then 'none' else 'single'"/>
+        </xsl:element>
+      </xsl:for-each>
+    </w:tcBorders>
+  </xsl:template>
 
+  <xsl:template match="@frame" mode="tblPr">
+    <xsl:variable name="frame" as="xs:string *">
+      <xsl:value-of select="if (.=('all','top','topbot','above','hsides','box','border')) then 'top:single' else 'top:none'"/>
+      <xsl:value-of select="if (.=('all','bottom','topbot','below','hsides','box','border')) then 'bottom:single' else 'bottom:none'"/>
+      <xsl:value-of select="if (.=('all','sides','lhs','vsides','box','border')) then 'left:single' else 'left:none'"/>
+      <xsl:value-of select="if (.=('all','sides','rhs','vsides','box','border')) then 'right:single' else 'right:none'"/>
+    </xsl:variable>
+    <w:tblBorders>
+      <xsl:for-each select="$frame">
+        <xsl:element name="w:{tokenize(.,':')[1]}">
+          <xsl:attribute name="w:val" select="tokenize(.,':')[last()]" />
+        </xsl:element>
+      </xsl:for-each>
+    </w:tblBorders>
+  </xsl:template>
+
+  <xsl:template  match="@*"  mode="trPr tcPr tblPr"  priority="-4" />
 
   <xsl:template  match="caption[ parent::*/local-name() = ( 'table' , 'informaltable') ]"  mode="hub:default">
       <xsl:apply-templates  mode="#current"/>
