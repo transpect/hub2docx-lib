@@ -180,10 +180,10 @@
             <xsl:choose>
               <xsl:when test="/hub/info/styles/inlinestyles/style[@role eq $role]/@css:* or @css:*">
                 <hub:styles>
-                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(/hub/info/styles/inlinestyles/style[@role eq $role]/@css:*)"/>
+                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(/hub/info/styles/inlinestyles/style[@role eq $role]/@css:*,())"/>
                 </hub:styles>
                 <hub:deviations>
-                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(@css:*)"/>
+                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(/hub/info/styles/inlinestyles/style[@role eq $role]/@css:*,@css:*)"/>
                 </hub:deviations>
                 <w:rStyle hub:val="{$role}"/>
               </xsl:when>
@@ -222,7 +222,9 @@
   </xsl:template>
 
   <xsl:function name="letex:resolve-text-props-by-css-attribs" as="element()*">
-    <xsl:param name="cssattribs" as="attribute()*"/>
+    <xsl:param name="css-style-attribs" as="attribute()*"/>
+    <xsl:param name="css-deviation-attribs" as="attribute()*"/>
+    <xsl:variable name="cssattribs" as="attribute()*" select="$css-deviation-attribs, $css-style-attribs[not(name() = (for $i in $css-deviation-attribs return name($i)))]"/>
     <xsl:for-each select="$cssattribs">
       <xsl:choose>
         <xsl:when test="local-name() eq 'font-style' and . = ('italic', 'oblique')">
@@ -257,53 +259,50 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:for-each>
-
     <!-- border properties -->
-    <xsl:if test="$cssattribs
-                    [matches(local-name(), '^border.*width$')]
-                    [not(matches(., '^0+[^0]*$'))]">
-        <xsl:if test="$cssattribs[matches(local-name(), 'border.(top|right|bottom|left).+$')]">
-          <xsl:message select="'Border direction attribute: not implemented yet.'"/>
-        </xsl:if>
-        <xsl:variable name="borderstyle" as="xs:string">
-          <xsl:choose>
-            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'solid']">
-              <xsl:sequence select="'single'"/>
-            </xsl:when>
-            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'dotted']">
-              <xsl:sequence select="'dotted'"/>
-            </xsl:when>
-            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'dashed']">
-              <xsl:sequence select="'dashed'"/>
-            </xsl:when>
-            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'double']">
-              <xsl:sequence select="'double'"/>
-            </xsl:when>
-            <xsl:when test="$cssattribs[local-name() eq 'border-style'][. = ('none', 'hidden')]">
-              <xsl:sequence select="'none'"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:sequence select="'single'"/>
-              <xsl:message select="'Border style: unimplemented value', xs:string($cssattribs[local-name() eq 'border-style']), ' - falling back to solid.'"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:variable name="borderwidth" as="xs:string">
-          <xsl:sequence select="if($cssattribs[local-name() eq 'border-width'][matches(., 'pt$')]) 
-                                then xs:integer(replace($cssattribs[local-name() eq 'border-width'], '\s*pt$', '')) * 12 
-                                else '12'"/>
-        </xsl:variable>
-        <xsl:variable name="bordercolor" as="xs:string">
-          <xsl:choose>
-            <xsl:when test="$cssattribs[local-name() eq 'border-color']">
-              <xsl:sequence select="letex:retrieve-color-attribute-val($cssattribs[local-name() eq 'border-color'])"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:sequence select="'auto'"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <w:bdr w:val="{$borderstyle}" w:sz="12" w:space="0" w:color="{$bordercolor}"/>
+    <xsl:if test="$cssattribs[matches(local-name(), '^border.*(width|style|color)$')][not(matches(., '^0+[^0]*$'))]">
+      <xsl:if test="$cssattribs[matches(local-name(), 'border.(top|right|bottom|left).+$')]">
+        <xsl:message select="'Border direction attribute: not implemented yet.'"/>
+      </xsl:if>
+      <xsl:variable name="borderstyle" as="xs:string?">
+        <xsl:choose>
+          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'solid']">
+            <xsl:sequence select="'single'"/>
+          </xsl:when>
+          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'dotted']">
+            <xsl:sequence select="'dotted'"/>
+          </xsl:when>
+          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'dashed']">
+            <xsl:sequence select="'dashed'"/>
+          </xsl:when>
+          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'double']">
+            <xsl:sequence select="'double'"/>
+          </xsl:when>
+          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. = ('none', 'hidden')]">
+            <xsl:sequence select="'none'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:sequence select="'single'"/>
+            <xsl:message select="'Border style: unimplemented value', xs:string($cssattribs[local-name() eq 'border-style']), ' - falling back to solid.'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:variable name="borderwidth" as="xs:string?">
+        <xsl:sequence select="if ($cssattribs[local-name() eq 'border-width'][matches(., 'pt$')]) 
+                              then xs:string(xs:integer(replace($cssattribs[local-name() eq 'border-width'], '\s*pt$', '')) * 12) 
+                              else '12'"/>
+      </xsl:variable>
+      <xsl:variable name="bordercolor" as="xs:string?">
+        <xsl:choose>
+          <xsl:when test="$cssattribs[local-name() eq 'border-color'][not(.='')]">
+            <xsl:sequence select="letex:retrieve-color-attribute-val($cssattribs[local-name() eq 'border-color'])"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:sequence select="'auto'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <w:bdr w:val="{$borderstyle}" w:sz="{$borderwidth}" w:space="0" w:color="{$bordercolor}"/>
     </xsl:if>
   </xsl:function>
 

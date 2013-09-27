@@ -10,7 +10,8 @@
   xmlns:hub = "http://www.le-tex.de/namespace/hub"
   xmlns:hub2docx = "http://www.le-tex.de/namespace/hub2docx"
   xmlns:dbk = "http://docbook.org/ns/docbook"
-
+  xmlns:v             = "urn:schemas-microsoft-com:vml"
+  
   xpath-default-namespace = "http://docbook.org/ns/docbook"
   exclude-result-prefixes="xs docx2hub hub"
   version="2.0">
@@ -148,9 +149,9 @@
 
   <xsl:template 
     mode="hub:merge"
-    match="//w:root_converted//w:hyperlink/@r:id">
+    match="//w:root_converted//w:hyperlink/@r:id | //w:root_converted//v:imagedata/@r:id">
     <xsl:param name="relationIdOffset" tunnel="yes" />
-    <xsl:attribute name="r:id" select="$relationIdOffset + . "/>
+    <xsl:attribute name="r:id" select="concat('rId', $relationIdOffset + .)"/>
   </xsl:template>
 
   <xsl:template 
@@ -162,7 +163,7 @@
       <xsl:apply-templates select="collection()/w:root_converted/w:docRels/rel:Relationships/*" mode="#current"/>
       <xsl:if test="not(collection()/w:root/w:comments)">
         <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
-          Id="rId{$relationIdOffset + count(//w:root_converted//rel:Relationship) + 1}" 
+          Id="rId0" 
           Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" 
           Target="comments.xml" />
       </xsl:if>
@@ -234,9 +235,15 @@
   <xsl:template match="@hub:fileref" mode="hub:merge">
     <xsl:variable name="rel-element" as="element(rel:Relationship)?"
       select="collection()/w:root/w:docRels//rel:Relationships/rel:Relationship[@Target eq current()]"/>
+    <xsl:variable name="rel-converted-element" as="element(rel:Relationship)?"
+      select="collection()/w:root_converted/w:docRels//rel:Relationships/rel:Relationship[@Target eq current()][1]"/>
+    <xsl:variable name="relationIdOffset" select="max( for $rId in ( collection()/w:root/w:docRels//rel:Relationships/rel:Relationship/@Id ) return number( substring( $rId, 4)))"/>
     <xsl:choose>
       <xsl:when test="$rel-element">
         <xsl:attribute name="r:id" select="$rel-element/@Id"/>
+      </xsl:when>
+      <xsl:when test="$rel-converted-element">
+        <xsl:attribute name="r:id" select="concat('rId', $relationIdOffset + $rel-converted-element/@Id )"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message select="'Warning: Relationship for image', xs:string(.), 'could not be found in template. Image can not be displayed!'"/>

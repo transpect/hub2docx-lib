@@ -28,10 +28,11 @@
     xmlns:rel		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xmlns:r             = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
     xmlns:v             = "urn:schemas-microsoft-com:vml"
+    xmlns:w10="urn:schemas-microsoft-com:office:word"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m rel wp r"
 >
 
 
@@ -45,14 +46,41 @@
 
   <xsl:template match="mediaobject[not(parent::para)]" mode="hub:default">
     <w:p>
-      <w:pPr>
-        <w:pStyle w:val="ObjectPlaceholder"/>
-      </w:pPr>
-      <w:r>
-        <w:t>
-          MEDIA OBJECT: <xsl:value-of select=".//*/@fileref" />
-        </w:t>
-      </w:r>
+      <xsl:variable name="pictstyle" as="xs:string*">
+        <xsl:if test="@annotation='anchor'">
+          <xsl:value-of select="'position:absolute;z-index:-1'"/>
+        </xsl:if>
+        <xsl:for-each select="@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
+          <xsl:value-of select="concat(local-name(.),':',.)"/>
+        </xsl:for-each>
+      </xsl:variable>
+      <xsl:choose>
+        <xsl:when test="count(.//imagedata) eq 1 and
+          matches(.//imagedata/@fileref, '^container[:]')">
+          <w:r>
+            <w:pict>
+              <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{string-join($pictstyle,';')}">
+                <v:imagedata hub:fileref="{replace(.//@fileref, '^container[:]', '')}" o:title=""/>
+                <xsl:if test="@annotation='anchor'">
+                  <w10:anchorlock/>
+                </xsl:if>
+              </v:shape>
+            </w:pict>
+          </w:r>
+        </xsl:when>
+        <xsl:otherwise>
+          <w:r>
+            <w:pict>
+              <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{string-join($pictstyle,';')}">
+                <v:imagedata hub:fileref="{.//@fileref}" o:title="" r:id="{index-of($rels, generate-id(.))}"/>
+                <xsl:if test="@annotation='anchor'">
+                  <w10:anchorlock/>
+                </xsl:if>
+              </v:shape>
+            </w:pict>
+          </w:r>
+        </xsl:otherwise>
+      </xsl:choose>
     </w:p>
   </xsl:template>
 
@@ -62,35 +90,91 @@
             return generate-id($f)" />
 
   <xsl:template match="inlinemediaobject | para/mediaobject" mode="hub:default">
+    <xsl:variable name="pictstyle" as="xs:string*">
+      <xsl:if test="@annotation='anchor'">
+        <xsl:value-of select="'position:absolute;z-index:-1'"/>
+      </xsl:if>
+      <xsl:for-each select="@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
+        <xsl:value-of select="concat(local-name(.),':',.)"/>
+      </xsl:for-each>
+    </xsl:variable>
     <xsl:choose>
       <xsl:when test="count(.//imagedata) eq 1 and
                       matches(.//imagedata/@fileref, '^container[:]')">
-        <xsl:variable name="pictstyle" as="xs:string">
-          <xsl:choose>
-            <xsl:when test="@css:width[matches(., 'pt$')] and 
-                            @css:height[matches(., 'pt$')]">
-              <xsl:sequence select="concat('width:', @css:width, ';height:', @css:height)"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:sequence select="'width:12pt;height:12pt'"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
         <w:r>
           <w:pict>
-            <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{$pictstyle}">
-              <v:imagedata hub:fileref="{replace(.//@fileref, '^container[:]', '')}" o:title=""/>
+            <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{string-join($pictstyle,';')}">
+              <v:imagedata hub:fileref="{replace(.//@fileref, '^container[:]', '')}" id="img{index-of($MediaIds, generate-id(.))}" o:title=""/>
+              <xsl:if test="@annotation='anchor'">
+                <w10:anchorlock/>
+              </xsl:if>
             </v:shape>
           </w:pict>
         </w:r>
       </xsl:when>
       <xsl:otherwise>
         <w:r>
-          <w:t> INLINE MEDIA OBJECT: <xsl:value-of select=".//*/@fileref"/>
-          </w:t>
+          <w:pict>
+            <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{string-join($pictstyle,';')}">
+              <v:imagedata hub:fileref="{.//@fileref}" o:title="" r:id="{index-of($rels, generate-id(.))}"/>
+              <xsl:if test="@annotation='anchor'">
+                <w10:anchorlock/>
+              </xsl:if>
+            </v:shape>
+          </w:pict>
         </w:r>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="sidebar[parent::para]" mode="hub:default">
+    <xsl:variable name="sidebar-style" as="xs:string*">
+      <xsl:value-of select="'position:absolute;z-index:1'"/>
+      <xsl:for-each select="@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
+        <xsl:value-of select="concat(local-name(.),':',.)"/>
+      </xsl:for-each>
+    </xsl:variable>
+    <w:r>
+      <w:pict>
+        <v:shape coordsize="21600,21600" path="m,l,21600r21600,l21600,xe" o:spt="100">
+          <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
+          <v:textbox>
+            <w:txbxContent>
+              <xsl:apply-templates mode="#current"/>
+            </w:txbxContent>
+          </v:textbox>
+        </v:shape>
+      </w:pict>
+    </w:r>
+  </xsl:template>
+  
+  <xsl:template match="sidebar[not(parent::para)]" mode="hub:default">
+    <xsl:variable name="sidebar-style" as="xs:string*">
+      <xsl:value-of select="'position:absolute;z-index:1'"/>
+      <xsl:for-each select="@css:margin-left|@css:margin-top">
+        <xsl:value-of select="concat(local-name(.),':',.)"/>
+      </xsl:for-each>
+    </xsl:variable>
+    <w:p>
+      <xsl:if test="exists(para[@role]) and (every $i in (para/@role) satisfies $i eq (para/@role)[1])">
+        <w:pPr>
+          <w:pStyle w:val="{(para/@role)[1]}"/>
+        </w:pPr>
+      </xsl:if>
+      <w:r>
+        <w:pict>
+          <v:shape coordsize="21600,21600" o:spt="202"
+            path="m,l,21600r21600,l21600,xe">
+            <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
+            <v:textbox>
+              <w:txbxContent>
+                <xsl:apply-templates mode="#current"/>
+              </w:txbxContent>
+            </v:textbox>
+          </v:shape>
+        </w:pict>
+      </w:r>
+    </w:p>
   </xsl:template>
   
   <xsl:template match="figure/title" mode="hub:default">
@@ -147,5 +231,12 @@
     </w:p>
   </xsl:template>
 
+  <!--  mode = "documentRels"-->
+  
+  <xsl:template  match="inlinemediaobject[not(count(.//imagedata) eq 1 and matches(.//imagedata/@fileref, '^container[:]'))] | 
+                        mediaobject[not(count(.//imagedata) eq 1 and matches(.//imagedata/@fileref, '^container[:]'))]"  
+                 mode="documentRels">
+    <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  Target="{.//@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>
+  </xsl:template>
 
 </xsl:stylesheet>

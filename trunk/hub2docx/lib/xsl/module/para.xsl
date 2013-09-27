@@ -19,6 +19,7 @@
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
+    xmlns:css = "http://www.w3.org/1996/css"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
@@ -41,7 +42,7 @@
 
   <xsl:template  match="para[ not( parent::listitem) ]"  mode="hub:default">
     <xsl:variable name="pPr">
-      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore']"  mode="props" />
+      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom"  mode="props" />
     </xsl:variable>
     <w:p>
       <xsl:if  test="$pPr">
@@ -100,6 +101,10 @@
 
   <xsl:template match="phrase[@role eq 'pageBreakBefore']" mode="props">
     <w:pageBreakBefore/>
+  </xsl:template>
+  
+  <xsl:template match="@css:margin-bottom" mode="props">
+    <w:spacing w:after="{.}"/>
   </xsl:template>
 
 </xsl:stylesheet>
