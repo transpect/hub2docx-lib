@@ -54,11 +54,19 @@
   <xsl:template match="comment()" mode="hub:default" priority="-1" />
 
   <xsl:template match="node() | @*"
-    mode="hub:default hub:default_renderFootnote documentRels hub:clean footnotes comments glossary2table patchTemplateFile extract-text numbering props trPr tcPr remove-misplaced-runs"
+    mode="hub:default hub:default_renderFootnote hub:clean footnotes comments glossary2table patchTemplateFile extract-text numbering props trPr tcPr remove-misplaced-runs"
                 priority="-1001">
     <xsl:copy>
       <xsl:apply-templates select="@* | node()" mode="#current" />
     </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="node()" mode="documentRels" priority="-1001">
+    <xsl:apply-templates  mode="#current" />
+  </xsl:template>
+  
+  <xsl:template match="@*" mode="documentRels" priority="-1001">
+    <xsl:attribute name="{name(.)}" select="."/>>
   </xsl:template>
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->

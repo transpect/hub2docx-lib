@@ -17,7 +17,8 @@
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
-
+    xmlns:css           = "http://www.w3.org/1996/css"
+    
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
@@ -275,7 +276,7 @@
 
   <xsl:template  match="link[@role eq 'uri' or (not(@role) and @xlink:href)]"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
-    <w:hyperlink  r:id="{index-of( $hyperlinks, .)}"  w:history="1">
+    <w:hyperlink  r:id="{index-of( $rels, generate-id(.))}"  w:history="1">
       <xsl:apply-templates  select="node()"  mode="#current" >
         <xsl:with-param  name="rPrContent"  tunnel="yes">
           <xsl:call-template  name="mergeRunProperties">
@@ -300,12 +301,7 @@
 			<xsl:message select="'WARNING: space in target replaced with underscore', ."/>
 		</xsl:if>
 		<xsl:variable name="Target" select="if( matches( ., ' ' ) ) then replace( ., ' ', '_' ) else ."/>
-    <rel:Relationship Id="{index-of( $hyperlinks, .)}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"  Target="{$Target}"  TargetMode="External"/>
+    <rel:Relationship Id="{index-of( $rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"  Target="{$Target}"  TargetMode="External"/>
   </xsl:template>
-
-  <xsl:template  match="node()"  mode="documentRels">
-    <xsl:apply-templates  mode="#current" />
-  </xsl:template>
-
 
 </xsl:stylesheet>

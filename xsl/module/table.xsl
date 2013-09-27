@@ -13,6 +13,7 @@
 <xsl:stylesheet version="2.0"
     xmlns:xsl		= "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
+    xmlns:css = "http://www.w3.org/1996/css"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
     xmlns:letex		= "http://www.le-tex.de/namespace"
@@ -41,7 +42,7 @@
   <xsl:template  match="table | informaltable"  mode="hub:default">
     <xsl:apply-templates  select="self::informaltable/@xml:id | caption | info"  mode="#current" />
     <xsl:variable name="tblPrContent" as="element(*)*">
-      <xsl:apply-templates select="@frame" mode="tblPr"/>
+      <xsl:apply-templates select="@frame, @css:text-align, @css:width" mode="tblPr"/>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="tgroup">
@@ -248,6 +249,14 @@
         </xsl:element>
       </xsl:for-each>
     </w:tblBorders>
+  </xsl:template>
+  
+  <xsl:template match="@css:text-align" mode="tblPr">
+    <w:jc w:val="{.}"/>
+  </xsl:template>
+
+  <xsl:template match="@css:width" mode="tblPr">
+    <w:tblW w:w="{if (matches(.,'pct$')) then replace(.,'pct$','') else if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else '0'}" w:type="{if (matches(.,'pct$')) then 'pct' else if (matches(.,'pt$')) then 'dxa' else 'auto'}"/>
   </xsl:template>
 
   <xsl:template  match="@*"  mode="trPr tcPr tblPr"  priority="-4" />

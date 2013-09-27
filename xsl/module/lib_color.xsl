@@ -64,6 +64,7 @@
     <letex:color name="green"   light="#e2f1de"  medium="#9bd4aa"  dark="#0a9739" />
     <letex:color name="orange"  light="#e1b59c"  medium="#e18d5c"  dark="#e16721" />
     <letex:color name="red"     light="#e9bca6"  medium="#ce898a"  dark="#a0191e" />
+    <letex:color name="yellow"  light="#ffff00"  medium="#ffffe0"  dark="#888800" />
   </letex:colors>
 
   <xsl:function name="letex:retrieve-color-attribute-val" as="xs:string">

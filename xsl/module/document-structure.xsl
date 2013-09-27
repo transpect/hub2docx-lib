@@ -30,6 +30,15 @@
     exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn xlink o w m wp r"
 >
 
+  <!-- ================================================================================ -->
+  <!-- VARIABLES -->
+  <!-- ================================================================================ -->
+  
+  <!-- speed up the index-of() a little bit -->
+  <xsl:variable  name="rels" select="for $f 
+    in (//*[local-name() = ('mediaobject', 'inlinemediaobject')] | //link[@role eq 'uri' or (not(@role) and @xlink:href)]) 
+    return generate-id($f)" as="xs:string *"/>
+
   <xsl:variable name="page-settings" as="element(w:sectPr)">
     <xsl:variable name="a4-portrait-width" select="11906" as="xs:integer" />
     <xsl:variable name="a4-portrait-height" select="16838" as="xs:integer" />
@@ -44,7 +53,6 @@
       <w:docGrid w:linePitch="360"/>
     </w:sectPr>
   </xsl:variable>
-
 
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
