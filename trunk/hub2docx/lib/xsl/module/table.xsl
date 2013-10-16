@@ -137,9 +137,177 @@
     </w:gridCol>
   </xsl:template>
 
-  <xsl:template  match="thead | tbody | tfoot"  mode="hub:default">
+  <!--<xsl:template  match="thead | tbody | tfoot"  mode="hub:default_DISABLED">
     <xsl:apply-templates  mode="#current"/>
+  </xsl:template>-->
+  
+  <xsl:template match="thead | tbody | tfoot" mode="hub:default">
+    <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
+    <xsl:variable name="cols" select="parent::*/@cols"/>
+    <xsl:for-each-group select="node()" group-starting-with="*[self::row or self::tr][sum(for $i in (*[self::entry or self::td or self::th]) return if (exists((@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1])) then (@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1] else 1)=$cols]">
+      <xsl:sequence select="letex:position-trs((),current-group(),$name-to-int-map)"/>
+    </xsl:for-each-group>
   </xsl:template>
+  
+  <xsl:function name="letex:position-trs" as="element(w:tr)*">
+    <xsl:param name="built-rows" as="element(w:tr)*"/>
+    <xsl:param name="cals-rows" as="element(*)*"/>
+    <xsl:param name="name-to-int-map" as="document-node(element(map))"/>
+    
+    <xsl:choose>
+      <xsl:when test="empty($cals-rows)">
+        <xsl:sequence select="$built-rows"/>
+      </xsl:when>
+      <xsl:when test="empty($built-rows)">
+        <xsl:variable name="new-built-rows" as="element(w:tr)*">
+          <w:tr>
+            <xsl:variable  name="trPr">
+              <xsl:apply-templates  select="$cals-rows[1]/@class"  mode="trPr" />
+              <xsl:if test="$cals-rows[1]/ancestor::thead">
+                <w:tblHeader/>
+              </xsl:if>
+            </xsl:variable>
+            <xsl:if test="$trPr">
+              <w:trPr>
+                <xsl:sequence  select="$trPr" />
+              </w:trPr>
+            </xsl:if>
+            <xsl:for-each select="$cals-rows[1]/*[self::entry or self::td or self::th]">
+              <xsl:variable  name="tcPr">
+                <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1], @css:*"  mode="tcPr" />
+                <xsl:if test="self::th or ../../self::thead">
+                  <w:shd w:val="clear" w:color="auto" 
+                    w:fill="{replace( letex:current-color(., 'grey', if(../../self::thead) then 'medium' else 'light'), '#', '' )}"/>
+                </xsl:if>
+              </xsl:variable>
+              <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then number(@rowspan)-1 else ''"/>
+              <w:tc>
+                <w:tcPr>
+                  <xsl:if test="not($morerows='')">
+                    <w:vMerge w:val="restart" hub:morerows="{$morerows}"/>
+                  </xsl:if>
+                  <xsl:if test="exists(@namest) or exists(@colspan)">
+                    <w:hMerge w:val="restart"/>
+                  </xsl:if>
+                  <xsl:if test="$tcPr">
+                    <xsl:sequence  select="$tcPr" />
+                  </xsl:if>
+                </w:tcPr>
+                <xsl:apply-templates mode="hub:default"/>
+              </w:tc>
+              <xsl:if test="exists(@namest) or exists(@colspan)">
+                <xsl:for-each select="1 to (xs:integer(@colspan), xs:integer(letex:cals-colspan($name-to-int-map, @namest, @nameend)))[1]-1">
+                  <w:tc>
+                    <w:tcPr>
+                      <xsl:if test="not($morerows='')">
+                        <w:vMerge w:val="restart" hub:morerows="{$morerows}"/>
+                      </xsl:if>
+                      <w:hMerge w:val="continue"/>
+                      <xsl:if test="$tcPr">
+                        <xsl:sequence  select="$tcPr" />
+                      </xsl:if>
+                      <w:p/>
+                    </w:tcPr>
+                  </w:tc>
+                </xsl:for-each>
+              </xsl:if>
+            </xsl:for-each>
+          </w:tr>
+        </xsl:variable>
+        <xsl:sequence select="letex:position-trs($new-built-rows,$cals-rows[position() gt 1],$name-to-int-map)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="new-built-rows" as="element(w:tr)*">
+          <xsl:sequence select="$built-rows"/>
+          <w:tr>
+            <xsl:variable  name="trPr">
+              <xsl:apply-templates  select="$cals-rows[1]/@class"  mode="trPr" />
+              <xsl:if test="$cals-rows[1]/ancestor::thead">
+                <w:tblHeader/>
+              </xsl:if>
+            </xsl:variable>
+            <xsl:if test="$trPr">
+              <w:trPr>
+                <xsl:sequence  select="$trPr" />
+              </w:trPr>
+            </xsl:if>
+            <xsl:sequence select="letex:position-tcs($built-rows[last()]/w:tc,$cals-rows[1]/*[self::entry or self::td or self::th],$name-to-int-map)"/>
+          </w:tr>
+        </xsl:variable>
+        <xsl:sequence select="letex:position-trs($new-built-rows,$cals-rows[position() gt 1],$name-to-int-map)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <xsl:function name="letex:position-tcs" as="element(w:tc)*">
+    <xsl:param name="built-entries" as="element(w:tc)*"/>
+    <xsl:param name="cals-entries" as="element(*)*"/>
+    <xsl:param name="name-to-int-map" as="document-node(element(map))"/>
+
+    <xsl:choose>
+      <xsl:when test="empty($cals-entries)">
+        <xsl:for-each select="$built-entries">
+          <w:tc>
+            <w:tcPr>
+              <w:vMerge w:val="continue" hub:morerows="{number(descendant::w:vMerge/@hub:morerows)-1}"/>
+              <xsl:sequence select="w:tcPr/node()[not(self::w:vMerge)]"/>
+            </w:tcPr>
+            <w:p/>
+          </w:tc>
+        </xsl:for-each>
+      </xsl:when>
+      <xsl:when test="$built-entries[1][descendant::w:vMerge[@hub:morerows and number(@hub:morerows) gt 0]]">
+        <w:tc>
+          <w:tcPr>
+            <w:vMerge w:val="continue" hub:morerows="{number($built-entries[1]/descendant::w:vMerge/@hub:morerows)-1}"/>
+            <xsl:sequence select="$built-entries[1]/w:tcPr/node()[not(self::w:vMerge)]"/>
+          </w:tcPr>
+          <w:p/>
+        </w:tc>
+        <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1],$cals-entries,$name-to-int-map)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="tcPr">
+          <xsl:apply-templates select="($cals-entries[1]/@colspan, letex:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend))[1], $cals-entries[1]/@class, ($cals-entries[1]/@rowsep, $cals-entries[1]/@colsep)[1], $cals-entries[1]/@css:*"  mode="tcPr" />
+          <xsl:if test="$cals-entries[1][self::th] or $cals-entries[1]/ancestor::thead">
+            <w:shd w:val="clear" w:color="auto" 
+              w:fill="{replace( letex:current-color($cals-entries[1], 'grey', if ($cals-entries[1]/ancestor::thead) then 'medium' else 'light'), '#', '' )}"/>
+          </xsl:if>
+        </xsl:variable>
+        <w:tc>
+          <w:tcPr>
+            <xsl:if test="exists($cals-entries[1]/@morerows) or exists($cals-entries[1]/@rowspan)">
+              <w:vMerge w:val="restart" hub:morerows="{if (exists($cals-entries[1]/@morerows)) then $cals-entries[1]/@morerows else number($cals-entries[1]/@rowspan)-1}"/>
+            </xsl:if>
+            <xsl:if test="exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan)">
+              <w:hMerge w:val="restart"/>
+            </xsl:if>
+            <xsl:if test="$tcPr">
+              <xsl:sequence  select="$tcPr" />
+            </xsl:if>
+          </w:tcPr>
+          <xsl:apply-templates select="$cals-entries[1]/node()" mode="hub:default"/>
+        </w:tc>
+        <xsl:if test="exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan)">
+          <xsl:for-each select="1 to (xs:integer($cals-entries[1]/@colspan), xs:integer(letex:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend)))[1]-1">
+            <w:tc>
+              <w:tcPr>
+                <xsl:if test="exists($cals-entries[1]/@morerows) or exists($cals-entries[1]/@rowspan)">
+                  <w:vMerge w:val="restart" hub:morerows="{if (exists($cals-entries[1]/@morerows)) then $cals-entries[1]/@morerows else number($cals-entries[1]/@rowspan)-1}"/>
+                </xsl:if>
+                <w:hMerge w:val="continue"/>
+                <xsl:if test="$tcPr">
+                  <xsl:sequence  select="$tcPr" />
+                </xsl:if>
+              </w:tcPr>
+              <w:p/>
+            </w:tc>
+          </xsl:for-each>
+        </xsl:if>
+        <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1],$cals-entries[position() gt 1],$name-to-int-map)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
 
   <xsl:template  match="tr | row"  mode="hub:default">
     <w:tr>
@@ -173,7 +341,7 @@
     <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
     <w:tc>
       <xsl:variable  name="tcPr">
-        <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1]"  mode="tcPr" />
+        <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1], @css:*"  mode="tcPr" />
         <xsl:if test="self::th or ../../self::thead">
           <w:shd w:val="clear" w:color="auto" 
             w:fill="{replace( letex:current-color(., 'grey', if(../../self::thead) then 'medium' else 'light'), '#', '' )}"/>
@@ -234,6 +402,17 @@
       </xsl:for-each>
     </w:tcBorders>
   </xsl:template>
+  
+  <xsl:template match="@css:width" mode="tcPr">
+    <xsl:element name="w:tcW">
+      <xsl:attribute name="w:w" select="if (matches(.,'pct$')) then replace(.,'pct$','') else if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else '0'"/>
+      <xsl:attribute name="w:type" select="if (matches(.,'pct$')) then 'pct' else if (matches(.,'pt$')) then 'dxa' else 'auto'"/>
+    </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="@css:vertical-align" mode="tcPr">
+    <w:vAlign w:val="{if (.='middle') then 'center' else .}"/>
+  </xsl:template>
 
   <xsl:template match="@frame" mode="tblPr">
     <xsl:variable name="frame" as="xs:string *">
@@ -256,9 +435,12 @@
   </xsl:template>
 
   <xsl:template match="@css:width" mode="tblPr">
-    <w:tblW w:w="{if (matches(.,'pct$')) then replace(.,'pct$','') else if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else '0'}" w:type="{if (matches(.,'pct$')) then 'pct' else if (matches(.,'pt$')) then 'dxa' else 'auto'}"/>
+    <xsl:element name="w:tblW">
+      <xsl:attribute name="w:w" select="if (matches(.,'pct$')) then replace(.,'pct$','') else if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else '0'"/>
+      <xsl:attribute name="w:type" select="if (matches(.,'pct$')) then 'pct' else if (matches(.,'pt$')) then 'dxa' else 'auto'"/>
+    </xsl:element>
   </xsl:template>
-
+  
   <xsl:template  match="@*"  mode="trPr tcPr tblPr"  priority="-4" />
 
   <xsl:template  match="caption[ parent::*/local-name() = ( 'table' , 'informaltable') ]"  mode="hub:default">

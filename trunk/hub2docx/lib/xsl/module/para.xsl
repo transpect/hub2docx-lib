@@ -42,7 +42,7 @@
 
   <xsl:template  match="para[ not( parent::listitem) ]"  mode="hub:default">
     <xsl:variable name="pPr">
-      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom"  mode="props" />
+      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height" mode="props" />
     </xsl:variable>
     <w:p>
       <xsl:if  test="$pPr">
@@ -104,7 +104,19 @@
   </xsl:template>
   
   <xsl:template match="@css:margin-bottom" mode="props">
-    <w:spacing w:after="{.}"/>
+    <w:spacing w:after="{if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else .}"/>
+  </xsl:template>
+  
+  <xsl:template match="@css:margin-top" mode="props">
+    <w:spacing w:before="{if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else .}"/>
+  </xsl:template>
+  
+  <xsl:template match="@css:line-height" mode="props">
+    <w:spacing w:line="{if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else .}"/>
+  </xsl:template>
+  
+  <xsl:template match="@css:text-align" mode="props">
+    <w:jc w:val="{.}"/>
   </xsl:template>
 
 </xsl:stylesheet>
