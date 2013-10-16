@@ -109,6 +109,6 @@
       </xsl:for-each>
     </xsl:copy>
   </xsl:template>
-  <xsl:template  match="@hub:default-no-match"  mode="hub:clean" />
+  <xsl:template  match="@hub:default-no-match | @hub:morerows"  mode="hub:clean" />
 
 </xsl:stylesheet>

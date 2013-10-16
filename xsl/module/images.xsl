@@ -134,11 +134,13 @@
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
     </xsl:variable>
+    <xsl:variable name="inset" as="xs:string" select="concat(if (exists(@css:padding-left)) then @css:padding-left else '0.1in',',',if (exists(@css:padding-top)) then @css:padding-top else '0.05in',',',if (exists(@css:padding-right)) then @css:padding-right else '0.1in',',',if (exists(@css:padding-bottom)) then @css:padding-bottom else '0.05in')"/>
     <w:r>
       <w:pict>
         <v:shape coordsize="21600,21600" path="m,l,21600r21600,l21600,xe" o:spt="100">
           <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
           <v:textbox>
+            <xsl:attribute name="inset" select="$inset"/>
             <w:txbxContent>
               <xsl:apply-templates mode="#current"/>
             </w:txbxContent>
@@ -155,6 +157,7 @@
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
     </xsl:variable>
+    <xsl:variable name="inset" as="xs:string" select="concat(if (exists(@css:padding-left)) then @css:padding-left else '0.1in',',',if (exists(@css:padding-top)) then @css:padding-top else '0.05in',',',if (exists(@css:padding-right)) then @css:padding-right else '0.1in',',',if (exists(@css:padding-bottom)) then @css:padding-bottom else '0.05in')"/>
     <w:p>
       <xsl:if test="exists(para[@role]) and (every $i in (para/@role) satisfies $i eq (para/@role)[1])">
         <w:pPr>
@@ -167,6 +170,7 @@
             path="m,l,21600r21600,l21600,xe">
             <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
             <v:textbox>
+              <xsl:attribute name="inset" select="$inset"/>
               <w:txbxContent>
                 <xsl:apply-templates mode="#current"/>
               </w:txbxContent>
