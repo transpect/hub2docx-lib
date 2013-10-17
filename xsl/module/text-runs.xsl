@@ -178,12 +178,30 @@
             <!-- §§ the combination of nested font properties may not suit the rendering expactions defined by the DocBook standard -->
 
             <xsl:choose>
-              <xsl:when test="/hub/info/styles/inlinestyles/style[@role eq $role]/@css:* or @css:*">
+              <xsl:when test="@css:* or
+                              /hub/info/styles/inlinestyles/style[@role eq $role]/@css:* or
+                              /hub/info/css:rules/css:rule[@layout-type eq 'inline'][@name eq $role]/@css:*">
                 <hub:styles>
-                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(/hub/info/styles/inlinestyles/style[@role eq $role]/@css:*,())"/>
+                  <!-- HUB version 1.0 -->
+                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(
+                                          /hub/info/styles/inlinestyles/style[@role eq $role]/@css:*,
+                                          ()
+                                        )"/>
+                  <!-- HUB version 1.1 -->
+                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(
+                                          /hub/info/css:rules/css:rule[@layout-type eq 'inline'][@name eq $role]/@css:*,
+                                          ()
+                                        )"/>
                 </hub:styles>
                 <hub:deviations>
-                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(/hub/info/styles/inlinestyles/style[@role eq $role]/@css:*,@css:*)"/>
+                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(
+                                          /hub/info/styles/inlinestyles/style[@role eq $role]/@css:*, 
+                                          @css:*
+                                          )"/>
+                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(
+                                          /hub/info/css:rules/css:rule[@layout-type eq 'inline'][@name eq $role]/@css:*,
+                                          @css:*
+                                        )"/>
                 </hub:deviations>
                 <w:rStyle hub:val="{$role}"/>
               </xsl:when>
