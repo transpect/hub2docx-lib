@@ -71,6 +71,9 @@
 
   <xsl:template  match="info"  mode="hub:default"/>
 
+  <!-- word header -->
+  <xsl:template  match="*[@role eq 'docx2hub:header']"  mode="hub:default" />
+
   <!-- need this for subsequent key() operations (they are in disguise sometimes!) -->
   <xsl:variable name="root" select="/" as="document-node(element(*))" />
 
