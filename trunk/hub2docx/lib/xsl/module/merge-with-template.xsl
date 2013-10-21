@@ -32,7 +32,7 @@
         <xsl:with-param name="commentIdOffset" tunnel="yes"
           select="(xs:integer(max(collection()/w:root/w:comments/w:comment/@w:id)), 0)[1]" />
         <xsl:with-param name="relationIdOffset" tunnel="yes"
-          select="max( for $rId in ( collection()/w:root/w:docRels//rel:Relationships/rel:Relationship/@Id ) return number( substring( $rId, 4)))" />
+          select="max( for $rId in ( collection()/w:root/w:docRels/rel:Relationships/rel:Relationship/@Id ) return number( substring( $rId, 4)))" />
       </xsl:apply-templates>
     </w:root>
   </xsl:template>
@@ -156,11 +156,11 @@
 
   <xsl:template 
     mode="hub:merge"
-    match="rel:Relationships[ends-with(@xml:base, 'document.xml.rels')]">
+    match="w:docRels/rel:Relationships">
     <xsl:param name="relationIdOffset" tunnel="yes" />
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
-      <xsl:apply-templates select="collection()/w:root_converted/w:docRels/rel:Relationships[ends-with(@xml:base, 'document.xml.rels')]/*" mode="#current"/>
+      <xsl:apply-templates select="collection()/w:root_converted/w:docRels/rel:Relationships/*" mode="#current"/>
       <xsl:if test="not(collection()/w:root/w:comments)">
         <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
           Id="rId0" 
@@ -248,10 +248,10 @@
 
   <xsl:template match="@hub:fileref" mode="hub:merge">
     <xsl:variable name="rel-element" as="element(rel:Relationship)?"
-      select="collection()/w:root/w:docRels//rel:Relationships[ends-with(@xml:base, 'document.xml.rels')]/rel:Relationship[@Target eq current()]"/>
+      select="collection()/w:root/w:docRels/rel:Relationships/rel:Relationship[@Target eq current()]"/>
     <xsl:variable name="rel-converted-element" as="element(rel:Relationship)?"
-      select="collection()/w:root_converted/w:docRels//rel:Relationships[ends-with(@xml:base, 'document.xml.rels')]/rel:Relationship[@Target eq current()][1]"/>
-    <xsl:variable name="relationIdOffset" select="max( for $rId in ( collection()/w:root/w:docRels//rel:Relationships[ends-with(@xml:base, 'document.xml.rels')]/rel:Relationship/@Id ) return number( substring( $rId, 4)))"/>
+      select="collection()/w:root_converted/w:docRels/rel:Relationships/rel:Relationship[@Target eq current()][1]"/>
+    <xsl:variable name="relationIdOffset" select="max( for $rId in ( collection()/w:root/w:docRels/rel:Relationships/rel:Relationship/@Id ) return number( substring( $rId, 4)))"/>
     <xsl:choose>
       <xsl:when test="$rel-element">
         <xsl:attribute name="r:id" select="$rel-element/@Id"/>
