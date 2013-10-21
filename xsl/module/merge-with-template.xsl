@@ -178,6 +178,20 @@
   </xsl:template>
 
 
+  <!-- header and footer changes/additions -->
+
+  <xsl:template match="w:header | w:footer" mode="hub:merge">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="w:header/* | w:footer/*" mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@xml:base" mode="docx2hub:modify"/>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+
   <!-- paragraph changes/additions -->
 
   <xsl:template 
