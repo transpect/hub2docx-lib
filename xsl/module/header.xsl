@@ -26,24 +26,27 @@
        Input example (display header on right and left pages, but not on first page):
        <hub>
          <info>
-           <css:page pseudo="left right" name="myheader">
-             <css:page-margin-box location="top-center"/>
-           </css:page>
+           <css:rules>
+             <css:page pseudo="left right" name="myheader">
+               <css:page-margin-box location="top-center"/>
+             </css:page>
+             <css:rule name="someheader" layout-type="object"/>
+           </css:rules>
          </info>
-         <sidebar css:page="myheader"><para>My Header</para></sidebar>
+         <sidebar role="someheader" css:page="myheader"><para>My Header</para></sidebar>
   -->
 
   <xsl:variable name="originalHeaderIds" as="xs:string*"
-    select="for $h in //*[letex:resolve-header(.)] return generate-id($h)" />
+    select="for $h in //*[not(parent::css:page)][@css:page][letex:is-header(.)] return generate-id($h)" />
 
   <xsl:function name="letex:header-id" as="xs:integer">
     <xsl:param name="header" as="element(sidebar)" />
     <xsl:sequence select="index-of($originalHeaderIds, generate-id($header))" />
   </xsl:function>
 
-  <xsl:template match="*[letex:resolve-header(.)]" mode="header">
+  <xsl:template match="*[@css:page][letex:is-header(.)]" mode="header">
     <w:hdr hub:offset="{letex:header-id(.)}">
-      <xsl:for-each select="tokenize(letex:resolve-header(.)/@pseudo, '&#x20;')">
+      <xsl:for-each select="tokenize(/*/info/css:rules/css:page[@name eq current()/@css:page]/@pseudo, '&#x20;')">
         <xsl:choose>
           <xsl:when test=". eq 'first'">
             <xsl:attribute name="hub:header-first" select="'true'"/>

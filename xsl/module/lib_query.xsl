@@ -32,28 +32,38 @@
     exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn dbk xlink o w m wp r"
 >
 
-  <xsl:function name="letex:resolve-header" as="element(*)?">
+  <xsl:function name="letex:is-header" as="xs:boolean">
     <xsl:param name="node" as="element()" />
-    <xsl:sequence select="root($node)
-                            //css:page[
-                              $node/@css:page eq @name
+    <xsl:sequence select="boolean(
+                            root($node)/*/info/css:rules[
+                              css:rule[
+                                @layout-type eq 'object'
+                              ]/@name = $node/@role
                               and
-                              css:page-margin-box[
-                                @location eq 'top-center'
-                              ]
-                            ]"/>
+                              css:page[
+                                css:page-margin-box[
+                                  @location eq 'top-center'
+                                ]
+                              ]/@name = $node/@css:page
+                            ]
+                          )"/>
   </xsl:function>
 
-  <xsl:function name="letex:resolve-footer" as="element(*)?">
+  <xsl:function name="letex:is-footer" as="xs:boolean">
     <xsl:param name="node" as="element()" />
-    <xsl:sequence select="root($node)
-                            //css:page[
-                              $node/@css:page eq @name
+    <xsl:sequence select="boolean(
+                            root($node)/*/info/css:rules[
+                              css:rule[
+                                @layout-type eq 'object'
+                              ]/@name = $node/@role
                               and
-                              css:page-margin-box[
-                                @location eq 'bottom-center'
-                              ]
-                            ]"/>
+                              css:page[
+                                css:page-margin-box[
+                                  @location eq 'bottom-center'
+                                ]
+                              ]/@name = $node/@css:page
+                            ]
+                          )"/>
   </xsl:function>
 
   <xsl:function name="letex:text" as="xs:string?">
