@@ -16,6 +16,7 @@
     xmlns:letex		= "http://www.le-tex.de/namespace"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:css           = "http://www.w3.org/1996/css"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
@@ -27,7 +28,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn css xlink o w m wp r"
 >
 
   <!-- ================================================================================ -->
@@ -71,9 +72,6 @@
 
   <xsl:template  match="info"  mode="hub:default"/>
 
-  <!-- word header -->
-  <xsl:template  match="*[@role eq 'docx2hub:header']"  mode="hub:default" />
-
   <!-- need this for subsequent key() operations (they are in disguise sometimes!) -->
   <xsl:variable name="root" select="/" as="document-node(element(*))" />
 
@@ -97,6 +95,16 @@
           <xsl:apply-templates mode="documentRels"/>
         </rel:Relationships>
       </w:docRels>
+      <w:header>
+        <xsl:for-each select="//*[letex:resolve-header(.)]">
+          <xsl:apply-templates select="." mode="header"/>
+        </xsl:for-each>
+      </w:header>
+      <w:footer>
+        <xsl:for-each select="//*[letex:resolve-footer(.)]">
+          <xsl:apply-templates select="." mode="footer"/>
+        </xsl:for-each>
+      </w:footer>
       <w:document>
         <w:body>
           <xsl:next-match/>
@@ -108,7 +116,6 @@
   <xsl:template  match="book | Body | hub"  mode="hub:default">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
-
 
   <xsl:template  match="chapter"  mode="hub:default" priority="123">
     <xsl:message select="'...Chapter: ', string-join(title//text()[not(ancestor::indexterm)], '')"/>

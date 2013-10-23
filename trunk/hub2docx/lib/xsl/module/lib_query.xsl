@@ -18,6 +18,7 @@
     xmlns:letex		= "http://www.le-tex.de/namespace"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:dbk		= "http://docbook.org/ns/docbook"
+    xmlns:css           = "http://www.w3.org/1996/css"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
@@ -30,6 +31,30 @@
 
     exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn dbk xlink o w m wp r"
 >
+
+  <xsl:function name="letex:resolve-header" as="element(*)?">
+    <xsl:param name="node" as="element()" />
+    <xsl:sequence select="root($node)
+                            //css:page[
+                              $node/@css:page eq @name
+                              and
+                              css:page-margin-box[
+                                @location eq 'top-center'
+                              ]
+                            ]"/>
+  </xsl:function>
+
+  <xsl:function name="letex:resolve-footer" as="element(*)?">
+    <xsl:param name="node" as="element()" />
+    <xsl:sequence select="root($node)
+                            //css:page[
+                              $node/@css:page eq @name
+                              and
+                              css:page-margin-box[
+                                @location eq 'bottom-center'
+                              ]
+                            ]"/>
+  </xsl:function>
 
   <xsl:function name="letex:text" as="xs:string?">
     <xsl:param name="node" as="element(*)?" />

@@ -25,42 +25,58 @@
        apply nodes of docx template in mode hub:merge
   -->
   <xsl:template match="/*" mode="hub:merge">
+    <xsl:variable name="document-xml-base-modified" as="attribute(xml:base)">
+      <xsl:apply-templates select="/*/w:document/@xml:base" mode="docx2hub:modify"/>
+    </xsl:variable>
     <w:root>
       <xsl:apply-templates select="collection()/w:root/node()" mode="#current">
+        <xsl:with-param name="document-xml-base-modified" tunnel="yes"
+          select="$document-xml-base-modified" />
         <xsl:with-param name="footnoteIdOffset" tunnel="yes"
           select="(xs:integer(max(collection()/w:root/w:footnotes/w:footnote/@w:id)), 0)[1]" />
         <xsl:with-param name="commentIdOffset" tunnel="yes"
           select="(xs:integer(max(collection()/w:root/w:comments/w:comment/@w:id)), 0)[1]" />
         <xsl:with-param name="relationIdOffset" tunnel="yes"
-          select="max( for $rId in ( collection()/w:root/w:docRels/rel:Relationships/rel:Relationship/@Id ) return number( substring( $rId, 4)))" />
+          select="max( for $rId in collection()/w:root/w:docRels/rel:Relationships/rel:Relationship/@Id
+                       return number( substring( $rId, 4))
+                  )" />
+        <xsl:with-param name="headerIdOffset" tunnel="yes"
+          select="max( for $i in collection()/w:root/w:header/w:hdr/@xml:base 
+                       return number(replace(tokenize($i, '/')[last()], '^header(\d+)\.xml$', '$1'))
+                  )"/>
+        <xsl:with-param name="footerIdOffset" tunnel="yes"
+          select="max( for $i in collection()/w:root/w:footer/w:ftr/@xml:base 
+                       return number(replace(tokenize($i, '/')[last()], '^footer(\d+)\.xml$', '$1'))
+                  )"/>
       </xsl:apply-templates>
     </w:root>
   </xsl:template>
 
   <xsl:template match="w:document" mode="hub:merge">
-    <xsl:variable name="xml-base-modified" as="attribute(xml:base)">
-      <xsl:apply-templates select="@xml:base" mode="docx2hub:modify"/>
-    </xsl:variable>
+    <xsl:param name="document-xml-base-modified" tunnel="yes"/>
     <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="$xml-base-modified, collection()/w:root_converted/w:document/node()" mode="#current"/>
+      <xsl:apply-templates select="$document-xml-base-modified, collection()/w:root_converted/w:document/node()" mode="#current"/>
     </xsl:copy>
 
     <!-- no footnotes in template: create the footnote root element separately for converted hub footnotes -->
     <xsl:if test="not(../w:footnotes)  and 
                   collection()/w:root_converted/w:footnotes/node()">
-      <w:footnotes xml:base="{replace($xml-base-modified, 'document\.xml', 'footnotes.xml')}">
+      <w:footnotes xml:base="{replace($document-xml-base-modified, 'document\.xml', 'footnotes.xml')}">
         <xsl:apply-templates select="collection()/w:root_converted/w:footnotes/node()" mode="#current"/>
       </w:footnotes>
     </xsl:if>
     <xsl:if test="not(../w:comments)  and
                   collection()/w:root_converted/w:comments/node()">
-      <w:comments xml:base="{replace($xml-base-modified, 'document\.xml', 'comments.xml')}">
+      <w:comments xml:base="{replace($document-xml-base-modified, 'document\.xml', 'comments.xml')}">
         <xsl:apply-templates select="collection()/w:root_converted/w:comments/node()" mode="#current"/>
       </w:comments>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="ct:Types" mode="hub:merge">
+    <xsl:param name="relationIdOffset" tunnel="yes" />
+    <xsl:param name="headerIdOffset" tunnel="yes" />
+    <xsl:param name="footerIdOffset" tunnel="yes" />
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
       <xsl:if test="not(Override[@PartName eq '/word/comments.xml'])  and  
@@ -73,6 +89,16 @@
         <Override PartName="/word/endnotes.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
           ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml"/>
       </xsl:if>
+      <xsl:for-each select="collection()/w:root_converted/*/w:hdr">
+        <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
+          PartName="/word/header{$headerIdOffset + @hub:offset}.xml"
+          ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>
+      </xsl:for-each>
+      <xsl:for-each select="collection()/w:root_converted/*/w:ftr">
+        <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
+          PartName="/word/footer{$footerIdOffset + @hub:offset}.xml"
+          ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
+      </xsl:for-each>
     </xsl:copy>
   </xsl:template>
 
@@ -158,15 +184,25 @@
     mode="hub:merge"
     match="w:docRels/rel:Relationships">
     <xsl:param name="relationIdOffset" tunnel="yes" />
+    <xsl:param name="headerIdOffset" tunnel="yes" />
+    <xsl:param name="footerIdOffset" tunnel="yes" />
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
       <xsl:apply-templates select="collection()/w:root_converted/w:docRels/rel:Relationships/*" mode="#current"/>
-      <xsl:if test="not(collection()/w:root/w:comments)">
+      <xsl:if test="not(collection()/w:root/w:comments) and
+                    collection()/w:root_converted/w:comments/node()">
         <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
-          Id="rId0" 
+          Id="rId{$relationIdOffset}c" 
           Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" 
           Target="comments.xml" />
       </xsl:if>
+      <xsl:for-each select="collection()/w:root_converted/*/w:*[local-name() = ('ftr', 'hdr')]">
+        <xsl:variable name="type" select="if(local-name() eq 'ftr') then 'footer' else 'header'" as="xs:string"/>
+        <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
+          Id="rId{$relationIdOffset + @hub:offset}{local-name()}" 
+          Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/{$type}" 
+          Target="{$type}{(if(local-name() eq 'ftr') then $footerIdOffset else $headerIdOffset) + @hub:offset}.xml" />
+      </xsl:for-each>
     </xsl:copy>
   </xsl:template>
 
@@ -180,36 +216,108 @@
 
   <!-- header and footer changes/additions -->
 
-  <xsl:template match="w:header | w:footer" mode="hub:merge">
+  <xsl:template match="w:header" mode="hub:merge">
     <xsl:apply-templates mode="#current"/>
+    <xsl:apply-templates select="collection()/w:root_converted/w:header/w:hdr" mode="#current" />
   </xsl:template>
 
-  <xsl:template match="w:header/* | w:footer/*" mode="hub:merge">
+  <xsl:template match="w:footer" mode="hub:merge">
+    <xsl:apply-templates mode="#current"/>
+    <xsl:apply-templates select="collection()/w:root_converted/w:footer/w:ftr" mode="#current" />
+  </xsl:template>
+
+  <xsl:template match="/w:root_converted/w:header/w:hdr" mode="hub:merge">
+    <xsl:param name="headerIdOffset" tunnel="yes"/>
+    <xsl:param name="document-xml-base-modified" tunnel="yes"/>
     <xsl:copy>
-      <xsl:apply-templates select="@xml:base" mode="docx2hub:modify"/>
-      <xsl:apply-templates select="node()" mode="#current"/>
+      <xsl:attribute name="xml:base" 
+        select="replace(
+                  $document-xml-base-modified, 
+                  'document\.xml', 
+                  concat('header', $headerIdOffset + @hub:offset, '.xml')
+                )"/>
+      <xsl:apply-templates mode="#current"/>
     </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="/w:root_converted/w:footer/w:ftr" mode="hub:merge">
+    <xsl:param name="footerIdOffset" tunnel="yes"/>
+    <xsl:param name="document-xml-base-modified" tunnel="yes"/>
+    <xsl:copy>
+      <xsl:attribute name="xml:base" 
+        select="replace(
+                  $document-xml-base-modified, 
+                  'document\.xml', 
+                  concat('footer', $footerIdOffset + @hub:offset, '.xml')
+                )"/>
+      <xsl:apply-templates mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <!-- set header and footer references
+       generated output will look like:
+       <w:footerReference w:type="default" r:id="rId15ftr"/>
+       <w:headerReference w:type="first" r:id="rId15hdr"/> -->
+  <xsl:template mode="hub:merge"
+    match="  /w:root/w:document/w:body/w:sectPr/w:headerReference/@r:id
+           | /w:root/w:document/w:body/w:sectPr/w:footerReference/@r:id">
+    <xsl:param name="relationIdOffset" tunnel="yes"/>
+
+    <xsl:variable name="ref-name-short" as="xs:string"
+      select="if(name(..) eq 'w:headerReference') then 'hdr' else 'ftr'"/>
+    <xsl:variable name="ref-name-long" as="xs:string"
+      select="if($ref-name-short eq 'hdr') then 'header' else 'footer'"/>
+    <xsl:variable name="corresponding-converted-margin-element" as="element(*)?"
+      select="collection()/w:root_converted
+                /w:*[local-name() eq $ref-name-long]
+                  /w:*[local-name() eq $ref-name-short][
+                    @hub:*[
+                      matches(
+                        local-name(.),
+                        concat(
+                          '^',
+                          $ref-name-long,
+                          '-', 
+                          current()/../@w:type, 
+                          '$'
+                        )
+                      )
+                    ]
+                  ]"/>
+
+    <xsl:attribute name="r:id">
+      <xsl:choose>
+        <xsl:when test="$corresponding-converted-margin-element">
+          <xsl:value-of select="concat('rId', $corresponding-converted-margin-element[last()]/@hub:offset + $relationIdOffset, $ref-name-short)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="."/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:attribute>
   </xsl:template>
 
 
   <!-- paragraph changes/additions -->
 
+  <xsl:variable name="word-builtin-pStyles" as="xs:string+"
+    select="('Fußzeile', 'Kopfzeile', 'Header')"/>
+
   <xsl:template 
     mode="hub:merge"
     match="//w:root_converted//w:pStyle[@hub:val]">
-    <xsl:choose> 
-      <xsl:when test="@hub:val = collection()//w:styles/w:style[@w:type eq 'paragraph']/@w:styleId">
-      <w:pStyle w:val="{@hub:val}"/>
+    <xsl:choose>
+      <xsl:when test="@hub:val = collection()//w:styles/w:style[@w:type eq 'paragraph']/@w:styleId or @hub:val = $word-builtin-pStyles">
+        <w:pStyle w:val="{@hub:val}"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:message  select="concat( '&#xa;&#x9;Warning: unexpected role attribute value &quot;', @role, '&quot; for element ', name())"/>
+        <xsl:message  select="concat( '&#xa;&#x9;Warning: unexpected role attribute value &quot;', @hub:val, '&quot; for element ', name(), ' (not in template).')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
 
   <!-- character changes/additions -->
-
 
   <xsl:template 
     mode="hub:merge"
