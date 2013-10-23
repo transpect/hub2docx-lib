@@ -45,57 +45,23 @@
     <xsl:apply-templates  mode="#current"/>
   </xsl:template>
 
-  <xsl:template match="mediaobject[not(parent::para)]" mode="hub:default">
-    <w:p docx2hub:origin="default_i_mediaonotparentp">
-      <xsl:variable name="pictstyle" as="xs:string*">
-        <xsl:if test="@annotation='anchor'">
-          <xsl:value-of select="'position:absolute;z-index:-1'"/>
-        </xsl:if>
-        <xsl:for-each select="@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
-          <xsl:value-of select="concat(local-name(.),':',.)"/>
-        </xsl:for-each>
-      </xsl:variable>
-      <xsl:choose>
-        <xsl:when test="count(.//imagedata) eq 1 and
-          matches(.//imagedata/@fileref, '^container[:]')">
-          <w:r>
-            <w:pict>
-              <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{string-join($pictstyle,';')}">
-                <v:imagedata hub:fileref="{replace(.//@fileref, '^container[:]', '')}" o:title=""/>
-                <xsl:if test="@annotation='anchor'">
-                  <w10:anchorlock/>
-                </xsl:if>
-              </v:shape>
-            </w:pict>
-          </w:r>
-        </xsl:when>
-        <xsl:otherwise>
-          <w:r>
-            <w:pict>
-              <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{string-join($pictstyle,';')}">
-                <v:imagedata hub:fileref="{.//@fileref}" o:title="" r:id="{index-of($rels, generate-id(.))}"/>
-                <xsl:if test="@annotation='anchor'">
-                  <w10:anchorlock/>
-                </xsl:if>
-              </v:shape>
-            </w:pict>
-          </w:r>
-        </xsl:otherwise>
-      </xsl:choose>
-    </w:p>
-  </xsl:template>
-
   <xsl:variable name="MediaIds" as="xs:string*"
     select="for $f 
             in //*[local-name() = ('mediaobject', 'inlinemediaobject')] 
             return generate-id($f)" />
 
-  <xsl:template match="inlinemediaobject | para/mediaobject" mode="hub:default">
+  <xsl:template match="mediaobject[not(parent::para)]" mode="hub:default">
+    <w:p docx2hub:origin="default_i_mediaonotparentp">
+      <xsl:call-template name="insert-picture"/>
+    </w:p>
+  </xsl:template>
+
+  <xsl:template match="inlinemediaobject | para/mediaobject" mode="hub:default" name="insert-picture">
     <xsl:variable name="pictstyle" as="xs:string*">
       <xsl:if test="@annotation='anchor'">
         <xsl:value-of select="'position:absolute;z-index:-1'"/>
       </xsl:if>
-      <xsl:for-each select="@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
+      <xsl:for-each select="@css:margin-left|@css:margin-top|@css:z-index|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
     </xsl:variable>
@@ -154,7 +120,7 @@
   <xsl:template match="sidebar[not(parent::para)]" mode="hub:default">
     <xsl:variable name="sidebar-style" as="xs:string*">
       <xsl:value-of select="'position:absolute;z-index:1'"/>
-      <xsl:for-each select="@css:margin-left|@css:margin-top">
+      <xsl:for-each select="@css:margin-left|@css:margin-top|@css:width|@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
     </xsl:variable>
@@ -170,6 +136,9 @@
           <v:shape coordsize="21600,21600" o:spt="202"
             path="m,l,21600r21600,l21600,xe">
             <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
+            <xsl:if test="@css:background-color ne ''">
+              <xsl:attribute name="fillcolor" select="concat('#', letex:retrieve-color-attribute-val(@css:background-color))"/>
+            </xsl:if>
             <v:textbox>
               <xsl:attribute name="inset" select="$inset"/>
               <w:txbxContent>
