@@ -19,7 +19,8 @@
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
-    xmlns:css = "http://www.w3.org/1996/css"
+    xmlns:css           = "http://www.w3.org/1996/css"
+    xmlns:docx2hub      = "http://www.le-tex.de/namespace/docx2hub"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
@@ -29,7 +30,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink css o w m wp r"
 >
 
 
@@ -44,7 +45,7 @@
     <xsl:variable name="pPr">
       <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height" mode="props" />
     </xsl:variable>
-    <w:p>
+    <w:p docx2hub:origin="default_p_parentnotlistitem">
       <xsl:if  test="$pPr">
         <w:pPr>
           <xsl:sequence  select="$pPr" />
@@ -65,7 +66,7 @@
       <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore']"  mode="props" />
       <w:pStyle w:val="BlockText"/>
     </xsl:variable>
-    <w:p>
+    <w:p docx2hub:origin="default_p_parentblockq">
       <xsl:if  test="$pPr">
         <w:pPr>
           <xsl:sequence  select="$pPr" />
@@ -82,7 +83,7 @@
   </xsl:template>
 
   <xsl:template match="simpara[not(parent::footnote)]" mode="hub:default">
-    <w:p>
+    <w:p docx2hub:origin="default_simpara">
       <xsl:apply-templates mode="#current" />
     </w:p>
   </xsl:template>
