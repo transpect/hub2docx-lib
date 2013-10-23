@@ -7,6 +7,8 @@
   xmlns:docx2hub = "http://www.le-tex.de/namespace/docx2hub"
   xmlns:hub = "http://www.le-tex.de/namespace/hub"
   xmlns:dbk = "http://docbook.org/ns/docbook"
+  xmlns:css = "http://www.w3.org/1996/css"
+  xmlns:letex = "http://www.le-tex.de/namespace"
 
   xpath-default-namespace = "http://docbook.org/ns/docbook"
   exclude-result-prefixes="xs docx2hub hub"
@@ -33,6 +35,8 @@
   <xsl:import href="module/links.xsl"/>
   <xsl:import href="module/lists.xsl"/>
   <xsl:import href="module/table.xsl"/>
+  <xsl:import href="module/header.xsl"/>
+  <xsl:import href="module/footer.xsl"/>
   <xsl:import href="module/merge-with-template.xsl"/>
 
 
@@ -40,7 +44,26 @@
   <xsl:param  name="heading-prefix" select="'Heading'" as="xs:string"/> <!-- Heading w:styleId prefix; use 'berschrift' for German normal.dot -->
   <xsl:param  name="landscape" select="'no'"/>				<!-- page orientation landscape -->
 
-  
+  <!-- remove header and footer from inner word document: see modules header.xsl and footer.xsl -->
+  <xsl:template match="*[letex:resolve-header(.)]" mode="hub:default" priority="2000"/>
+  <xsl:template match="*[letex:resolve-footer(.)]" mode="hub:default" priority="2000"/>  
+
+  <!-- remove elements with css:display="none" -->
+  <xsl:template  match="*[@css:display eq 'none']"  mode="hub:default" priority="2000">
+    <xsl:choose>
+      <xsl:when test="not(/*/info/keywordset[@role eq 'hub']
+                                   /keyword[@role eq 'docx2hub:remove-css-display-none-elements'])
+                      or
+                      /*/info/keywordset[@role eq 'hub']
+                                /keyword[@role eq 'docx2hub:remove-css-display-none-elements'] = (
+                                  'true', 'yes'
+                                )" />
+      <xsl:otherwise>
+        <xsl:next-match />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template match="@xml:base" mode="hub:merge">
     <xsl:apply-templates select="." mode="docx2hub:modify"/>
   </xsl:template>
