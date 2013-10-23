@@ -20,6 +20,7 @@
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
     xmlns:css           = "http://www.w3.org/1996/css"
+    xmlns:docx2hub      = "http://www.le-tex.de/namespace/docx2hub"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
@@ -45,7 +46,7 @@
   </xsl:template>
 
   <xsl:template match="mediaobject[not(parent::para)]" mode="hub:default">
-    <w:p>
+    <w:p docx2hub:origin="default_i_mediaonotparentp">
       <xsl:variable name="pictstyle" as="xs:string*">
         <xsl:if test="@annotation='anchor'">
           <xsl:value-of select="'position:absolute;z-index:-1'"/>
@@ -158,7 +159,7 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:variable name="inset" as="xs:string" select="concat(if (exists(@css:padding-left)) then @css:padding-left else '0.1in',',',if (exists(@css:padding-top)) then @css:padding-top else '0.05in',',',if (exists(@css:padding-right)) then @css:padding-right else '0.1in',',',if (exists(@css:padding-bottom)) then @css:padding-bottom else '0.05in')"/>
-    <w:p>
+    <w:p docx2hub:origin="default_i_sidebarnotparpara">
       <xsl:if test="exists(para[@role]) and (every $i in (para/@role) satisfies $i eq (para/@role)[1])">
         <w:pPr>
           <w:pStyle w:val="{(para/@role)[1]}"/>
@@ -182,7 +183,7 @@
   </xsl:template>
   
   <xsl:template match="figure/title" mode="hub:default">
-    <w:p>
+    <w:p docx2hub:origin="default_i_figtitle">
       <w:pPr>
         <w:pStyle w:val="FigureTitle"/>
       </w:pPr>
@@ -191,7 +192,7 @@
   </xsl:template>
 
   <xsl:template  match="mediaobject"  mode="hub:default-DISABLED">
-    <w:p>
+    <w:p docx2hub:origin="default_i_mediaobj">
       <w:r>
         <w:rPr>
           <w:noProof/>

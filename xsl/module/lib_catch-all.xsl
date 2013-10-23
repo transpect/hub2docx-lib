@@ -20,6 +20,7 @@
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
     xmlns:dbk		= "http://docbook.org/ns/docbook"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
+    xmlns:docx2hub      = "http://www.le-tex.de/namespace/docx2hub"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
@@ -84,6 +85,8 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <!-- remove text runs that stem from ignorable whitespace in the source -->
+
+  <xsl:template  match="@docx2hub:origin"  mode="hub:clean" priority="100"/>
 
   <xsl:template  match="w:r[not(parent::w:p or parent::w:hyperlink)]"  mode="hub:clean" />
 <!-- <xsl:template  match="w:body/w:r"  mode="clean" /> -->
