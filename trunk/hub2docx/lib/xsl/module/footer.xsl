@@ -26,24 +26,27 @@
        Input example (set only default footer):
        <hub>
          <info>
-           <css:page pseudo="right" name="myfooter">
-             <css:page-margin-box location="top-center"/>
-           </css:page>
+           <css:rules>
+             <css:page pseudo="right" name="myfooter">
+               <css:page-margin-box location="top-center"/>
+             </css:page>
+             <css:rule name="anyfooter" layout-type="object"/>
+           </css:rules>
          </info>
-         <sidebar css:page="myfooter"><para>My Footer</para></sidebar>
+         <sidebar role="anyfooter" css:page="myfooter"><para>My Footer</para></sidebar>
   -->
 
   <xsl:variable name="originalFooterIds" as="xs:string*"
-    select="for $h in //*[letex:resolve-footer(.)] return generate-id($h)" />
+    select="for $h in //*[not(parent::css:page)][@css:page][letex:is-footer(.)] return generate-id($h)" />
 
   <xsl:function name="letex:footer-id" as="xs:integer">
     <xsl:param name="footer" as="element(sidebar)" />
     <xsl:sequence select="index-of($originalFooterIds, generate-id($footer))" />
   </xsl:function>
 
-  <xsl:template match="*[letex:resolve-footer(.)]" mode="footer">
+  <xsl:template match="*[@css:page][letex:is-footer(.)]" mode="footer">
     <w:ftr hub:offset="{letex:footer-id(.)}">
-      <xsl:for-each select="tokenize(letex:resolve-footer(.)/@pseudo, '&#x20;')">
+      <xsl:for-each select="tokenize(/*/info/css:rules/css:page[@name eq current()/@css:page]/@pseudo, '&#x20;')">
         <xsl:choose>
           <xsl:when test=". eq 'first'">
             <xsl:attribute name="hub:footer-first" select="'true'"/>

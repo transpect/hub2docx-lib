@@ -96,12 +96,12 @@
         </rel:Relationships>
       </w:docRels>
       <w:header>
-        <xsl:for-each select="//*[letex:resolve-header(.)]">
+        <xsl:for-each select="//*[not(parent::css:page)][@css:page][letex:is-header(.)]">
           <xsl:apply-templates select="." mode="header"/>
         </xsl:for-each>
       </w:header>
       <w:footer>
-        <xsl:for-each select="//*[letex:resolve-footer(.)]">
+        <xsl:for-each select="//*[not(parent::css:page)][@css:page][letex:is-footer(.)]">
           <xsl:apply-templates select="." mode="footer"/>
         </xsl:for-each>
       </w:footer>

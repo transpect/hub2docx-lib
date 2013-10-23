@@ -45,8 +45,8 @@
   <xsl:param  name="landscape" select="'no'"/>				<!-- page orientation landscape -->
 
   <!-- remove header and footer from inner word document: see modules header.xsl and footer.xsl -->
-  <xsl:template match="*[letex:resolve-header(.)]" mode="hub:default" priority="2000"/>
-  <xsl:template match="*[letex:resolve-footer(.)]" mode="hub:default" priority="2000"/>  
+  <xsl:template match="*[@css:page][not(parent::css:page)][letex:is-header(.)]" mode="hub:default" priority="2000"/>
+  <xsl:template match="*[@css:page][not(parent::css:page)][letex:is-footer(.)]" mode="hub:default" priority="2000"/>  
 
   <!-- remove elements with css:display="none" -->
   <xsl:template  match="*[@css:display eq 'none']"  mode="hub:default" priority="2000">
