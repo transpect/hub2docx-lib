@@ -9,6 +9,7 @@
   xmlns:docx2hub = "http://www.le-tex.de/namespace/docx2hub"
   xmlns:hub = "http://www.le-tex.de/namespace/hub"
   xmlns:hub2docx = "http://www.le-tex.de/namespace/hub2docx"
+  xmlns:letex = "http://www.le-tex.de/namespace"
   xmlns:dbk = "http://docbook.org/ns/docbook"
   xmlns:v             = "urn:schemas-microsoft-com:vml"
   
@@ -206,6 +207,43 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- insert relationships for newly created header or footer content -->
+  <xsl:template 
+    mode="hub:merge"
+    match="  w:headerRels
+           | w:footerRels">
+    <xsl:param name="headerIdOffset" tunnel="yes"/>
+    <xsl:param name="footerIdOffset" tunnel="yes"/>
+    <xsl:param name="document-xml-base-modified" tunnel="yes"/>
+
+    <xsl:variable name="ref-name-long" as="xs:string"
+      select="if(name() eq 'w:headerRels') then 'header' else 'footer'"/>
+    <xsl:variable name="offset" as="xs:double"
+      select="if($ref-name-long eq 'header') then $headerIdOffset else $footerIdOffset"/>
+
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:if test="collection()/w:root_converted/w:*[local-name() eq $ref-name-long]/w:*//@hub:fileref">
+        <xsl:for-each select="collection()/w:root_converted/w:*[local-name() eq $ref-name-long]/w:*[.//@hub:fileref]">
+          <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+            <xsl:attribute name="xml:base" 
+              select="replace(
+                        letex:get-new-xml-base(., $offset, $document-xml-base-modified), 
+                        concat('/(', $ref-name-long, '\d+\.xml)'), 
+                        '/_rels/$1.rels'
+                      )"/>
+            <xsl:for-each select="collection()/w:root_converted/w:*[local-name() eq $ref-name-long]/w:*//@hub:fileref">
+              <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
+                Id="rId{../@id}{local-name(ancestor::w:*[local-name() = ('hdr', 'ftr')])}" 
+                Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" 
+                Target="{current()}" />
+            </xsl:for-each>
+          </Relationships>
+        </xsl:for-each>
+      </xsl:if>
+    </xsl:copy>
+  </xsl:template>
+
   <xsl:template 
     mode="hub:merge"
     match="//w:root_converted//rel:Relationship/@Id">
@@ -226,16 +264,37 @@
     <xsl:apply-templates select="collection()/w:root_converted/w:footer/w:ftr" mode="#current" />
   </xsl:template>
 
+  <xsl:function name="letex:get-new-xml-base" as="xs:string">
+    <xsl:param name="current-node" as="element()"/>
+    <xsl:param name="typeIdOffset" as="xs:double"/>
+    <xsl:param name="document-xml-base-modified" as="xs:string"/>
+    <xsl:variable name="type" as="xs:string">
+      <xsl:choose>
+        <xsl:when test="local-name($current-node) eq 'hdr'">
+          <xsl:value-of select="'header'"/>
+        </xsl:when>
+        <xsl:when test="local-name($current-node) eq 'ftr'">
+          <xsl:value-of select="'footer'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message select="'Warning, function letex:get-new-xml-base: unkown element name: ', local-name($current-node)"/>
+          <xsl:value-of select="local-name($current-node)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:sequence select="replace(
+                            $document-xml-base-modified, 
+                            'document\.xml', 
+                            concat($type, $typeIdOffset + $current-node/@hub:offset, '.xml')
+                          )"/>
+  </xsl:function>
+
   <xsl:template match="/w:root_converted/w:header/w:hdr" mode="hub:merge">
     <xsl:param name="headerIdOffset" tunnel="yes"/>
     <xsl:param name="document-xml-base-modified" tunnel="yes"/>
     <xsl:copy>
       <xsl:attribute name="xml:base" 
-        select="replace(
-                  $document-xml-base-modified, 
-                  'document\.xml', 
-                  concat('header', $headerIdOffset + @hub:offset, '.xml')
-                )"/>
+        select="letex:get-new-xml-base(., $headerIdOffset, $document-xml-base-modified)"/>
       <xsl:apply-templates mode="#current"/>
     </xsl:copy>
   </xsl:template>
@@ -245,11 +304,7 @@
     <xsl:param name="document-xml-base-modified" tunnel="yes"/>
     <xsl:copy>
       <xsl:attribute name="xml:base" 
-        select="replace(
-                  $document-xml-base-modified, 
-                  'document\.xml', 
-                  concat('footer', $footerIdOffset + @hub:offset, '.xml')
-                )"/>
+        select="letex:get-new-xml-base(., $footerIdOffset, $document-xml-base-modified)"/>
       <xsl:apply-templates mode="#current"/>
     </xsl:copy>
   </xsl:template>
@@ -355,12 +410,21 @@
   <!-- image changes/additions -->
 
   <xsl:template match="@hub:fileref" mode="hub:merge">
+    <xsl:param name="relationIdOffset" tunnel="yes"/>
     <xsl:variable name="rel-element" as="element(rel:Relationship)?"
-      select="collection()/w:root/w:docRels/rel:Relationships/rel:Relationship[@Target eq current()]"/>
+      select="collection()/w:root
+                /w:*[local-name() = ('docRels', 'headerRels', 'footerRels')]
+                  /rel:Relationships/rel:Relationship[@Target eq current()]"/>
     <xsl:variable name="rel-converted-element" as="element(rel:Relationship)?"
-      select="collection()/w:root_converted/w:docRels/rel:Relationships/rel:Relationship[@Target eq current()][1]"/>
-    <xsl:variable name="relationIdOffset" select="max( for $rId in ( collection()/w:root/w:docRels/rel:Relationships/rel:Relationship/@Id ) return number( substring( $rId, 4)))"/>
+      select="collection()/w:root_converted
+                /w:*[local-name() = ('docRels', 'headerRels', 'footerRels')]
+                  /rel:Relationships/rel:Relationship[@Target eq current()][1]"/>
     <xsl:choose>
+      <!-- referenced file will be placed in a header or footer -->
+      <xsl:when test="$rel-element and (ancestor::w:hdr or ancestor::w:ftr)">
+        <xsl:attribute name="r:id" select="concat('rId', ../@id, local-name(ancestor::w:*[local-name() = ('hdr', 'ftr')]))"/>
+      </xsl:when>
+      <!-- found referenced file in template -->
       <xsl:when test="$rel-element">
         <xsl:attribute name="r:id" select="$rel-element/@Id"/>
       </xsl:when>
@@ -373,6 +437,7 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match="v:imagedata[@hub:fileref]/@id" mode="hub:merge" />
 
   <!-- catch all -->
 
