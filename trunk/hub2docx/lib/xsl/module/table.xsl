@@ -162,7 +162,7 @@
         <xsl:variable name="new-built-rows" as="element(w:tr)*">
           <w:tr>
             <xsl:variable  name="trPr">
-              <xsl:apply-templates  select="$cals-rows[1]/@class"  mode="trPr" />
+              <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height"  mode="trPr" />
               <xsl:if test="$cals-rows[1]/ancestor::thead">
                 <w:tblHeader/>
               </xsl:if>
@@ -221,7 +221,7 @@
           <xsl:sequence select="$built-rows"/>
           <w:tr>
             <xsl:variable  name="trPr">
-              <xsl:apply-templates  select="$cals-rows[1]/@class"  mode="trPr" />
+              <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height"  mode="trPr" />
               <xsl:if test="$cals-rows[1]/ancestor::thead">
                 <w:tblHeader/>
               </xsl:if>
@@ -312,7 +312,7 @@
   <xsl:template  match="tr | row"  mode="hub:default">
     <w:tr>
       <xsl:variable  name="trPr">
-        <xsl:apply-templates  select="@class"  mode="trPr" />
+        <xsl:apply-templates  select="@class | @css:height"  mode="trPr" />
         <xsl:if test="ancestor::thead">
           <w:tblHeader/>
         </xsl:if>
@@ -438,6 +438,13 @@
     <xsl:element name="w:tblW">
       <xsl:attribute name="w:w" select="if (matches(.,'pct$')) then replace(.,'pct$','') else if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else '0'"/>
       <xsl:attribute name="w:type" select="if (matches(.,'pct$')) then 'pct' else if (matches(.,'pt$')) then 'dxa' else 'auto'"/>
+    </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="@css:height" mode="trPr">
+    <xsl:element name="w:trHeight">
+      <xsl:attribute name="w:val" select="if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else ."/>
+      <xsl:attribute name="w:h-rule" select="'at-least'"/>
     </xsl:element>
   </xsl:template>
   
