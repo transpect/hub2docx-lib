@@ -179,6 +179,7 @@
                   <w:shd w:val="clear" w:color="auto" 
                     w:fill="{replace( letex:current-color(., 'grey', if(../../self::thead) then 'medium' else 'light'), '#', '' )}"/>
                 </xsl:if>
+                <xsl:apply-templates select="@css:background-color" mode="tcPr"/>
               </xsl:variable>
               <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then number(@rowspan)-1 else ''"/>
               <w:tc>
@@ -273,6 +274,7 @@
             <w:shd w:val="clear" w:color="auto" 
               w:fill="{replace( letex:current-color($cals-entries[1], 'grey', if ($cals-entries[1]/ancestor::thead) then 'medium' else 'light'), '#', '' )}"/>
           </xsl:if>
+          <xsl:apply-templates select="$cals-entries[1]/@css:background-color" mode="tcPr"/>
         </xsl:variable>
         <w:tc>
           <w:tcPr>
@@ -346,6 +348,7 @@
           <w:shd w:val="clear" w:color="auto" 
             w:fill="{replace( letex:current-color(., 'grey', if(../../self::thead) then 'medium' else 'light'), '#', '' )}"/>
         </xsl:if>
+        <xsl:apply-templates  select="@css:background-color"  mode="tcPr" />
       </xsl:variable>
       <xsl:if test="$tcPr">
         <w:tcPr>
@@ -412,6 +415,10 @@
   
   <xsl:template match="@css:vertical-align" mode="tcPr">
     <w:vAlign w:val="{if (.='middle') then 'center' else .}"/>
+  </xsl:template>
+
+  <xsl:template match="@css:background-color" mode="tcPr">
+    <w:shd w:val="clear" w:color="auto" w:fill="{.}"/>
   </xsl:template>
 
   <xsl:template match="@frame" mode="tblPr">

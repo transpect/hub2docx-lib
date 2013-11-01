@@ -157,6 +157,24 @@
     </w:p>
   </xsl:template>
   
+  <xsl:template match="symbol" mode="hub:default">
+    <xsl:variable name="sidebar-style" as="xs:string*">
+      <xsl:value-of select="'position:absolute;z-index:-1'"/>
+      <xsl:for-each select="@css:margin-left|@css:margin-top|@css:width|@css:height">
+        <xsl:value-of select="concat(local-name(.),':',.)"/>
+      </xsl:for-each>
+    </xsl:variable>
+    <w:r>
+      <w:pict>
+        <xsl:element name="{.}">
+          <xsl:attribute name="coordsize" select="'21600,21600'"/>
+          <xsl:attribute name="o:spt" select="'100'"/>
+          <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
+        </xsl:element>
+      </w:pict>
+    </w:r>
+  </xsl:template>
+  
   <xsl:template match="figure/title" mode="hub:default">
     <w:p docx2hub:origin="default_i_figtitle">
       <w:pPr>
