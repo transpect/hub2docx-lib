@@ -58,10 +58,7 @@
 
   <xsl:template match="inlinemediaobject | para/mediaobject" mode="hub:default" name="insert-picture">
     <xsl:variable name="pictstyle" as="xs:string*">
-      <xsl:if test="@annotation='anchor'">
-        <xsl:value-of select="'position:absolute;z-index:-1'"/>
-      </xsl:if>
-      <xsl:for-each select="@css:margin-left|@css:margin-top|@css:z-index|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
+      <xsl:for-each select="@css:position|@css:margin-left|@css:margin-top|@css:z-index|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
     </xsl:variable>
@@ -96,8 +93,7 @@
   
   <xsl:template match="sidebar[parent::para]" mode="hub:default">
     <xsl:variable name="sidebar-style" as="xs:string*">
-      <xsl:value-of select="'position:absolute;z-index:1'"/>
-      <xsl:for-each select="@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
+      <xsl:for-each select="@css:position|@css:z-index|@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
     </xsl:variable>
@@ -122,8 +118,7 @@
   
   <xsl:template match="sidebar[not(parent::para)]" mode="hub:default">
     <xsl:variable name="sidebar-style" as="xs:string*">
-      <xsl:value-of select="'position:absolute;z-index:1'"/>
-      <xsl:for-each select="@css:margin-left|@css:margin-top|@css:width|@css:height">
+      <xsl:for-each select="@css:position|@css:z-index|@css:margin-left|@css:margin-top|@css:width|@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
     </xsl:variable>
@@ -159,8 +154,7 @@
   
   <xsl:template match="symbol" mode="hub:default">
     <xsl:variable name="sidebar-style" as="xs:string*">
-      <xsl:value-of select="'position:absolute;z-index:-1'"/>
-      <xsl:for-each select="@css:margin-left|@css:margin-top|@css:width|@css:height">
+      <xsl:for-each select="@css:position|@css:z-index|@css:margin-left|@css:margin-top|@css:width|@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
     </xsl:variable>
@@ -170,6 +164,9 @@
           <xsl:attribute name="coordsize" select="'21600,21600'"/>
           <xsl:attribute name="o:spt" select="'100'"/>
           <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
+          <xsl:if test="@css:background-color ne ''">
+            <xsl:attribute name="fillcolor" select="concat('#', letex:retrieve-color-attribute-val(@css:background-color))"/>
+          </xsl:if>
         </xsl:element>
       </w:pict>
     </w:r>
