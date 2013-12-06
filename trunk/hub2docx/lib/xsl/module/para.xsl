@@ -43,7 +43,7 @@
 
   <xsl:template  match="para[ not( parent::listitem) ]"  mode="hub:default">
     <xsl:variable name="pPr">
-      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height" mode="props" />
+      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height, @css:text-indent, @css:page-break-after" mode="props" />
     </xsl:variable>
     <w:p docx2hub:origin="default_p_parentnotlistitem">
       <xsl:if  test="$pPr">
@@ -63,7 +63,7 @@
 
   <xsl:template  match="para[ parent::blockquote ]"  mode="hub:default" priority="2">
     <xsl:variable name="pPr">
-      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore']"  mode="props" />
+      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height, @css:text-indent, @css:page-break-after"  mode="props" />
       <w:pStyle w:val="BlockText"/>
     </xsl:variable>
     <w:p docx2hub:origin="default_p_parentblockq">
@@ -118,6 +118,16 @@
   
   <xsl:template match="@css:text-align" mode="props">
     <w:jc w:val="{.}"/>
+  </xsl:template>
+  
+  <xsl:template match="@css:text-indent" mode="props">
+    <w:ind w:firstLine="{if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else .}"/>
+  </xsl:template>
+  
+  <xsl:template match="@css:page-break-after" mode="props">
+    <xsl:if test=".='avoid'">
+      <w:keepNext/>
+    </xsl:if>
   </xsl:template>
 
 </xsl:stylesheet>

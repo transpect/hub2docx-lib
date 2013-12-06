@@ -162,7 +162,7 @@
         <xsl:variable name="new-built-rows" as="element(w:tr)*">
           <w:tr>
             <xsl:variable  name="trPr">
-              <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height"  mode="trPr" />
+              <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height | $cals-rows[1]/@css:page-break-inside"  mode="trPr" />
               <xsl:if test="$cals-rows[1]/ancestor::thead">
                 <w:tblHeader/>
               </xsl:if>
@@ -222,7 +222,7 @@
           <xsl:sequence select="$built-rows"/>
           <w:tr>
             <xsl:variable  name="trPr">
-              <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height"  mode="trPr" />
+              <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height | $cals-rows[1]/@css:page-break-inside"  mode="trPr" />
               <xsl:if test="$cals-rows[1]/ancestor::thead">
                 <w:tblHeader/>
               </xsl:if>
@@ -314,7 +314,7 @@
   <xsl:template  match="tr | row"  mode="hub:default">
     <w:tr>
       <xsl:variable  name="trPr">
-        <xsl:apply-templates  select="@class | @css:height"  mode="trPr" />
+        <xsl:apply-templates  select="@class | @css:height | @css:page-break-inside"  mode="trPr" />
         <xsl:if test="ancestor::thead">
           <w:tblHeader/>
         </xsl:if>
@@ -375,7 +375,7 @@
   </xsl:template>
 
   <xsl:template match="@colspan" mode="tcPr">
-    <w:gridSpan w:val="{.}" />
+    <w:gridSpan w:val="{. - 1}" />
   </xsl:template>
 
   <xsl:template  match="@class"  mode="tcPr">
@@ -453,6 +453,12 @@
       <xsl:attribute name="w:val" select="if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else ."/>
       <xsl:attribute name="w:h-rule" select="'at-least'"/>
     </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="@css:page-break-inside" mode="trPr">
+    <xsl:if test=".='avoid'">
+      <w:cantSplit/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template  match="@*"  mode="trPr tcPr tblPr"  priority="-4" />
