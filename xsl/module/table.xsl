@@ -58,7 +58,16 @@
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
-    <w:p/>
+    <w:p>
+      <xsl:variable name="pPr">
+        <xsl:apply-templates  select="@css:page-break-after" mode="props" />
+      </xsl:variable>
+      <xsl:if  test="$pPr">
+        <w:pPr>
+          <xsl:sequence  select="$pPr" />
+        </w:pPr>
+      </xsl:if>
+    </w:p>
   </xsl:template>
 
   <xsl:template  match="informaltable/@xml:id"  mode="hub:default">
@@ -181,6 +190,9 @@
                 </xsl:if>
                 <xsl:apply-templates select="@css:background-color" mode="tcPr"/>
               </xsl:variable>
+              <xsl:variable name="pPr">
+                <xsl:apply-templates select="para/@css:page-break-after" mode="props"/>
+              </xsl:variable>
               <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then number(@rowspan)-1 else ''"/>
               <w:tc>
                 <w:tcPr>
@@ -207,7 +219,13 @@
                       <xsl:if test="$tcPr">
                         <xsl:sequence  select="$tcPr" />
                       </xsl:if>
-                      <w:p/>
+                      <w:p>
+                        <xsl:if test="$pPr">
+                          <w:pPr>
+                            <xsl:sequence  select="$pPr" />
+                          </w:pPr>
+                        </xsl:if>
+                      </w:p>
                     </w:tcPr>
                   </w:tc>
                 </xsl:for-each>
@@ -253,7 +271,9 @@
               <w:vMerge w:val="continue" hub:morerows="{number(descendant::w:vMerge/@hub:morerows)-1}"/>
               <xsl:sequence select="w:tcPr/node()[not(self::w:vMerge)]"/>
             </w:tcPr>
-            <w:p/>
+            <w:p>
+              <xsl:sequence select="w:p/w:pPr"/>
+            </w:p>
           </w:tc>
         </xsl:for-each>
       </xsl:when>
@@ -263,7 +283,9 @@
             <w:vMerge w:val="continue" hub:morerows="{number($built-entries[1]/descendant::w:vMerge/@hub:morerows)-1}"/>
             <xsl:sequence select="$built-entries[1]/w:tcPr/node()[not(self::w:vMerge)]"/>
           </w:tcPr>
-          <w:p/>
+          <w:p>
+            <xsl:sequence select="$built-entries[1]/w:p/w:pPr"/>
+          </w:p>
         </w:tc>
         <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1],$cals-entries,$name-to-int-map)"/>
       </xsl:when>
@@ -275,6 +297,9 @@
               w:fill="{replace( letex:current-color($cals-entries[1], 'grey', if ($cals-entries[1]/ancestor::thead) then 'medium' else 'light'), '#', '' )}"/>
           </xsl:if>
           <xsl:apply-templates select="$cals-entries[1]/@css:background-color" mode="tcPr"/>
+        </xsl:variable>
+        <xsl:variable name="pPr">
+          <xsl:apply-templates select="$cals-entries[1]/para/@css:page-break-avoid" mode="props"/>
         </xsl:variable>
         <w:tc>
           <w:tcPr>
@@ -302,7 +327,13 @@
                   <xsl:sequence  select="$tcPr" />
                 </xsl:if>
               </w:tcPr>
-              <w:p/>
+              <w:p>
+                <xsl:if test="$pPr">
+                  <w:pPr>
+                    <xsl:sequence  select="$pPr" />
+                  </w:pPr>
+                </xsl:if>
+              </w:p>
             </w:tc>
           </xsl:for-each>
         </xsl:if>
@@ -360,7 +391,16 @@
 					<!-- [ISO/IEC 29500-1 1st Edition] - 17.4.66 tc (Table Cell): 
 							"If a table cell does not include at least one block-level element, 
 							 then this document shall be considered corrupt." -->
-					<w:p/>
+					<w:p>
+					  <xsl:variable name="pPr">
+					    <xsl:apply-templates  select="para/@css:page-break-after" mode="props" />
+					  </xsl:variable>
+					  <xsl:if test="$pPr">
+					    <w:pPr>
+					      <xsl:sequence  select="$pPr" />
+					    </w:pPr>
+					  </xsl:if>
+					</w:p>
 				</xsl:when>
 				<xsl:when test="text()[normalize-space(.)]">
 					<w:p>

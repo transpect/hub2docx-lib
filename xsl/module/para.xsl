@@ -43,7 +43,7 @@
 
   <xsl:template  match="para[ not( parent::listitem) ]"  mode="hub:default">
     <xsl:variable name="pPr">
-      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height, @css:text-indent, @css:page-break-after" mode="props" />
+      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height, @css:text-indent, @css:page-break-after, @css:page-break-inside, (@css:widows, @css:orphans)[1]" mode="props" />
     </xsl:variable>
     <w:p docx2hub:origin="default_p_parentnotlistitem">
       <xsl:if  test="$pPr">
@@ -63,7 +63,7 @@
 
   <xsl:template  match="para[ parent::blockquote ]"  mode="hub:default" priority="2">
     <xsl:variable name="pPr">
-      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height, @css:text-indent, @css:page-break-after"  mode="props" />
+      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height, @css:text-indent, @css:page-break-after, @css:page-break-inside, (@css:widows, @css:orphans)[1]"  mode="props" />
       <w:pStyle w:val="BlockText"/>
     </xsl:variable>
     <w:p docx2hub:origin="default_p_parentblockq">
@@ -127,6 +127,18 @@
   <xsl:template match="@css:page-break-after" mode="props">
     <xsl:if test=".='avoid'">
       <w:keepNext/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="@css:page-break-inside" mode="props">
+    <xsl:if test=".='avoid'">
+      <w:keepLines/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="@css:orphans | @css:widows" mode="props">
+    <xsl:if test="xs:integer(.) gt 1">
+      <w:widowControl/>
     </xsl:if>
   </xsl:template>
 
