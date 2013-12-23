@@ -193,7 +193,7 @@
               <xsl:variable name="pPr">
                 <xsl:apply-templates select="para/@css:page-break-after" mode="props"/>
               </xsl:variable>
-              <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then number(@rowspan)-1 else ''"/>
+              <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then string(number(@rowspan)-1) else ''"/>
               <w:tc>
                 <w:tcPr>
                   <xsl:if test="not($morerows='')">
@@ -268,7 +268,7 @@
         <xsl:for-each select="$built-entries">
           <w:tc>
             <w:tcPr>
-              <w:vMerge w:val="continue" hub:morerows="{number(descendant::w:vMerge/@hub:morerows)-1}"/>
+              <w:vMerge w:val="continue" hub:morerows="{number(descendant::w:vMerge[letex:same-scope(., current())]/@hub:morerows)-1}"/>
               <xsl:sequence select="w:tcPr/node()[not(self::w:vMerge)]"/>
             </w:tcPr>
             <w:p>

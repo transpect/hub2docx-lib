@@ -243,13 +243,26 @@
     <xsl:param name="css-style-attribs" as="attribute()*"/>
     <xsl:param name="css-deviation-attribs" as="attribute()*"/>
     <xsl:variable name="cssattribs" as="attribute()*" select="$css-deviation-attribs, $css-style-attribs[not(name() = (for $i in $css-deviation-attribs return name($i)))]"/>
+    <!-- ever heard of xsl:apply-templates, dude? -->
     <xsl:for-each select="$cssattribs">
       <xsl:choose>
+        <xsl:when test="local-name() eq 'font-family'">
+          <w:font name="{.}"/>
+        </xsl:when>
         <xsl:when test="local-name() eq 'font-style' and . = ('italic', 'oblique')">
           <w:i/>
         </xsl:when>
+        <xsl:when test="local-name() eq 'font-style' and . = ('normal')">
+          <w:i w:val="0"/>
+        </xsl:when>
         <xsl:when test="local-name() eq 'font-weight' and . = ('bold', '450', '500')">
           <w:b/>
+        </xsl:when>
+        <xsl:when test="local-name() eq 'font-weight' and . = ('normal')">
+          <w:b w:val="0"/>
+        </xsl:when>
+        <xsl:when test="local-name() eq 'font-size'">
+          <xsl:apply-templates select="." mode="css2docx"/>
         </xsl:when>
         <xsl:when test="local-name() eq 'font-variant' and . = 'small-caps'">
           <w:smallCaps w:val="true"/>
@@ -323,6 +336,9 @@
       <w:bdr w:val="{$borderstyle}" w:sz="{$borderwidth}" w:space="0" w:color="{$bordercolor}"/>
     </xsl:if>
   </xsl:function>
+
+  <xsl:template match="css:font-size" mode="css2docx">
+  </xsl:template>
 
   <xsl:function name="letex:resolve-text-props-by-role-name" as="element()*">
     <xsl:param name="role" as="xs:string"/>
