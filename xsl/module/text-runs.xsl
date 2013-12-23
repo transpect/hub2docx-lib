@@ -247,7 +247,7 @@
     <xsl:for-each select="$cssattribs">
       <xsl:choose>
         <xsl:when test="local-name() eq 'font-family'">
-          <w:font name="{.}"/>
+          <w:rFonts w:ascii="{.}" w:hAnsi="{.}"/>
         </xsl:when>
         <xsl:when test="local-name() eq 'font-style' and . = ('italic', 'oblique')">
           <w:i/>
@@ -262,6 +262,9 @@
           <w:b w:val="0"/>
         </xsl:when>
         <xsl:when test="local-name() eq 'font-size'">
+          <xsl:apply-templates select="." mode="css2docx"/>
+        </xsl:when>
+        <xsl:when test="local-name() eq 'text-transform'">
           <xsl:apply-templates select="." mode="css2docx"/>
         </xsl:when>
         <xsl:when test="local-name() eq 'font-variant' and . = 'small-caps'">
@@ -337,9 +340,18 @@
     </xsl:if>
   </xsl:function>
 
-  <xsl:template match="css:font-size" mode="css2docx">
+  <xsl:template match="@css:font-size" mode="css2docx">
+    <w:sz w:val="round(letex:length-to-unitless-twip(.) * 0.1)"/>
   </xsl:template>
 
+  <xsl:template match="@css:text-transform[. = 'uppercase']" mode="css2docx">
+    <w:caps/>
+  </xsl:template>
+
+  <xsl:template match="@*" mode="css2docx">
+    <xsl:message>Unimplemented in mode css2docx: <xsl:value-of select="name()"/>=<xsl:value-of select="."/></xsl:message>
+  </xsl:template>
+  
   <xsl:function name="letex:resolve-text-props-by-role-name" as="element()*">
     <xsl:param name="role" as="xs:string"/>
     <xsl:for-each select="distinct-values(tokenize(lower-case($role), '&#x20;'))">
