@@ -50,32 +50,36 @@
        This cases are dealt with by this template, which therefore should be called every time when the tunneled rPrContent is to be modified.
        -->
   <xsl:template  name="mergeRunProperties">
-    <xsl:param  name="inherited_rPrContent"  as="node()*"/>
-    <xsl:param  name="new_rPrContent"        as="node()*"/>
+    <xsl:param  name="inherited_rPrContent"  as="element(*)*"/><!-- w:… property elements -->
+    <xsl:param  name="new_rPrContent"        as="element(*)*"/><!-- w:… property elements -->
 
     <!-- § Attention: the following code may not correctly deal with all possible cases. Currently supported are:
            * nested sub-/superscript (not solved, but raises an error)
          -->
-    <xsl:variable  name="dumbMergedRunProperties"  select="$inherited_rPrContent | $new_rPrContent"/>
-    <xsl:for-each  select="$dumbMergedRunProperties">
+    <xsl:variable  name="dumbMergedRunProperties"  select="$inherited_rPrContent | $new_rPrContent" as="element(*)*"/>
+    <xsl:for-each select="$dumbMergedRunProperties">
+      <xsl:sort data-type="number" order="ascending">
+        <xsl:apply-templates select="." mode="letex:propsortkey"/>
+      </xsl:sort>
       <xsl:choose>
         <!-- DEMO for a toggling property -->
-        <xsl:when  test="self::w:XXX">
+        <xsl:when test="self::w:XXX">
           <!-- only the first occurence needs to be accounted for, since it accounts for all other occurences -->
-          <xsl:if  test=". is ($dumbMergedRunProperties//*[name() eq current()/name()])[1]">
+          <xsl:if test=". is ($dumbMergedRunProperties//*[name() eq current()/name()])[1]">
             <!-- toggling means to purge the property, if it is given twice -->
-            <xsl:if  test="count( $dumbMergedRunProperties//*[name() eq current()/name()]) eq 1">
-              <xsl:copy-of  select="."/>
+            <xsl:if test="count( $dumbMergedRunProperties//*[name() eq current()/name()]) eq 1">
+              <xsl:copy-of select="."/>
             </xsl:if>
           </xsl:if>
         </xsl:when>
         <!-- mutually exclusive or otherwise combining properties -->
-        <xsl:when  test="count( $dumbMergedRunProperties//*[name() = ( 'w:subscript' , 'w:superscript' )]) gt 1">
-          <xsl:message  terminate="yes"  select="'ERROR: the combination or nesting of subscript/superscript is currently not supported.'"/>
+        <xsl:when test="count( $dumbMergedRunProperties//*[name() = ( 'w:subscript' , 'w:superscript' )]) gt 1">
+          <xsl:message terminate="yes"
+            select="'ERROR: the combination or nesting of subscript/superscript is currently not supported.'"/>
         </xsl:when>
         <!-- all other properties, which we do not deal with here -->
         <xsl:otherwise>
-          <xsl:copy-of  select="."/>
+          <xsl:copy-of select="."/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:for-each>
@@ -164,54 +168,19 @@
     </xsl:choose>
   </xsl:template>
 
-  <!-- because of the transformation used to create the DocBook-document to be transformed now, emphasis does never contain anything else then a single textnode -->
-  <!-- In the DocBook-data to be converted, I used the phrase element at places where emphasis would not be allowed. Currently, this is the only use of phrase.
-       § If phrase is used otherwise in the future, the assumed analogy to emphasis does not stand further. -->
   <xsl:template  match="emphasis | phrase"  mode="hub:default">
-    <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/><!-- w:… property elements -->
     <xsl:variable name="role" select="@role" as="attribute(role)?"/>
-    <xsl:apply-templates  select="node()"  mode="#current" >
-      <xsl:with-param  name="rPrContent"  tunnel="yes">
+    <xsl:apply-templates mode="#current" >
+      <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*"><!-- w:… property elements -->
         <xsl:call-template  name="mergeRunProperties">
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-          <xsl:with-param  name="new_rPrContent">
-            <!-- §§ the combination of nested font properties may not suit the rendering expactions defined by the DocBook standard -->
-
-            <xsl:choose>
-              <xsl:when test="@css:* or
-                              /hub/info/styles/inlinestyles/style[@role eq $role]/@css:* or
-                              /hub/info/css:rules/css:rule[@layout-type eq 'inline'][@name eq $role]/@css:*">
-                <hub:styles>
-                  <!-- HUB version 1.0 -->
-                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(
-                                          /hub/info/styles/inlinestyles/style[@role eq $role]/@css:*,
-                                          ()
-                                        )"/>
-                  <!-- HUB version 1.1 -->
-                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(
-                                          /hub/info/css:rules/css:rule[@layout-type eq 'inline'][@name eq $role]/@css:*,
-                                          ()
-                                        )"/>
-                </hub:styles>
-                <hub:deviations>
-                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(
-                                          /hub/info/styles/inlinestyles/style[@role eq $role]/@css:*, 
-                                          @css:*
-                                          )"/>
-                  <xsl:sequence select="letex:resolve-text-props-by-css-attribs(
-                                          /hub/info/css:rules/css:rule[@layout-type eq 'inline'][@name eq $role]/@css:*,
-                                          @css:*
-                                        )"/>
-                </hub:deviations>
-                <w:rStyle hub:val="{$role}"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:sequence select="letex:resolve-text-props-by-role-name($role)"/>
-              </xsl:otherwise>
-            </xsl:choose>
-
-            <xsl:if  test="not(@role) and self::emphasis">
-              <xsl:message  select="concat( 'Warning: missing role attribute for element ', name(), ' - falling back to &quot;italic&quot;' )"/>
+          <xsl:with-param name="new_rPrContent" as="element(*)*">
+            <xsl:apply-templates select="@css:*, @xml:lang" mode="props"/>
+            <xsl:sequence select="letex:borders(.)"/>
+            <xsl:if test="not(@role) and self::emphasis">
+              <xsl:message
+                select="concat( 'Warning: missing role attribute for element ', name(), ' - falling back to &quot;italic&quot;' )"/>
               <w:i/>
             </xsl:if>
           </xsl:with-param>
@@ -226,7 +195,7 @@
       <xsl:with-param  name="rPrContent"  tunnel="yes">
         <xsl:call-template  name="mergeRunProperties">
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-          <xsl:with-param  name="new_rPrContent">
+          <xsl:with-param  name="new_rPrContent" as="element(w:vertAlign)">
             <w:vertAlign w:val="{ if ( self::subscript )
                                   then 'subscript'
                                   else if ( self::superscript )
@@ -239,88 +208,107 @@
     </xsl:apply-templates>
   </xsl:template>
 
-  <xsl:function name="letex:resolve-text-props-by-css-attribs" as="element()*">
-    <xsl:param name="css-style-attribs" as="attribute()*"/>
-    <xsl:param name="css-deviation-attribs" as="attribute()*"/>
-    <xsl:variable name="cssattribs" as="attribute()*" select="$css-deviation-attribs, $css-style-attribs[not(name() = (for $i in $css-deviation-attribs return name($i)))]"/>
-    <!-- ever heard of xsl:apply-templates, dude? -->
-    <xsl:for-each select="$cssattribs">
+  <xsl:template match="@css:font-family" mode="props">
+    <w:rFonts w:ascii="{.}" w:hAnsi="{.}"/>
+  </xsl:template>
+
+  <xsl:template match="@css:font-style[. = ('italic', 'oblique')]" mode="props">
+    <w:i/>
+  </xsl:template>
+  <xsl:template match="@css:font-style[. = ('normal')]" mode="props">
+    <w:i w:val="0"/>
+  </xsl:template>
+
+  <xsl:template match="@css:font-weight[matches(., '^(bold|[6-9]00)$')]" mode="props">
+    <w:b/>
+  </xsl:template>
+  <xsl:template match="@css:font-weight[matches(., '^(normal|[45]00)$')]" mode="props">
+    <w:b w:val="0"/>
+  </xsl:template>
+
+  <xsl:template match="@css:font-variant[. = 'small-caps']" mode="props">
+    <w:smallCaps w:val="true"/>
+  </xsl:template>
+
+  <xsl:template match="@css:text-decoration-line[. eq 'underline']" mode="props">
+    <w:u w:val="single">
+      <xsl:apply-templates select="../@css:text-decoration-color" mode="props-secondary"/>
+    </w:u>
+  </xsl:template>
+  <xsl:template match="@css:text-decoration-color" mode="props-secondary">
+    <xsl:attribute name="w:color" select="letex:retrieve-color-attribute-val(.)"/>
+  </xsl:template>
+  <xsl:template match="@css:text-decoration-color" mode="props"/>
+
+  <xsl:template match="@css:text-decoration-line[. eq 'line-through']" mode="props">
+    <w:strike w:val="on" />
+  </xsl:template>
+  
+  <xsl:template match="@css:background-color" mode="props">
+    <w:shd w:fill="{letex:retrieve-color-attribute-val(.)}" w:val="clear"/>
+  </xsl:template>
+
+  <xsl:template match="@css:*[starts-with(local-name(), 'border-')]" mode="props"/>
+
+  <xsl:template match="@css:font-size" mode="props">
+    <w:sz w:val="{round(letex:length-to-unitless-twip(.) * 0.1)}"/>
+  </xsl:template>
+  
+  <xsl:template match="@css:color" mode="props">
+    <w:color w:val="{letex:retrieve-color-attribute-val(.)}"/>
+  </xsl:template>
+  
+  <xsl:template match="@css:text-transform[. = 'uppercase']" mode="props">
+    <w:caps/>
+  </xsl:template>
+  
+  <xsl:template match="@xml:lang[normalize-space(.)]" mode="props">
+    <w:lang w:val="{.}"/>
+  </xsl:template>
+
+  <xsl:template match="@*" mode="props">
+    <xsl:message>Unimplemented in mode props: <xsl:value-of select="name()"/>=<xsl:value-of select="."/></xsl:message>
+  </xsl:template>
+  
+  <xsl:key name="style-by-name" match="css:rule" use="@name"/>
+  
+  <xsl:function name="letex:borders" as="element()*">
+    <xsl:param name="elt" as="element(*)"/>
+    <xsl:variable name="targetName" as="xs:string">
       <xsl:choose>
-        <xsl:when test="local-name() eq 'font-family'">
-          <w:rFonts w:ascii="{.}" w:hAnsi="{.}"/>
+        <xsl:when test="local-name($elt) = ('phrase', 'emphasis')">
+          <xsl:sequence select="'w:bdr'"/>
         </xsl:when>
-        <xsl:when test="local-name() eq 'font-style' and . = ('italic', 'oblique')">
-          <w:i/>
+        <xsl:when test="local-name($elt) = ('entry')">
+          <xsl:sequence select="'w:tcBorders'"/>
         </xsl:when>
-        <xsl:when test="local-name() eq 'font-style' and . = ('normal')">
-          <w:i w:val="0"/>
-        </xsl:when>
-        <xsl:when test="local-name() eq 'font-weight' and . = ('bold', '450', '500')">
-          <w:b/>
-        </xsl:when>
-        <xsl:when test="local-name() eq 'font-weight' and . = ('normal')">
-          <w:b w:val="0"/>
-        </xsl:when>
-        <xsl:when test="local-name() eq 'font-size'">
-          <xsl:apply-templates select="." mode="css2docx"/>
-        </xsl:when>
-        <xsl:when test="local-name() eq 'text-transform'">
-          <xsl:apply-templates select="." mode="css2docx"/>
-        </xsl:when>
-        <xsl:when test="local-name() eq 'font-variant' and . = 'small-caps'">
-          <w:smallCaps w:val="true"/>
-        </xsl:when>
-        <xsl:when test="local-name() eq 'color'">
-          <w:color w:val="{letex:retrieve-color-attribute-val(.)}"/>
-        </xsl:when>
-        <xsl:when test="local-name() eq 'text-decoration-line' and . eq 'underline'">
-          <w:u w:val="single">
-            <xsl:if test="$cssattribs[local-name() eq 'text-decoration-color']">
-              <xsl:attribute name="w:color" select="letex:retrieve-color-attribute-val($cssattribs[local-name() eq 'text-decoration-color'])"/>
-            </xsl:if>
-          </w:u>
-        </xsl:when>
-        <xsl:when test="local-name() eq 'text-decoration-line' and . eq 'line-through'">
-          <w:strike w:val="on" />
-        </xsl:when>
-        <xsl:when test="local-name() eq 'background-color'">
-          <w:shd w:fill="{letex:retrieve-color-attribute-val(.)}" w:val="clear"/>
-        </xsl:when>
-        <!-- ignored css attributes (already handled above) -->
-        <xsl:when test="matches(local-name(.), '^(border|text-decoration-([^l]))')" />
         <xsl:otherwise>
-          <xsl:message select="'Text run: unimplemented css attribute', local-name(.), 'with value', xs:string(.)"/>
+          <xsl:sequence select="'w:pBdr'"/>
         </xsl:otherwise>
       </xsl:choose>
-    </xsl:for-each>
-    <!-- border properties -->
-    <xsl:if test="$cssattribs[matches(local-name(), '^border.*(width|style|color)$')][not(matches(., '^0+[^0]*$'))]">
+    </xsl:variable>
+    <xsl:variable name="cssattribs" as="attribute()*" select="(key('style-by-name', $elt/@role, root($elt)), $elt)/@css:*[starts-with(local-name(), 'border-')]"/>
+    <xsl:if test="exists($cssattribs)">
+      <xsl:variable name="styles" select="$cssattribs[ends-with(local-name(), 'style')]" as="attribute()*"/>
+      <xsl:variable name="widths" select="$cssattribs[ends-with(local-name(), 'width')]" as="attribute()*"/>
+      <xsl:variable name="colors" select="$cssattribs[ends-with(local-name(), 'color')]" as="attribute()*"/>
+      <xsl:variable name="all-same" as="xs:boolean"
+        select="count($styles) = 4 and count($widths) = 4 and count($colors) = 4
+                and count(distinct-values($styles)) = 1 and count(distinct-values($widths)) = 1 and count(distinct-values($colors)) = 1"/>
+      <xsl:element name="{$targetName}">
+        <xsl:for-each select="('top', 'left', 'bottom', 'right')">
+          <xsl:apply-templates select="$cssattribs[local-name() = concat('border-', current(), '-style')]" mode="props-secondary">
+            <xsl:with-param name="width" select="$cssattribs[local-name() = concat('border-', current(), '-width')]"/>
+            <xsl:with-param name="color" select="$cssattribs[local-name() = concat('border-', current(), '-color')]"/>
+            <xsl:with-param name="targetName" select="$targetName"/>
+          </xsl:apply-templates>
+        </xsl:for-each>
+      </xsl:element>
+    </xsl:if>
+    <!--<xsl:if test="$cssattribs[matches(local-name(), '^border.*(width|style|color)$')][not(matches(., '^0+[^0]*$'))]">
       <xsl:if test="$cssattribs[matches(local-name(), 'border.(top|right|bottom|left).+$')]">
         <xsl:message select="'Border direction attribute: not implemented yet.'"/>
       </xsl:if>
-      <xsl:variable name="borderstyle" as="xs:string?">
-        <xsl:choose>
-          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'solid']">
-            <xsl:sequence select="'single'"/>
-          </xsl:when>
-          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'dotted']">
-            <xsl:sequence select="'dotted'"/>
-          </xsl:when>
-          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'dashed']">
-            <xsl:sequence select="'dashed'"/>
-          </xsl:when>
-          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. eq 'double']">
-            <xsl:sequence select="'double'"/>
-          </xsl:when>
-          <xsl:when test="$cssattribs[local-name() eq 'border-style'][. = ('none', 'hidden')]">
-            <xsl:sequence select="'none'"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:sequence select="'single'"/>
-            <xsl:message select="'Border style: unimplemented value', xs:string($cssattribs[local-name() eq 'border-style']), ' - falling back to solid.'"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
       <xsl:variable name="borderwidth" as="xs:string?">
         <xsl:sequence select="if ($cssattribs[local-name() eq 'border-width'][matches(., 'pt$')]) 
                               then xs:string(xs:integer(replace($cssattribs[local-name() eq 'border-width'], '\s*pt$', '')) * 12) 
@@ -337,21 +325,59 @@
         </xsl:choose>
       </xsl:variable>
       <w:bdr w:val="{$borderstyle}" w:sz="{$borderwidth}" w:space="0" w:color="{$bordercolor}"/>
-    </xsl:if>
+    </xsl:if>-->
   </xsl:function>
 
-  <xsl:template match="@css:font-size" mode="css2docx">
-    <w:sz w:val="round(letex:length-to-unitless-twip(.) * 0.1)"/>
-  </xsl:template>
-
-  <xsl:template match="@css:text-transform[. = 'uppercase']" mode="css2docx">
-    <w:caps/>
-  </xsl:template>
-
-  <xsl:template match="@*" mode="css2docx">
-    <xsl:message>Unimplemented in mode css2docx: <xsl:value-of select="name()"/>=<xsl:value-of select="."/></xsl:message>
+  <xsl:template match="@css:border-top-style | @css:border-bottom-style | @css:border-left-style | @css:border-right-style" mode="props-secondary">
+    <xsl:param name="width" as="attribute()?"/>
+    <xsl:param name="color" as="attribute()?"/>
+    <xsl:param name="targetName"/>
+    <xsl:choose>
+      <xsl:when test="$targetName = 'w:tcBorders'">
+        <xsl:element name="w:{replace(local-name(), 'border-(.+)-style', '$1')}">
+          <xsl:attribute name="w:val" select="letex:border-style(.)"/>
+          <xsl:apply-templates select="$width, $color" mode="#current"/>
+        </xsl:element>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
   
+  <xsl:template match="@css:border-top-width | @css:border-bottom-width | @css:border-left-width | @css:border-right-width" mode="props-secondary">
+    <xsl:attribute name="w:sz" select="letex:length-to-unitless-twip(.)"/>
+  </xsl:template>
+
+  <xsl:template match="@css:border-top-color | @css:border-bottom-color | @css:border-left-color | @css:border-right-color" mode="props-secondary">
+    <xsl:attribute name="w:color" select="letex:retrieve-color-attribute-val(.)"/>
+  </xsl:template>
+  
+  <xsl:function name="letex:border-style" as="xs:string">
+    <xsl:param name="style-val" as="xs:string"/>
+    <xsl:choose>
+      <xsl:when test="$style-val eq 'solid'">
+        <xsl:sequence select="'single'"/>
+      </xsl:when>
+      <xsl:when test="$style-val eq 'dotted'">
+        <xsl:sequence select="'dotted'"/>
+      </xsl:when>
+      <xsl:when test="$style-val eq 'dashed'">
+        <xsl:sequence select="'dashed'"/>
+      </xsl:when>
+      <xsl:when test="$style-val eq 'double'">
+        <xsl:sequence select="'double'"/>
+      </xsl:when>
+      <xsl:when test="$style-val = ('none', 'hidden')">
+        <xsl:sequence select="'none'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="'single'"/>
+        <xsl:message
+          select="'Border style: unimplemented value', $style-val, ' – falling back to solid.'"
+        />
+      </xsl:otherwise>
+    </xsl:choose>
+
+  </xsl:function>
+
   <xsl:function name="letex:resolve-text-props-by-role-name" as="element()*">
     <xsl:param name="role" as="xs:string"/>
     <xsl:for-each select="distinct-values(tokenize(lower-case($role), '&#x20;'))">
@@ -401,6 +427,38 @@
     </xsl:for-each>
   </xsl:function>
 
+  <xsl:template match="w:rFonts" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="10"/>
+  </xsl:template>
+
+  <xsl:template match="w:b" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="20"/>
+  </xsl:template>
+
+  <xsl:template match="w:i" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="30"/>
+  </xsl:template>
+
+  <xsl:template match="w:caps" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="60"/>
+  </xsl:template>
+  
+  <xsl:template match="w:color" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="100"/>
+  </xsl:template>
+
+  <xsl:template match="w:shd" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="120"/>
+  </xsl:template>
+
+  <xsl:template match="w:sz" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="110"/>
+  </xsl:template>
+
+  <xsl:template match="w:u" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="300"/>
+  </xsl:template>
+  
   <xsl:template  match="@css:*"  mode="hub:default">
     <xsl:copy />
   </xsl:template>
@@ -411,5 +469,9 @@
       <w:tab/>
     </w:r>
   </xsl:template>
+
+  <!-- The innermost / last style wins when something is derived from nested phrases: -->
+  
+  <xsl:template match="w:rPr/*[following-sibling::*[name() = name(current())]]" mode="hub:clean"/>
 
 </xsl:stylesheet>

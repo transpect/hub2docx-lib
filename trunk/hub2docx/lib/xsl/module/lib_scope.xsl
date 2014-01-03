@@ -27,8 +27,10 @@
   <xsl:function name="letex:same-scope" as="xs:boolean">
     <xsl:param name="elt" as="node()" />
     <xsl:param name="ancestor-elt" as="element(*)" />
-    <xsl:sequence select="not($elt/ancestor::*[letex:is-scope-origin(.)]
-      [some $a in ancestor::* satisfies ($a is $ancestor-elt)])" />
+    <xsl:sequence select="not(
+                            $elt/ancestor::*[letex:is-scope-origin(.)]
+                                            [some $a in ancestor::* satisfies ($a is $ancestor-elt)]
+                          )" />
   </xsl:function>
   
   <xsl:function name="letex:is-scope-origin" as="xs:boolean">

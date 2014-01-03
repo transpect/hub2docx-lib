@@ -30,7 +30,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn dbk xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn dbk xlink o w m wp r docx2hub"
 >
 
 
@@ -43,7 +43,7 @@
   <xsl:template match="*"
                 mode="hub:default"
                 priority="-1000">
-    <xsl:copy>
+    <xsl:copy copy-namespaces="no">
       <xsl:copy-of          select="@*"/>
       <xsl:attribute        name="hub:default-no-match"  select="'true'"/>
       <xsl:apply-templates  select="node()"  mode="#current"/>

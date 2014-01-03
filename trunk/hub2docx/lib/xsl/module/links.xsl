@@ -87,7 +87,7 @@
       <w:r>
         <xsl:call-template  name="mergeRunProperties">
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-          <xsl:with-param  name="new_rPrContent">
+          <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
             <w:rStyle w:val="bibref"/>
           </xsl:with-param>
         </xsl:call-template>
@@ -123,7 +123,7 @@
           <xsl:with-param  name="rPrContent"  tunnel="yes">
             <xsl:call-template  name="mergeRunProperties">
               <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-              <xsl:with-param  name="new_rPrContent">
+              <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
                 <xsl:if  test="@role eq 'bibref'">
                   <w:rStyle w:val="LiteraturverweisZchn"/>
                 </xsl:if>
@@ -151,7 +151,7 @@
           <xsl:with-param  name="rPrContent"  tunnel="yes">
             <xsl:call-template  name="mergeRunProperties">
               <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-              <xsl:with-param  name="new_rPrContent">
+              <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
                 <!-- §§ this rStyle has still to be defined or replaced by another one! -->
                 <w:rStyle  w:val="DeadHyperlink"/>
               </xsl:with-param>
@@ -170,7 +170,7 @@
               <xsl:with-param  name="rPrContent"  tunnel="yes">
                 <xsl:call-template  name="mergeRunProperties">
                   <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-                  <xsl:with-param  name="new_rPrContent">
+                  <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
                     <xsl:if  test="@role eq 'bibref'">
                       <w:rStyle w:val="LiteraturverweisZchn"/>
                     </xsl:if>
@@ -203,7 +203,7 @@
               <xsl:with-param  name="rPrContent"  tunnel="yes">
                 <xsl:call-template  name="mergeRunProperties">
                   <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-                  <xsl:with-param  name="new_rPrContent">
+                  <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
                     <xsl:if  test="@role eq 'bibref'">
                       <w:rStyle w:val="bibref"/>
                     </xsl:if>
@@ -234,7 +234,7 @@
           <xsl:with-param  name="rPrContent"  tunnel="yes">
             <xsl:call-template  name="mergeRunProperties">
               <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-              <xsl:with-param  name="new_rPrContent">
+              <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
                 <w:rStyle w:val="InternalRef"/>
               </xsl:with-param>
             </xsl:call-template>
@@ -258,7 +258,7 @@
           <xsl:with-param  name="rPrContent"  tunnel="yes">
             <xsl:call-template  name="mergeRunProperties">
               <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-              <xsl:with-param  name="new_rPrContent">
+              <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
                 <w:rStyle w:val="InternalRef"/>
               </xsl:with-param>
             </xsl:call-template>
@@ -281,7 +281,7 @@
         <xsl:with-param  name="rPrContent"  tunnel="yes">
           <xsl:call-template  name="mergeRunProperties">
             <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
-            <xsl:with-param  name="new_rPrContent">
+            <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
               <w:rStyle  w:val="Hyperlink"/>
             </xsl:with-param>
           </xsl:call-template>

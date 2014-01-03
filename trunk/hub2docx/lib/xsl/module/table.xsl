@@ -26,7 +26,7 @@
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
-
+    
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
     exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r"
@@ -59,7 +59,7 @@
       </xsl:otherwise>
     </xsl:choose>
     <w:p>
-      <xsl:variable name="pPr">
+      <xsl:variable name="pPr" as="element(*)*">
         <xsl:apply-templates  select="@css:page-break-after" mode="props" />
       </xsl:variable>
       <xsl:if  test="$pPr">
@@ -132,16 +132,7 @@
   <xsl:template  match="col | colspec"  mode="hub:default">
     <w:gridCol>
       <xsl:if test="@width | @colwidth">
-        <xsl:attribute  name="w:w"  
-          select="xs:integer(
-                    xs:double(
-                      replace(
-                        (@width, @colwidth)[1], 
-                        '(mm|pt)$',
-                        ''
-                      )
-                    ) * $table-scale
-                  )" />
+        <xsl:attribute  name="w:w" select="round(letex:length-to-unitless-twip( (@width, @colwidth)[1] ))" />
       </xsl:if>
     </w:gridCol>
   </xsl:template>
@@ -182,28 +173,36 @@
               </w:trPr>
             </xsl:if>
             <xsl:for-each select="$cals-rows[1]/*[self::entry or self::td or self::th]">
-              <xsl:variable  name="tcPr">
+              <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then string(number(@rowspan)-1) else ''"/>
+              <xsl:variable  name="tcPr" as="element()*">
                 <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1], @css:*"  mode="tcPr" />
+                <xsl:sequence select="letex:borders(.)"/>
+                <!-- wtf? Project-specific stuff here? 
                 <xsl:if test="self::th or ../../self::thead">
                   <w:shd w:val="clear" w:color="auto" 
                     w:fill="{replace( letex:current-color(., 'grey', if(../../self::thead) then 'medium' else 'light'), '#', '' )}"/>
-                </xsl:if>
-                <xsl:apply-templates select="@css:background-color" mode="tcPr"/>
+                </xsl:if> 
+                will be processed a 2nd time here:
+                <xsl:apply-templates select="@css:background-color" mode="tcPr"/> -->
               </xsl:variable>
-              <xsl:variable name="pPr">
+              <xsl:variable name="pPr" as="element(*)*">
                 <xsl:apply-templates select="para/@css:page-break-after" mode="props"/>
               </xsl:variable>
-              <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then string(number(@rowspan)-1) else ''"/>
               <w:tc>
                 <w:tcPr>
-                  <xsl:if test="not($morerows='')">
-                    <w:vMerge w:val="restart" hub:morerows="{$morerows}"/>
-                  </xsl:if>
-                  <xsl:if test="exists(@namest) or exists(@colspan)">
-                    <w:hMerge w:val="restart"/>
-                  </xsl:if>
                   <xsl:if test="$tcPr">
-                    <xsl:sequence  select="$tcPr" />
+                    <xsl:perform-sort>
+                      <xsl:sort data-type="number" order="ascending">
+                        <xsl:apply-templates select="." mode="letex:propsortkey"/>
+                      </xsl:sort>
+                      <xsl:sequence select="$tcPr"/>
+                      <xsl:if test="not($morerows='')">
+                        <w:vMerge w:val="restart" hub:morerows="{$morerows}"/>
+                      </xsl:if>
+                      <xsl:if test="exists(@namest) or exists(@colspan)">
+                        <w:hMerge w:val="restart"/>
+                      </xsl:if>
+                    </xsl:perform-sort>
                   </xsl:if>
                 </w:tcPr>
                 <xsl:apply-templates mode="hub:default"/>
@@ -212,21 +211,24 @@
                 <xsl:for-each select="1 to (xs:integer(@colspan), xs:integer(letex:cals-colspan($name-to-int-map, @namest, @nameend)))[1]-1">
                   <w:tc>
                     <w:tcPr>
-                      <xsl:if test="not($morerows='')">
-                        <w:vMerge w:val="restart" hub:morerows="{$morerows}"/>
-                      </xsl:if>
-                      <w:hMerge w:val="continue"/>
-                      <xsl:if test="$tcPr">
-                        <xsl:sequence  select="$tcPr" />
-                      </xsl:if>
-                      <w:p>
-                        <xsl:if test="$pPr">
-                          <w:pPr>
-                            <xsl:sequence  select="$pPr" />
-                          </w:pPr>
+                      <xsl:perform-sort>
+                        <xsl:sort data-type="number" order="ascending">
+                          <xsl:apply-templates select="." mode="letex:propsortkey"/>
+                        </xsl:sort>
+                        <xsl:if test="not($morerows='')">
+                          <w:vMerge w:val="restart" hub:morerows="{$morerows}"/>
                         </xsl:if>
-                      </w:p>
+                        <w:hMerge w:val="continue"/>
+                        <xsl:sequence select="$tcPr"/>
+                      </xsl:perform-sort>
                     </w:tcPr>
+                    <w:p>
+                      <xsl:if test="$pPr">
+                        <w:pPr>
+                          <xsl:sequence select="$pPr"/>
+                        </w:pPr>
+                      </xsl:if>
+                    </w:p>
                   </w:tc>
                 </xsl:for-each>
               </xsl:if>
@@ -239,7 +241,7 @@
         <xsl:variable name="new-built-rows" as="element(w:tr)*">
           <xsl:sequence select="$built-rows"/>
           <w:tr>
-            <xsl:variable  name="trPr">
+            <xsl:variable name="trPr" as="element()*">
               <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height | $cals-rows[1]/@css:page-break-inside"  mode="trPr" />
               <xsl:if test="$cals-rows[1]/ancestor::thead">
                 <w:tblHeader/>
@@ -247,7 +249,11 @@
             </xsl:variable>
             <xsl:if test="$trPr">
               <w:trPr>
-                <xsl:sequence  select="$trPr" />
+                <xsl:perform-sort select="$trPr">
+                  <xsl:sort data-type="number" order="ascending">
+                    <xsl:apply-templates select="." mode="letex:propsortkey"/>
+                  </xsl:sort>
+                </xsl:perform-sort>
               </w:trPr>
             </xsl:if>
             <xsl:sequence select="letex:position-tcs($built-rows[last()]/w:tc,$cals-rows[1]/*[self::entry or self::td or self::th],$name-to-int-map)"/>
@@ -257,6 +263,22 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+  
+  <xsl:template match="w:tcW" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="0"/>
+  </xsl:template>
+    
+  <xsl:template match="w:gridSpan" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="10"/>
+  </xsl:template>
+
+  <xsl:template match="w:hMerge" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="20"/>
+  </xsl:template>
+  
+  <xsl:template match="w:vMerge" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="30"/>
+  </xsl:template>
   
   <xsl:function name="letex:position-tcs" as="element(w:tc)*">
     <xsl:param name="built-entries" as="element(w:tc)*"/>
@@ -268,64 +290,83 @@
         <xsl:for-each select="$built-entries">
           <w:tc>
             <w:tcPr>
-              <w:vMerge w:val="continue" hub:morerows="{number(descendant::w:vMerge[letex:same-scope(., current())]/@hub:morerows)-1}"/>
-              <xsl:sequence select="w:tcPr/node()[not(self::w:vMerge)]"/>
+              <xsl:perform-sort>
+                <xsl:sort order="ascending" data-type="number">
+                  <xsl:apply-templates select="." mode="letex:propsortkey"/>
+                </xsl:sort>
+                <w:vMerge w:val="continue" hub:morerows="{number(descendant::w:vMerge[letex:same-scope(., current())]/@hub:morerows)-1}"/>
+                <xsl:sequence select="w:tcPr/node()[not(self::w:vMerge)]"/>
+              </xsl:perform-sort>
             </w:tcPr>
             <w:p>
-              <xsl:sequence select="w:p/w:pPr"/>
+              <xsl:sequence select="(w:p/w:pPr)[1]"/>
             </w:p>
           </w:tc>
         </xsl:for-each>
       </xsl:when>
-      <xsl:when test="$built-entries[1][descendant::w:vMerge[@hub:morerows and number(@hub:morerows) gt 0]]">
+      <xsl:when test="$built-entries[1][descendant::w:vMerge[letex:same-scope(., $built-entries[1])][@hub:morerows and number(@hub:morerows) gt 0]]">
         <w:tc>
           <w:tcPr>
-            <w:vMerge w:val="continue" hub:morerows="{number($built-entries[1]/descendant::w:vMerge/@hub:morerows)-1}"/>
-            <xsl:sequence select="$built-entries[1]/w:tcPr/node()[not(self::w:vMerge)]"/>
+            <xsl:perform-sort>
+              <xsl:sort order="ascending" data-type="number">
+                <xsl:apply-templates select="." mode="letex:propsortkey"/>
+              </xsl:sort>
+              <w:vMerge w:val="continue" hub:morerows="{number($built-entries[1]/descendant::w:vMerge[letex:same-scope(., $built-entries[1])]/@hub:morerows)-1}"/>
+              <xsl:sequence select="$built-entries[1]/w:tcPr/node()[not(self::w:vMerge)]"/>
+            </xsl:perform-sort>
           </w:tcPr>
           <w:p>
-            <xsl:sequence select="$built-entries[1]/w:p/w:pPr"/>
+            <xsl:sequence select="($built-entries/w:p/w:pPr)[1]"/>
           </w:p>
         </w:tc>
         <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1],$cals-entries,$name-to-int-map)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="tcPr">
+        <xsl:variable name="tcPr" as="element(*)*">
           <xsl:apply-templates select="($cals-entries[1]/@colspan, letex:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend))[1], $cals-entries[1]/@class, ($cals-entries[1]/@rowsep, $cals-entries[1]/@colsep)[1], $cals-entries[1]/@css:*"  mode="tcPr" />
-          <xsl:if test="$cals-entries[1][self::th] or $cals-entries[1]/ancestor::thead">
+          <!--<xsl:if test="$cals-entries[1][self::th] or $cals-entries[1]/ancestor::thead">
             <w:shd w:val="clear" w:color="auto" 
               w:fill="{replace( letex:current-color($cals-entries[1], 'grey', if ($cals-entries[1]/ancestor::thead) then 'medium' else 'light'), '#', '' )}"/>
           </xsl:if>
-          <xsl:apply-templates select="$cals-entries[1]/@css:background-color" mode="tcPr"/>
+          <xsl:apply-templates select="$cals-entries[1]/@css:background-color" mode="tcPr"/>-->
         </xsl:variable>
-        <xsl:variable name="pPr">
+        <xsl:variable name="pPr" as="element(*)*">
           <xsl:apply-templates select="$cals-entries[1]/para/@css:page-break-avoid" mode="props"/>
         </xsl:variable>
         <w:tc>
-          <w:tcPr>
-            <xsl:if test="exists($cals-entries[1]/@morerows) or exists($cals-entries[1]/@rowspan)">
-              <w:vMerge w:val="restart" hub:morerows="{if (exists($cals-entries[1]/@morerows)) then $cals-entries[1]/@morerows else number($cals-entries[1]/@rowspan)-1}"/>
-            </xsl:if>
-            <xsl:if test="exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan)">
-              <w:hMerge w:val="restart"/>
-            </xsl:if>
             <xsl:if test="$tcPr">
-              <xsl:sequence  select="$tcPr" />
+            <w:tcPr>
+              <xsl:perform-sort>
+                <xsl:sort data-type="number" order="ascending">
+                  <xsl:apply-templates select="." mode="letex:propsortkey"/>
+                </xsl:sort>
+                <xsl:sequence select="$tcPr"/>
+                <xsl:if test="exists($cals-entries[1]/@morerows) or exists($cals-entries[1]/@rowspan)">
+                  <w:vMerge w:val="restart"
+                    hub:morerows="{if (exists($cals-entries[1]/@morerows)) then $cals-entries[1]/@morerows else number($cals-entries[1]/@rowspan)-1}"/>
+                </xsl:if>
+                <xsl:if test="exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan)">
+                  <w:hMerge w:val="restart"/>
+                </xsl:if>
+              </xsl:perform-sort>
+            </w:tcPr>
             </xsl:if>
-          </w:tcPr>
           <xsl:apply-templates select="$cals-entries[1]/node()" mode="hub:default"/>
         </w:tc>
         <xsl:if test="exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan)">
           <xsl:for-each select="1 to (xs:integer($cals-entries[1]/@colspan), xs:integer(letex:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend)))[1]-1">
             <w:tc>
               <w:tcPr>
-                <xsl:if test="exists($cals-entries[1]/@morerows) or exists($cals-entries[1]/@rowspan)">
-                  <w:vMerge w:val="restart" hub:morerows="{if (exists($cals-entries[1]/@morerows)) then $cals-entries[1]/@morerows else number($cals-entries[1]/@rowspan)-1}"/>
-                </xsl:if>
-                <w:hMerge w:val="continue"/>
-                <xsl:if test="$tcPr">
+                <xsl:perform-sort>
+                  <xsl:sort order="ascending" data-type="number">
+                    <xsl:apply-templates select="." mode="letex:propsortkey"/>
+                  </xsl:sort>
+                  <xsl:if test="exists($cals-entries[1]/@morerows) or exists($cals-entries[1]/@rowspan)">
+                    <w:vMerge w:val="restart" hub:morerows="{if (exists($cals-entries[1]/@morerows)) then $cals-entries[1]/@morerows else number($cals-entries[1]/@rowspan)-1}"/>
+                  </xsl:if>
+                  <w:hMerge w:val="continue"/>
                   <xsl:sequence  select="$tcPr" />
-                </xsl:if>
+                </xsl:perform-sort>
               </w:tcPr>
               <w:p>
                 <xsl:if test="$pPr">
@@ -392,7 +433,7 @@
 							"If a table cell does not include at least one block-level element, 
 							 then this document shall be considered corrupt." -->
 					<w:p>
-					  <xsl:variable name="pPr">
+					  <xsl:variable name="pPr" as="element(*)*">
 					    <xsl:apply-templates  select="para/@css:page-break-after" mode="props" />
 					  </xsl:variable>
 					  <xsl:if test="$pPr">
@@ -458,7 +499,7 @@
   </xsl:template>
 
   <xsl:template match="@css:background-color" mode="tcPr">
-    <w:shd w:val="clear" w:color="auto" w:fill="{.}"/>
+    <w:shd w:val="clear" w:color="auto" w:fill="{replace(., '^#', '')}"/>
   </xsl:template>
 
   <xsl:template match="@frame" mode="tblPr">
