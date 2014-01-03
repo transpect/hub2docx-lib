@@ -144,7 +144,7 @@
       <w:pPr>
         <w:pStyle w:val="{concat( $heading-prefix, string(letex:headinglevel(.)))}"/>
       </w:pPr>
-      <xsl:variable name="rPrContent">
+      <xsl:variable name="rPrContent" as="element(w:color)?">
 				<xsl:variable name="color" select="replace( letex:current-color(., (), ()), '#', '' )" />
         <xsl:if test="$color">
           <w:color w:val="{$color}"/>

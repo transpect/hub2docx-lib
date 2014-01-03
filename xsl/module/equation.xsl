@@ -39,7 +39,7 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template  match="inlineequation"  mode="hub:default">
-    <xsl:variable name="rPrContent">
+    <xsl:variable name="rPrContent" as="element(w:rStyle)">
       <w:rStyle w:val="InlineEquation" />
     </xsl:variable>
     <xsl:apply-templates select="node()[not(self::text()[matches(., '^\s*$')])]" mode="#current">

@@ -50,5 +50,12 @@
     <xsl:sequence select="$result" />
   </xsl:function>
 
+  <!-- Establish OOXML schema compliant prop sort order (which is, typically, alphabetical) -->
+  <xsl:template match="@* | *" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="1000 * (string-to-codepoints((prefix-from-QName(node-name(.)), '_')[1]))[1]
+      + 10 * (string-to-codepoints(local-name(.)))[1]"/>
+  </xsl:template>
+  
+  
 
 </xsl:stylesheet>
