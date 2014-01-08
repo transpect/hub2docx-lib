@@ -42,7 +42,7 @@
   <xsl:template  match="table | informaltable"  mode="hub:default">
     <xsl:apply-templates  select="self::informaltable/@xml:id | caption | info"  mode="#current" />
     <xsl:variable name="tblPrContent" as="element(*)*">
-      <xsl:apply-templates select="@frame, @css:text-align, @css:width" mode="tblPr"/>
+      <xsl:apply-templates select="@css:width, @css:text-align, @frame" mode="tblPr"/>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="tgroup">
@@ -175,35 +175,25 @@
             <xsl:for-each select="$cals-rows[1]/*[self::entry or self::td or self::th]">
               <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then string(number(@rowspan)-1) else ''"/>
               <xsl:variable  name="tcPr" as="element()*">
-                <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1], @css:*"  mode="tcPr" />
-                <xsl:sequence select="letex:borders(.)"/>
-                <!-- wtf? Project-specific stuff here? 
-                <xsl:if test="self::th or ../../self::thead">
-                  <w:shd w:val="clear" w:color="auto" 
-                    w:fill="{replace( letex:current-color(., 'grey', if(../../self::thead) then 'medium' else 'light'), '#', '' )}"/>
-                </xsl:if> 
-                will be processed a 2nd time here:
-                <xsl:apply-templates select="@css:background-color" mode="tcPr"/> -->
+                <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1], @css:*" mode="tcPr" />
               </xsl:variable>
               <xsl:variable name="pPr" as="element(*)*">
                 <xsl:apply-templates select="para/@css:page-break-after" mode="props"/>
               </xsl:variable>
               <w:tc>
                 <w:tcPr>
-                  <xsl:if test="$tcPr">
-                    <xsl:perform-sort>
-                      <xsl:sort data-type="number" order="ascending">
-                        <xsl:apply-templates select="." mode="letex:propsortkey"/>
-                      </xsl:sort>
-                      <xsl:sequence select="$tcPr"/>
-                      <xsl:if test="not($morerows='')">
-                        <w:vMerge w:val="restart" hub:morerows="{$morerows}"/>
-                      </xsl:if>
-                      <xsl:if test="exists(@namest) or exists(@colspan)">
-                        <w:hMerge w:val="restart"/>
-                      </xsl:if>
-                    </xsl:perform-sort>
-                  </xsl:if>
+                  <xsl:perform-sort>
+                    <xsl:sort data-type="number" order="ascending">
+                      <xsl:apply-templates select="." mode="letex:propsortkey"/>
+                    </xsl:sort>
+                    <xsl:if test="not($morerows='')">
+                      <w:vMerge w:val="restart" hub:morerows="{$morerows}"/>
+                    </xsl:if>
+                    <xsl:if test="exists(@namest) or exists(@colspan)">
+                      <w:hMerge w:val="restart"/>
+                    </xsl:if>
+                    <xsl:sequence select="$tcPr"/>
+                  </xsl:perform-sort>
                 </w:tcPr>
                 <xsl:apply-templates mode="hub:default"/>
               </w:tc>
@@ -225,7 +215,7 @@
                     <w:p>
                       <xsl:if test="$pPr">
                         <w:pPr>
-                          <xsl:sequence select="$pPr"/>
+                          <xsl:sequence  select="$pPr" />
                         </w:pPr>
                       </xsl:if>
                     </w:p>
@@ -280,6 +270,46 @@
     <xsl:sequence select="30"/>
   </xsl:template>
   
+  <xsl:template match="w:tcBorders" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="40"/>
+  </xsl:template>
+  
+  <xsl:template match="w:shd" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="50"/>
+  </xsl:template>
+
+  <xsl:template match="w:noWrap" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="60"/>
+  </xsl:template>
+
+  <xsl:template match="w:textDirection" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="70"/>
+  </xsl:template>
+
+  <xsl:template match="w:vAlign" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="80"/>
+  </xsl:template>
+  
+    <xsl:template match="w:tblStyle" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="0"/>
+  </xsl:template>
+  
+  <xsl:template match="w:tblpPr" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="10"/>
+  </xsl:template>
+  
+  <xsl:template match="w:tblW" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="20"/>
+  </xsl:template>
+  
+  <xsl:template match="w:tblBorders" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="40"/>
+  </xsl:template>
+  
+  <xsl:template match="w:tblLook" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="50"/>
+  </xsl:template>
+  
   <xsl:function name="letex:position-tcs" as="element(w:tc)*">
     <xsl:param name="built-entries" as="element(w:tc)*"/>
     <xsl:param name="cals-entries" as="element(*)*"/>
@@ -323,24 +353,17 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="tcPr" as="element(*)*">
-          <xsl:apply-templates select="($cals-entries[1]/@colspan, letex:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend))[1], $cals-entries[1]/@class, ($cals-entries[1]/@rowsep, $cals-entries[1]/@colsep)[1], $cals-entries[1]/@css:*"  mode="tcPr" />
-          <!--<xsl:if test="$cals-entries[1][self::th] or $cals-entries[1]/ancestor::thead">
-            <w:shd w:val="clear" w:color="auto" 
-              w:fill="{replace( letex:current-color($cals-entries[1], 'grey', if ($cals-entries[1]/ancestor::thead) then 'medium' else 'light'), '#', '' )}"/>
-          </xsl:if>
-          <xsl:apply-templates select="$cals-entries[1]/@css:background-color" mode="tcPr"/>-->
+          <xsl:apply-templates select="($cals-entries[1]/@colspan, letex:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend))[1], $cals-entries[1]/@class, ($cals-entries[1]/@rowsep, $cals-entries[1]/@colsep)[1], $cals-entries[1]/@css:*" mode="tcPr"/>
         </xsl:variable>
         <xsl:variable name="pPr" as="element(*)*">
           <xsl:apply-templates select="$cals-entries[1]/para/@css:page-break-avoid" mode="props"/>
         </xsl:variable>
         <w:tc>
-            <xsl:if test="$tcPr">
             <w:tcPr>
               <xsl:perform-sort>
                 <xsl:sort data-type="number" order="ascending">
                   <xsl:apply-templates select="." mode="letex:propsortkey"/>
                 </xsl:sort>
-                <xsl:sequence select="$tcPr"/>
                 <xsl:if test="exists($cals-entries[1]/@morerows) or exists($cals-entries[1]/@rowspan)">
                   <w:vMerge w:val="restart"
                     hub:morerows="{if (exists($cals-entries[1]/@morerows)) then $cals-entries[1]/@morerows else number($cals-entries[1]/@rowspan)-1}"/>
@@ -348,9 +371,9 @@
                 <xsl:if test="exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan)">
                   <w:hMerge w:val="restart"/>
                 </xsl:if>
+                <xsl:sequence select="$tcPr"/>
               </xsl:perform-sort>
             </w:tcPr>
-            </xsl:if>
           <xsl:apply-templates select="$cals-entries[1]/node()" mode="hub:default"/>
         </w:tc>
         <xsl:if test="exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan)">
@@ -415,16 +438,16 @@
     <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
     <w:tc>
       <xsl:variable  name="tcPr">
-        <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1], @css:*"  mode="tcPr" />
-        <xsl:if test="self::th or ../../self::thead">
-          <w:shd w:val="clear" w:color="auto" 
-            w:fill="{replace( letex:current-color(., 'grey', if(../../self::thead) then 'medium' else 'light'), '#', '' )}"/>
-        </xsl:if>
-        <xsl:apply-templates  select="@css:background-color"  mode="tcPr" />
+        <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1], @css:*" mode="tcPr"/>
       </xsl:variable>
       <xsl:if test="$tcPr">
         <w:tcPr>
-          <xsl:sequence  select="$tcPr" />
+          <xsl:perform-sort>
+            <xsl:sort data-type="number" order="ascending">
+              <xsl:apply-templates select="." mode="letex:propsortkey"/>
+            </xsl:sort>
+            <xsl:sequence select="$tcPr" />
+          </xsl:perform-sort>
         </w:tcPr>
       </xsl:if>
 			<xsl:choose>
@@ -469,7 +492,9 @@
               <xsl:attribute name="w:val"    select="'single'" />
               <xsl:attribute name="w:sz"     select="10" />
               <xsl:attribute name="w:space " select="0" />
-              <xsl:attribute name="w:color " select="replace( letex:current-color($context, '', 'dark'), '#', '' )" />
+              <xsl:if test="letex:current-color($context, '', 'dark') ne ''">
+                <xsl:attribute name="w:color " select="replace( letex:current-color($context, '', 'dark'), '#', '' )" />
+              </xsl:if>
             </xsl:element>
           </xsl:for-each>
         </w:tcBorders>
@@ -499,14 +524,14 @@
   </xsl:template>
 
   <xsl:template match="@css:background-color" mode="tcPr">
-    <w:shd w:val="clear" w:color="auto" w:fill="{replace(., '^#', '')}"/>
+    <w:shd w:val="clear" w:color="auto" w:fill="{letex:retrieve-color-attribute-val(.)}"/>
   </xsl:template>
 
   <xsl:template match="@frame" mode="tblPr">
     <xsl:variable name="frame" as="xs:string *">
       <xsl:value-of select="if (.=('all','top','topbot','above','hsides','box','border')) then 'top:single' else 'top:none'"/>
-      <xsl:value-of select="if (.=('all','bottom','topbot','below','hsides','box','border')) then 'bottom:single' else 'bottom:none'"/>
       <xsl:value-of select="if (.=('all','sides','lhs','vsides','box','border')) then 'left:single' else 'left:none'"/>
+      <xsl:value-of select="if (.=('all','bottom','topbot','below','hsides','box','border')) then 'bottom:single' else 'bottom:none'"/>
       <xsl:value-of select="if (.=('all','sides','rhs','vsides','box','border')) then 'right:single' else 'right:none'"/>
     </xsl:variable>
     <w:tblBorders>
@@ -532,7 +557,7 @@
   <xsl:template match="@css:height" mode="trPr">
     <xsl:element name="w:trHeight">
       <xsl:attribute name="w:val" select="if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else ."/>
-      <xsl:attribute name="w:h-rule" select="'at-least'"/>
+      <xsl:attribute name="w:hRule" select="'atLeast'"/>
     </xsl:element>
   </xsl:template>
   

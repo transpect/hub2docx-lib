@@ -47,7 +47,8 @@
         <xsl:sort data-type="number" order="ascending">
           <xsl:apply-templates select="." mode="letex:propsortkey"/>
         </xsl:sort>
-        <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height, @css:text-indent, @css:page-break-after, @css:page-break-inside, (@css:widows, @css:orphans)[1]" mode="props" />      </xsl:perform-sort>
+        <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, .//phrase[@role eq 'pageBreakBefore'], @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align" mode="props" />      
+      </xsl:perform-sort>
     </xsl:variable>
     <w:p docx2hub:origin="default_p_parentnotlistitem">
       <xsl:if  test="$pPr">
@@ -67,7 +68,7 @@
 
   <xsl:template  match="para[ parent::blockquote ]"  mode="hub:default" priority="2">
     <xsl:variable name="pPr" as="element(*)*">
-      <xsl:apply-templates  select="@role, .//phrase[@role eq 'pageBreakBefore'], @css:margin-bottom, @css:text-align, @css:margin-top, @css:line-height, @css:text-indent, @css:page-break-after, @css:page-break-inside, (@css:widows, @css:orphans)[1]"  mode="props" />
+      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, .//phrase[@role eq 'pageBreakBefore'], @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
       <w:pStyle w:val="BlockText"/>
     </xsl:variable>
     <w:p docx2hub:origin="default_p_parentblockq">
@@ -93,10 +94,10 @@
   </xsl:template>
 
   <xsl:template match="@role" mode="props">
+    <w:pStyle hub:val="{.}" />
     <xsl:if test="matches(., 'item')">
       <w:ind w:left="360" />
     </xsl:if>
-    <w:pStyle hub:val="{.}" />
 <!--
     <xsl:if test="matches(., 'unreferencedFootnote')">
       <w:pStyle w:val="UnreferencedFootnote" />
@@ -161,12 +162,32 @@
     <xsl:sequence select="0"/>
   </xsl:template>
   
+  <xsl:template match="w:keepNext" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="5"/>
+  </xsl:template>
+  
+  <xsl:template match="w:keepLines" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="10"/>
+  </xsl:template>
+  
+  <xsl:template match="w:pageBreakBefore" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="15"/>
+  </xsl:template>
+  
   <xsl:template match="w:widowControl" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="100"/>
+    <xsl:sequence select="20"/>
   </xsl:template>
   
   <xsl:template match="w:spacing" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="400"/>
+    <xsl:sequence select="25"/>
+  </xsl:template>
+  
+  <xsl:template match="w:ind" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="30"/>
+  </xsl:template>
+
+  <xsl:template match="w:jc" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="35"/>
   </xsl:template>
   
 </xsl:stylesheet>
