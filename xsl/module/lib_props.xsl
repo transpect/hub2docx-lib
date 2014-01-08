@@ -36,18 +36,23 @@
     <xsl:param name="custom-props"    as="element(*)*" />
     <xsl:param name="default-props"    as="element(*)*" />
     <xsl:variable name="result" as="element(*)*">
-    <xsl:for-each select="distinct-values(for $prop in ($custom-props union $default-props) return name($prop))">
-      <xsl:choose>
-        <xsl:when test="$custom-props/self::*[name() = current()]">
-          <xsl:sequence select="$custom-props/self::*[name() = current()]" />
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:sequence select="$default-props/self::*[name() = current()]" />
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:for-each>
+      <xsl:for-each select="distinct-values(for $prop in ($custom-props union $default-props) return name($prop))">
+        <xsl:choose>
+          <xsl:when test="$custom-props/self::*[name() = current()]">
+            <xsl:sequence select="$custom-props/self::*[name() = current()]" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:sequence select="$default-props/self::*[name() = current()]" />
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each>
     </xsl:variable>
-    <xsl:sequence select="$result" />
+    <xsl:perform-sort>
+      <xsl:sort data-type="number" order="ascending">
+        <xsl:apply-templates select="." mode="letex:propsortkey"/>
+      </xsl:sort>
+      <xsl:sequence select="$result" />
+    </xsl:perform-sort>
   </xsl:function>
 
   <!-- Establish OOXML schema compliant prop sort order (which is, typically, alphabetical) -->
