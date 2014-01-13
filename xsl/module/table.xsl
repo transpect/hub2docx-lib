@@ -80,7 +80,7 @@
     </w:p>
   </xsl:template>
   
-  <xsl:template name="create-table" as="node()+">
+  <xsl:template name="create-table" as="element(*)+">
     <xsl:param name="tblPrContent" as="element(*)*" tunnel="yes" />
     <w:tbl>
       <xsl:variable name="current-color" select="replace( letex:current-color(., (), ()), '#', '' )" />
@@ -144,7 +144,15 @@
   <xsl:template match="thead | tbody | tfoot" mode="hub:default">
     <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
     <xsl:variable name="cols" select="parent::*/@cols"/>
-    <xsl:for-each-group select="node()" group-starting-with="*[self::row or self::tr][sum(for $i in (*[self::entry or self::td or self::th]) return if (exists((@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1])) then (@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1] else 1)=$cols]">
+    <xsl:for-each-group select="*" 
+      group-starting-with="*[self::row or self::tr]
+                            [sum(
+                              for $i in (*[self::entry or self::td or self::th]) 
+                              return 
+                                if (exists((@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1])) 
+                                then (@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1] 
+                                else 1
+                             ) = $cols]">
       <xsl:sequence select="letex:position-trs((),current-group(),$name-to-int-map)"/>
     </xsl:for-each-group>
   </xsl:template>
@@ -254,6 +262,10 @@
     </xsl:choose>
   </xsl:function>
   
+  <xsl:template match="w:tc[w:tcPr/w:hMerge/@w:val = 'continue']" mode="hub:clean"/>
+
+  <xsl:template match="w:tc/w:tcPr/w:hMerge" mode="hub:clean"/>
+  
   <xsl:template match="w:tcW" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="0"/>
   </xsl:template>
@@ -271,23 +283,19 @@
   </xsl:template>
   
   <xsl:template match="w:tcBorders" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="40"/>
+    <xsl:sequence select="140"/>
   </xsl:template>
   
-  <xsl:template match="w:shd" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="50"/>
-  </xsl:template>
-
   <xsl:template match="w:noWrap" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="60"/>
+    <xsl:sequence select="160"/>
   </xsl:template>
 
   <xsl:template match="w:textDirection" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="70"/>
+    <xsl:sequence select="170"/>
   </xsl:template>
 
   <xsl:template match="w:vAlign" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="80"/>
+    <xsl:sequence select="180"/>
   </xsl:template>
   
     <xsl:template match="w:tblStyle" mode="letex:propsortkey" as="xs:integer">
@@ -317,15 +325,15 @@
 
     <xsl:choose>
       <xsl:when test="empty($cals-entries)">
-        <xsl:for-each select="$built-entries">
+        <xsl:for-each select="$built-entries[w:tcPr/w:vMerge[@hub:morerows  and number(@hub:morerows) gt 0]]">
           <w:tc>
             <w:tcPr>
               <xsl:perform-sort>
                 <xsl:sort order="ascending" data-type="number">
                   <xsl:apply-templates select="." mode="letex:propsortkey"/>
                 </xsl:sort>
-                <w:vMerge w:val="continue" hub:morerows="{number(descendant::w:vMerge[letex:same-scope(., current())]/@hub:morerows)-1}"/>
-                <xsl:sequence select="w:tcPr/node()[not(self::w:vMerge)]"/>
+                <w:vMerge w:val="continue" hub:morerows="{number(w:tcPr/w:vMerge/@hub:morerows)-1}"/>
+                <xsl:sequence select="w:tcPr/*[not(self::w:vMerge)]"/>
               </xsl:perform-sort>
             </w:tcPr>
             <w:p>
@@ -334,22 +342,24 @@
           </w:tc>
         </xsl:for-each>
       </xsl:when>
-      <xsl:when test="$built-entries[1][descendant::w:vMerge[letex:same-scope(., $built-entries[1])][@hub:morerows and number(@hub:morerows) gt 0]]">
+      <xsl:when test="$built-entries[1][w:tcPr/w:vMerge[@hub:morerows and number(@hub:morerows) gt 0]]">
         <w:tc>
           <w:tcPr>
             <xsl:perform-sort>
               <xsl:sort order="ascending" data-type="number">
                 <xsl:apply-templates select="." mode="letex:propsortkey"/>
               </xsl:sort>
-              <w:vMerge w:val="continue" hub:morerows="{number($built-entries[1]/descendant::w:vMerge[letex:same-scope(., $built-entries[1])]/@hub:morerows)-1}"/>
-              <xsl:sequence select="$built-entries[1]/w:tcPr/node()[not(self::w:vMerge)]"/>
+              <w:vMerge w:val="continue" hub:morerows="{number($built-entries[1]/w:tcPr/w:vMerge/@hub:morerows)-1}"/>
+              <xsl:sequence select="$built-entries[1]/w:tcPr/*[not(self::w:vMerge)]"/>
             </xsl:perform-sort>
           </w:tcPr>
           <w:p>
             <xsl:sequence select="($built-entries/w:p/w:pPr)[1]"/>
           </w:p>
         </w:tc>
+<!--        <w:tc schnarz="c"/>-->
         <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1],$cals-entries,$name-to-int-map)"/>
+<!--        <w:tc schnarz="/c"/>-->
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="tcPr" as="element(*)*">
@@ -401,7 +411,17 @@
             </w:tc>
           </xsl:for-each>
         </xsl:if>
+<!--        <w:tc schnarz="b"/>-->
+        <!--<w:tc hotz="blu">
+          <be>
+            <xsl:sequence select="$built-entries[position() gt 1]"></xsl:sequence>
+          </be>
+          <ce>
+            <xsl:sequence select="$cals-entries[position() gt 1]"></xsl:sequence>
+          </ce>
+        </w:tc>-->
         <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1],$cals-entries[position() gt 1],$name-to-int-map)"/>
+<!--        <w:tc schnarz="/b"/>-->
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -479,7 +499,7 @@
   </xsl:template>
 
   <xsl:template match="@colspan" mode="tcPr">
-    <w:gridSpan w:val="{. - 1}" />
+    <w:gridSpan w:val="{.}" />
   </xsl:template>
 
   <xsl:template  match="@class"  mode="tcPr">
@@ -514,8 +534,8 @@
   
   <xsl:template match="@css:width" mode="tcPr">
     <xsl:element name="w:tcW">
-      <xsl:attribute name="w:w" select="if (matches(.,'pct$')) then replace(.,'pct$','') else if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else '0'"/>
-      <xsl:attribute name="w:type" select="if (matches(.,'pct$')) then 'pct' else if (matches(.,'pt$')) then 'dxa' else 'auto'"/>
+      <xsl:attribute name="w:w" select="round(letex:length-to-unitless-twip(.))"/>
+      <xsl:attribute name="w:type" select="if (matches(.,'pct$')) then 'pct' else if (matches(.,'(pt|mm)$')) then 'dxa' else 'auto'"/>
     </xsl:element>
   </xsl:template>
   
@@ -543,10 +563,6 @@
     </w:tblBorders>
   </xsl:template>
   
-  <xsl:template match="@css:text-align" mode="tblPr">
-    <w:jc w:val="{.}"/>
-  </xsl:template>
-
   <xsl:template match="@css:width" mode="tblPr">
     <xsl:element name="w:tblW">
       <xsl:attribute name="w:w" select="if (matches(.,'pct$')) then replace(.,'pct$','') else if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else '0'"/>

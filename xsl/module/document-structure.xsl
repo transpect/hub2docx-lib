@@ -162,6 +162,11 @@
     </w:p>
   </xsl:template>
 
+  <xsl:template match="w:bookmarkStart/@w:id | w:bookmarkEnd/@w:id" mode="hub:clean">
+    <xsl:param name="bookmark-ids" as="xs:string+" tunnel="yes"/>
+    <xsl:attribute name="{name()}" select="index-of($bookmark-ids, .)"/>
+  </xsl:template>
+
   <xsl:template  match="book/title | book/subtitle"  mode="hub:default">
     <w:p>
       <w:pPr>

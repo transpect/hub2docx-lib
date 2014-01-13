@@ -66,6 +66,11 @@
     </xsl:choose>
   </xsl:template>
 
+  <!-- docx2hub error messages such as 
+    <letex:comment xmlns:letex="http://www.le-tex.de/namespace" srcpath="">W2D_601: "Zeichen aus Font 'Wingdings 2 (0xF0BD)' kann nicht richtig dargestellt werden."</letex:comment>
+    -->
+  <xsl:template match="letex:comment" mode="hub:default"/>
+
   <xsl:template match="@xml:base" mode="hub:merge">
     <xsl:apply-templates select="." mode="docx2hub:modify"/>
   </xsl:template>

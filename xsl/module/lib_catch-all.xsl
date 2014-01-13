@@ -57,7 +57,7 @@
   <xsl:template match="node() | @*"
     mode="hub:default hub:default_renderFootnote hub:clean footnotes header footer comments glossary2table patchTemplateFile extract-text numbering props trPr tcPr remove-misplaced-runs"
                 priority="-1001">
-    <xsl:copy>
+    <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@* | node()" mode="#current" />
     </xsl:copy>
   </xsl:template>
@@ -100,7 +100,9 @@
 
   <xsl:template  match="/*"  mode="hub:clean">
     <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current">
+        <xsl:with-param name="bookmark-ids" select="descendant::w:bookmarkStart/@w:id" tunnel="yes"/>
+      </xsl:apply-templates>
       <xsl:variable name="no-match-elements" as="element(*)*"
         select=".//*[@hub:default-no-match eq 'true']"/>
       <xsl:for-each select="distinct-values(for $i in $no-match-elements return name($i))">

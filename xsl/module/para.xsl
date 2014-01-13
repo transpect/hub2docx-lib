@@ -93,16 +93,33 @@
     </w:p>
   </xsl:template>
 
+  <xsl:template match="@role[. = 'ttt:token']" mode="props"/>
+    
   <xsl:template match="@role" mode="props">
-    <w:pStyle hub:val="{.}" />
-    <xsl:if test="matches(., 'item')">
-      <w:ind w:left="360" />
-    </xsl:if>
-<!--
-    <xsl:if test="matches(., 'unreferencedFootnote')">
-      <w:pStyle w:val="UnreferencedFootnote" />
-    </xsl:if>
--->
+    <xsl:variable name="rule" select="key('style-by-name', .)" as="element(css:rule)?"/>
+    <xsl:choose>
+      <xsl:when test="exists($rule)">
+        <xsl:variable name="elt-name" as="xs:string">
+          <xsl:choose>
+            <xsl:when test="$rule/@layout-type = 'inline'">
+              <xsl:sequence select="'w:rStyle'"/>
+            </xsl:when>
+            <xsl:when test="$rule/@layout-type = 'para'">
+              <xsl:sequence select="'w:pStyle'"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:sequence select="'implementMe'"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <xsl:element name="{$elt-name}">
+          <xsl:attribute name="w:val" select="."/>
+        </xsl:element>
+      </xsl:when>
+    <xsl:otherwise>
+      <xsl:message select="'para.xsl, match=@role: no style for role ', string(.)"/>
+    </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="phrase[@role eq 'pageBreakBefore']" mode="props">
@@ -121,8 +138,8 @@
     <w:spacing w:line="{if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else .}"/>
   </xsl:template>
   
-  <xsl:template match="@css:text-align" mode="props">
-    <w:jc w:val="{.}"/>
+  <xsl:template match="@css:text-align" mode="props tblPr">
+    <w:jc w:val="{if (. = 'justify') then 'both' else .}"/>
   </xsl:template>
   
   <xsl:template match="@css:text-indent" mode="props">

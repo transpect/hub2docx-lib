@@ -55,6 +55,8 @@
 
   <xsl:template match="w:document" mode="hub:merge">
     <xsl:param name="document-xml-base-modified" tunnel="yes"/>
+    <!-- Works ok with Word 2010. If other apps fail to open the .docx, you might try
+    removing copy-nammespaces="no" -->
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="$document-xml-base-modified, collection()/w:root_converted/w:document/node()" mode="#current"/>
     </xsl:copy>
@@ -80,12 +82,12 @@
     <xsl:param name="footerIdOffset" tunnel="yes" />
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
-      <xsl:if test="not(Override[@PartName eq '/word/comments.xml'])  and  
+      <xsl:if test="not(ct:Override[@PartName eq '/word/comments.xml'])  and  
                     collection()/w:root_converted/w:comments/node()">
         <Override PartName="/word/comments.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
           ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml"/>
       </xsl:if>
-      <xsl:if test="not(Override[@PartName eq '/word/endnotes.xml'])  and  
+      <xsl:if test="not(ct:Override[@PartName eq '/word/endnotes.xml'])  and  
                     collection()/w:root_converted/w:endnotes/node()">
         <Override PartName="/word/endnotes.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
           ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml"/>
