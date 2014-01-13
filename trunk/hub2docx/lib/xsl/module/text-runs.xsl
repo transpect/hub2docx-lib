@@ -91,7 +91,7 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <!-- in some context text()-nodes generate a w:r (because the parent-node has not done it yet), in all other cases text()-nodes will be copied by a catch anything rule -->
-  <xsl:template  match="text()"  mode="hub:default">
+  <xsl:template  match="text() | phrase[@role eq 'hub:ooxml-symbol'][@css:font-family][@annotations]"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
     <w:r>
       <xsl:if  test="$rPrContent">
@@ -99,29 +99,26 @@
           <xsl:sequence  select="$rPrContent"/>
         </w:rPr>
       </xsl:if>
-      <w:t>
-        <xsl:if  test="matches( . , '^\s|\s$')">
-          <xsl:attribute  name="xml:space"  select="'preserve'"/>
-        </xsl:if>
-        <!-- now explicit phrase role="br":
-        <xsl:analyze-string  select="."  regex="&#x0A;">
-          <xsl:matching-substring>
-            <w:br/>
-          </xsl:matching-substring>
-          <xsl:non-matching-substring>
-            <xsl:value-of  select="." />
-          </xsl:non-matching-substring>
-        </xsl:analyze-string>
-        -->
-        <xsl:choose>
-          <xsl:when test="ancestor::*[@xml:space][1]/@xml:space eq 'preserve'">
-            <xsl:value-of select="."/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="replace(., '\s+', ' ')"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </w:t>
+      <xsl:choose>
+        <xsl:when test="self::phrase[@role eq 'hub:ooxml-symbol']">
+          <w:sym w:font="{@css:font-family}" w:char="{@annotations}"/>      
+        </xsl:when>
+        <xsl:otherwise>
+          <w:t>
+            <xsl:if  test="matches( . , '^\s|\s$')">
+              <xsl:attribute  name="xml:space"  select="'preserve'"/>
+            </xsl:if>
+            <xsl:choose>
+              <xsl:when test="ancestor::*[@xml:space][1]/@xml:space eq 'preserve'">
+                <xsl:value-of select="."/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="replace(., '\s+', ' ')"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </w:t>    
+        </xsl:otherwise>
+      </xsl:choose>
     </w:r>
   </xsl:template>
 
@@ -155,7 +152,7 @@
     </xsl:message>
   </xsl:template>
 
-  <xsl:template  match="phrase[@role eq 'br']"  mode="hub:default" priority="2">
+  <xsl:template  match="br"  mode="hub:default" priority="2">
     <xsl:choose>
       <xsl:when test="parent::para or parent::emphasis or parent::phrase">
         <w:r>
@@ -170,13 +167,12 @@
 
   <xsl:template  match="emphasis | phrase"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/><!-- w:… property elements -->
-    <xsl:variable name="role" select="@role" as="attribute(role)?"/>
     <xsl:apply-templates mode="#current" >
       <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*"><!-- w:… property elements -->
         <xsl:call-template  name="mergeRunProperties">
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
           <xsl:with-param name="new_rPrContent" as="element(*)*">
-            <xsl:apply-templates select="@css:*, @xml:lang" mode="props"/>
+            <xsl:apply-templates select="@role, @css:*, @xml:lang" mode="props"/>
             <xsl:sequence select="letex:borders(.)"/>
             <xsl:if test="not(@role) and self::emphasis">
               <xsl:message
@@ -287,22 +283,34 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:variable name="cssattribs" as="attribute()*" select="(key('style-by-name', $elt/@role, root($elt)), $elt)/@css:*[starts-with(local-name(), 'border-')]"/>
+    <xsl:variable name="cssattribs" as="attribute()*" select="$elt/@css:*[starts-with(local-name(), 'border-')]"/>
     <xsl:if test="exists($cssattribs)">
       <xsl:variable name="styles" select="$cssattribs[ends-with(local-name(), 'style')]" as="attribute()*"/>
       <xsl:variable name="widths" select="$cssattribs[ends-with(local-name(), 'width')]" as="attribute()*"/>
       <xsl:variable name="colors" select="$cssattribs[ends-with(local-name(), 'color')]" as="attribute()*"/>
       <xsl:variable name="all-same" as="xs:boolean"
-        select="count($styles) = 4 and count($widths) = 4 and count($colors) = 4
-                and count(distinct-values($styles)) = 1 and count(distinct-values($widths)) = 1 and count(distinct-values($colors)) = 1"/>
+        select="count($styles) = 4 and count($widths) = 4 and count($colors) = (0, 4)
+                and not($styles[1] = 'none')
+                and count(distinct-values($styles)) = 1 and count(distinct-values($widths)) = 1 and count(distinct-values($colors)) = (0, 1)"/>
       <xsl:element name="{$targetName}">
-        <xsl:for-each select="('top', 'left', 'bottom', 'right')">
-          <xsl:apply-templates select="$cssattribs[local-name() = concat('border-', current(), '-style')]" mode="props-secondary">
-            <xsl:with-param name="width" select="$cssattribs[local-name() = concat('border-', current(), '-width')]"/>
-            <xsl:with-param name="color" select="$cssattribs[local-name() = concat('border-', current(), '-color')]"/>
-            <xsl:with-param name="targetName" select="$targetName"/>
-          </xsl:apply-templates>
-        </xsl:for-each>
+        <xsl:choose>
+          <xsl:when test="$all-same">
+            <xsl:attribute name="w:val" select="letex:border-style($styles[1])"/>
+            <xsl:attribute name="w:sz" select="letex:length-to-unitless-twip($widths[1])"/>
+            <xsl:attribute name="w:space" select="letex:length-to-unitless-twip(($elt/@css:margin-top, '0pt')[1])"/>
+            <xsl:attribute name="w:color" select="if ($colors) then letex:retrieve-color-attribute-val($colors) else 'auto'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:for-each select="('top', 'left', 'bottom', 'right')">
+              <xsl:apply-templates select="$cssattribs[local-name() = concat('border-', current(), '-style')]"
+                mode="props-secondary">
+                <xsl:with-param name="width" select="$cssattribs[local-name() = concat('border-', current(), '-width')]"/>
+                <xsl:with-param name="color" select="$cssattribs[local-name() = concat('border-', current(), '-color')]"/>
+                <xsl:with-param name="targetName" select="$targetName"/>
+              </xsl:apply-templates>
+            </xsl:for-each>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
     </xsl:if>
     <!--<xsl:if test="$cssattribs[matches(local-name(), '^border.*(width|style|color)$')][not(matches(., '^0+[^0]*$'))]">
@@ -427,6 +435,10 @@
     </xsl:for-each>
   </xsl:function>
 
+  <xsl:template match="w:rStyle" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="-10"/>
+  </xsl:template>
+
   <xsl:template match="w:rFonts" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="10"/>
   </xsl:template>
@@ -440,7 +452,7 @@
   </xsl:template>
 
   <xsl:template match="w:caps" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="60"/>
+    <xsl:sequence select="40"/>
   </xsl:template>
   
   <xsl:template match="w:color" mode="letex:propsortkey" as="xs:integer">
@@ -473,5 +485,26 @@
   <!-- The innermost / last style wins when something is derived from nested phrases: -->
   
   <xsl:template match="w:rPr/*[following-sibling::*[name() = name(current())]]" mode="hub:clean"/>
+
+  <!-- consolidate (also pPr). Example:
+           <w:pPr>
+            <w:spacing w:after="130"/>
+            <w:spacing w:before="130"/>
+         </w:pPr>
+         →
+-->
+  <xsl:template match="w:pPr | w:rPr | w:tcPr | w:tblPr" mode="hub:clean">
+    <xsl:variable name="cleaned-props" as="element(*)*">
+      <xsl:apply-templates mode="#current"/>
+    </xsl:variable>
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:for-each-group select="$cleaned-props" group-by="name()">
+        <xsl:copy copy-namespaces="no">
+          <xsl:sequence select="current-group()/@*, current-group()/node()"/>
+        </xsl:copy>
+      </xsl:for-each-group>
+    </xsl:copy>
+  </xsl:template>
 
 </xsl:stylesheet>
