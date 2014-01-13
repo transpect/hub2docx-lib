@@ -298,7 +298,7 @@
     <xsl:sequence select="180"/>
   </xsl:template>
   
-    <xsl:template match="w:tblStyle" mode="letex:propsortkey" as="xs:integer">
+   <xsl:template match="w:tblStyle" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="0"/>
   </xsl:template>
   
@@ -568,6 +568,10 @@
       <xsl:attribute name="w:w" select="if (matches(.,'pct$')) then replace(.,'pct$','') else if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else '0'"/>
       <xsl:attribute name="w:type" select="if (matches(.,'pct$')) then 'pct' else if (matches(.,'pt$')) then 'dxa' else 'auto'"/>
     </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="@css:text-align" mode="tblPr">
+    <w:jc w:val="{.}"/>
   </xsl:template>
   
   <xsl:template match="@css:height" mode="trPr">
