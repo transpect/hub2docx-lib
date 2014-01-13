@@ -37,6 +37,7 @@
   <xsl:import href="module/links.xsl"/>
   <xsl:import href="module/lists.xsl"/>
   <xsl:import href="module/table.xsl"/>
+  <xsl:import href="module/foreign.xsl"/>
   <xsl:import href="module/header.xsl"/>
   <xsl:import href="module/footer.xsl"/>
   <xsl:import href="module/merge-with-template.xsl"/>

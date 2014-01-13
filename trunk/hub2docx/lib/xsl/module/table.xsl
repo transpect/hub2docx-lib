@@ -161,6 +161,32 @@
     <xsl:param name="built-rows" as="element(w:tr)*"/>
     <xsl:param name="cals-rows" as="element(*)*"/>
     <xsl:param name="name-to-int-map" as="document-node(element(map))"/>
+   
+    <xsl:variable name="tr-head" as="element(*)*">
+      <xsl:variable name="tblPrEx" as="element(*)*">
+        <xsl:apply-templates select="$cals-rows[1]/@css:background-color" mode="trPr"/>
+      </xsl:variable>
+      <xsl:if test="$tblPrEx">
+        <w:tblPrEx>
+          <xsl:sequence select="$tblPrEx"/>
+        </w:tblPrEx>
+      </xsl:if>
+      <xsl:variable name="trPr" as="element()*">
+        <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height | $cals-rows[1]/@css:page-break-inside"  mode="trPr" />
+        <xsl:if test="$cals-rows[1]/ancestor::thead">
+          <w:tblHeader/>
+        </xsl:if>
+      </xsl:variable>
+      <xsl:if test="$trPr">
+        <w:trPr>
+          <xsl:perform-sort select="$trPr">
+            <xsl:sort data-type="number" order="ascending">
+              <xsl:apply-templates select="." mode="letex:propsortkey"/>
+            </xsl:sort>
+          </xsl:perform-sort>
+        </w:trPr>
+      </xsl:if>
+    </xsl:variable>
     
     <xsl:choose>
       <xsl:when test="empty($cals-rows)">
@@ -169,17 +195,7 @@
       <xsl:when test="empty($built-rows)">
         <xsl:variable name="new-built-rows" as="element(w:tr)*">
           <w:tr>
-            <xsl:variable  name="trPr">
-              <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height | $cals-rows[1]/@css:page-break-inside"  mode="trPr" />
-              <xsl:if test="$cals-rows[1]/ancestor::thead">
-                <w:tblHeader/>
-              </xsl:if>
-            </xsl:variable>
-            <xsl:if test="$trPr">
-              <w:trPr>
-                <xsl:sequence  select="$trPr" />
-              </w:trPr>
-            </xsl:if>
+            <xsl:sequence select="$tr-head"/>
             <xsl:for-each select="$cals-rows[1]/*[self::entry or self::td or self::th]">
               <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then string(number(@rowspan)-1) else ''"/>
               <xsl:variable  name="tcPr" as="element()*">
@@ -239,21 +255,7 @@
         <xsl:variable name="new-built-rows" as="element(w:tr)*">
           <xsl:sequence select="$built-rows"/>
           <w:tr>
-            <xsl:variable name="trPr" as="element()*">
-              <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height | $cals-rows[1]/@css:page-break-inside"  mode="trPr" />
-              <xsl:if test="$cals-rows[1]/ancestor::thead">
-                <w:tblHeader/>
-              </xsl:if>
-            </xsl:variable>
-            <xsl:if test="$trPr">
-              <w:trPr>
-                <xsl:perform-sort select="$trPr">
-                  <xsl:sort data-type="number" order="ascending">
-                    <xsl:apply-templates select="." mode="letex:propsortkey"/>
-                  </xsl:sort>
-                </xsl:perform-sort>
-              </w:trPr>
-            </xsl:if>
+            <xsl:sequence select="$tr-head"/>
             <xsl:sequence select="letex:position-tcs($built-rows[last()]/w:tc,$cals-rows[1]/*[self::entry or self::td or self::th],$name-to-int-map)"/>
           </w:tr>
         </xsl:variable>
@@ -426,9 +428,18 @@
     </xsl:choose>
   </xsl:function>
 
-  <xsl:template  match="tr | row"  mode="hub:default">
+  <!--<xsl:template  match="tr | row"  mode="hub:default">
     <w:tr>
-      <xsl:variable  name="trPr">
+      <xsl:variable name="tblPrEx" as="element(*)*">
+        <xsl:apply-templates select="@css:background-color" mode="trPr"/>
+      </xsl:variable>
+      <xsl:message select="'FOO ', $tblPrEx"/>
+      <xsl:if test="$tblPrEx">
+        <w:tblPrEx>
+          <xsl:sequence select="$tblPrEx"/>
+        </w:tblPrEx>
+      </xsl:if>
+      <xsl:variable name="trPr">
         <xsl:apply-templates  select="@class | @css:height | @css:page-break-inside"  mode="trPr" />
         <xsl:if test="ancestor::thead">
           <w:tblHeader/>
@@ -441,7 +452,7 @@
       </xsl:if>
       <xsl:apply-templates  mode="#current"/>
     </w:tr>
-  </xsl:template>
+  </xsl:template>-->
 
   <xsl:key name="map" match="map/item" use="@key" />
 
@@ -543,7 +554,7 @@
     <w:vAlign w:val="{if (.='middle') then 'center' else .}"/>
   </xsl:template>
 
-  <xsl:template match="@css:background-color" mode="tcPr">
+  <xsl:template match="@css:background-color" mode="tcPr trPr">
     <w:shd w:val="clear" w:color="auto" w:fill="{letex:retrieve-color-attribute-val(.)}"/>
   </xsl:template>
 
