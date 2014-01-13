@@ -47,7 +47,7 @@
         <xsl:sort data-type="number" order="ascending">
           <xsl:apply-templates select="." mode="letex:propsortkey"/>
         </xsl:sort>
-        <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, .//phrase[@role eq 'pageBreakBefore'], @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align" mode="props" />      
+        <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align" mode="props" />      
       </xsl:perform-sort>
     </xsl:variable>
     <w:p docx2hub:origin="default_p_parentnotlistitem">
@@ -68,7 +68,7 @@
 
   <xsl:template  match="para[ parent::blockquote ]"  mode="hub:default" priority="2">
     <xsl:variable name="pPr" as="element(*)*">
-      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, .//phrase[@role eq 'pageBreakBefore'], @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
+      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
       <w:pStyle w:val="BlockText"/>
     </xsl:variable>
     <w:p docx2hub:origin="default_p_parentblockq">
@@ -108,7 +108,18 @@
               <xsl:sequence select="'w:pStyle'"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:sequence select="'implementMe'"/>
+              <xsl:choose>
+                <xsl:when test="parent::para">
+                  <xsl:sequence select="'w:pStyle'"/>
+                </xsl:when>
+                <xsl:when test="parent::phrase">
+                  <xsl:sequence select="'w:rStyle'"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:message><xsl:value-of select="parent::*"/> not implemented as parent for @role="<xsl:value-of select="."/>"</xsl:message>
+                  <xsl:sequence select="'implementMe'"/>
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:variable>
@@ -116,14 +127,27 @@
           <xsl:attribute name="w:val" select="."/>
         </xsl:element>
       </xsl:when>
-    <xsl:otherwise>
-      <xsl:message select="'para.xsl, match=@role: no style for role ', string(.)"/>
-    </xsl:otherwise>
+      <xsl:otherwise>
+        <xsl:message select="'para.xsl, match=@role: no style for role ', string(.)"/>
+        <xsl:variable name="elt-name">
+          <xsl:choose>
+            <xsl:when test="parent::para">
+              <xsl:sequence select="'w:pStyle'"/>
+            </xsl:when>
+            <xsl:when test="parent::phrase">
+              <xsl:sequence select="'w:rStyle'"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:message><xsl:value-of select="parent::*"/> not implemented as parent for @role="<xsl:value-of select="."/>"</xsl:message>
+              <xsl:sequence select="'implementMe'"/>
+            </xsl:otherwise>
+          </xsl:choose>  
+        </xsl:variable>
+        <xsl:element name="{$elt-name}">
+          <xsl:attribute name="w:val" select="."/>
+        </xsl:element>
+      </xsl:otherwise>
     </xsl:choose>
-  </xsl:template>
-
-  <xsl:template match="phrase[@role eq 'pageBreakBefore']" mode="props">
-    <w:pageBreakBefore/>
   </xsl:template>
   
   <xsl:template match="@css:margin-bottom" mode="props">
@@ -155,6 +179,12 @@
         </xsl:otherwise>
       </xsl:choose>
     </w:ind>
+  </xsl:template>
+  
+  <xsl:template match="@css:page-break-before" mode="props">
+    <xsl:if test="not(.='avoid')">
+      <w:pageBreakBefore/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="@css:page-break-after" mode="props">
