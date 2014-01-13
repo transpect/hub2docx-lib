@@ -151,15 +151,15 @@
   </xsl:template>
   
   <xsl:template match="@css:margin-bottom" mode="props">
-    <w:spacing w:after="{if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else .}"/>
+    <w:spacing w:after="{letex:length-to-unitless-twip(.)}"/>
   </xsl:template>
   
   <xsl:template match="@css:margin-top" mode="props">
-    <w:spacing w:before="{if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else .}"/>
+    <w:spacing w:before="{letex:length-to-unitless-twip(.)}"/>
   </xsl:template>
   
   <xsl:template match="@css:line-height" mode="props">
-    <w:spacing w:line="{if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else .}"/>
+    <w:spacing w:line="{letex:length-to-unitless-twip(.)}"/>
   </xsl:template>
   
   <xsl:template match="@css:text-align" mode="props tblPr">

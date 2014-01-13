@@ -57,7 +57,9 @@
   <xsl:template match="node() | @*"
     mode="hub:default hub:default_renderFootnote hub:clean footnotes header footer comments glossary2table patchTemplateFile extract-text numbering props trPr tcPr remove-misplaced-runs"
                 priority="-1001">
-    <xsl:copy copy-namespaces="no">
+    <!-- Must. Not. Add. copy-namespaces="no" 
+         Otherwise it’ll break at some point (for ex. when you include wp14: elements, or graphics) -->
+    <xsl:copy>
       <xsl:apply-templates select="@* | node()" mode="#current" />
     </xsl:copy>
   </xsl:template>
@@ -115,5 +117,25 @@
     </xsl:copy>
   </xsl:template>
   <xsl:template  match="@hub:default-no-match | @hub:morerows"  mode="hub:clean" />
+
+
+  <xsl:template match="*[@role = 'hub:foreign']" mode="hub:default" priority="12">
+    <xsl:message select="'GGGGGGGGGGGGGGGGg'"></xsl:message>
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*, node()" mode="hub:foreign"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="@* | * | w:drawing | w:txbxContent | w:pict" mode="hub:foreign">
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="w:*" mode="hub:foreign">
+    <xsl:apply-templates select="." mode="#current"/>
+  </xsl:template>
+  
+  
 
 </xsl:stylesheet>
