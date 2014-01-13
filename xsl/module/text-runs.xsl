@@ -296,9 +296,9 @@
         <xsl:choose>
           <xsl:when test="$all-same">
             <xsl:attribute name="w:val" select="letex:border-style($styles[1])"/>
-            <xsl:attribute name="w:sz" select="letex:length-to-unitless-twip($widths[1])"/>
+            <xsl:attribute name="w:sz" select="letex:length-to-border-width-type($widths[1])"/>
             <xsl:attribute name="w:space" select="letex:length-to-unitless-twip(($elt/@css:margin-top, '0pt')[1])"/>
-            <xsl:attribute name="w:color" select="if ($colors) then letex:retrieve-color-attribute-val($colors) else 'auto'"/>
+            <xsl:attribute name="w:color" select="if ($colors) then letex:retrieve-color-attribute-val($colors[1]) else 'auto'"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:for-each select="('top', 'left', 'bottom', 'right')">
@@ -351,7 +351,7 @@
   </xsl:template>
   
   <xsl:template match="@css:border-top-width | @css:border-bottom-width | @css:border-left-width | @css:border-right-width" mode="props-secondary">
-    <xsl:attribute name="w:sz" select="letex:length-to-unitless-twip(.)"/>
+    <xsl:attribute name="w:sz" select="letex:length-to-border-width-type(.)"/>
   </xsl:template>
 
   <xsl:template match="@css:border-top-color | @css:border-bottom-color | @css:border-left-color | @css:border-right-color" mode="props-secondary">
