@@ -11,6 +11,7 @@
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"

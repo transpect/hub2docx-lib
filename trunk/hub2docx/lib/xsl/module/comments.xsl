@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE xsl:stylesheet>
-
 <xsl:stylesheet version="2.0"
     xmlns:xsl		= "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
@@ -11,7 +8,8 @@
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
-
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"

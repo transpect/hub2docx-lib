@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~     Authors: Gerrit Imsieke, Ralph Krüger                                                                             ~
-~              (C) le-tex publishing services GmbH Leipzig (2010)                                                       ~
-~                                                                                                                       ~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--->
-
-<!DOCTYPE xsl:stylesheet
-  [
-    <!ENTITY xpathListElement			"*[ local-name() = ( 'itemizedlist' , 'orderedlist', 'bibliography', 'bibliodiv', 'variablelist' )]" >
-    <!ENTITY minNumIdValue			"1001" >
-  ]
->
-
 <xsl:stylesheet version="2.0"
     xmlns:xsl		= "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
@@ -26,6 +10,7 @@
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
@@ -37,6 +22,8 @@
 >
 
 
+  <xsl:variable name="hub:list-element-names" as="xs:string+" select="( 'itemizedlist' , 'orderedlist', 'bibliography', 'bibliodiv', 'variablelist' )"/>
+
 <!-- ================================================================================ -->
 <!-- helper functions -->
 <!-- ================================================================================ -->
@@ -44,7 +31,7 @@
 
   <!-- This list is used in order to speed up the index-of(), which would be extremly time consuming if operating on the sequence of lists itself. -->
   <xsl:variable  name="generatedIdOfAllLists">
-    <xsl:for-each  select="//&xpathListElement;">
+    <xsl:for-each  select="//*[ local-name() = $hub:list-element-names]">
       <!-- the letex:-namespace is used here for clarity, because we use 'xpath-default-namespace = "http://docbook.org/ns/docbook"' and the result of that would not be expected -->
       <letex:list>
         <letex:id><xsl:value-of select="generate-id()"/></letex:id>
@@ -60,7 +47,7 @@
     <xsl:param  name="generatedIdOfList"  as="xs:string"/>
     <xsl:choose>
       <xsl:when  test="$generatedIdOfAllLists//letex:list[ ./letex:id eq $generatedIdOfList ]">
-        <xsl:value-of  select="&minNumIdValue; + $generatedIdOfAllLists//letex:list[ ./letex:id eq $generatedIdOfList ]/letex:pos - 1"/>
+        <xsl:value-of  select="1001 + $generatedIdOfAllLists//letex:list[ ./letex:id eq $generatedIdOfList ]/letex:pos - 1"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message  terminate="no"   select="$generatedIdOfAllLists"/>
@@ -103,9 +90,9 @@
 
 
   <!-- Dissolve paras with lists into separate block-level elements -->
-  <xsl:template  match="para[ &xpathListElement; ]"  mode="hub:default_" priority="10">
+  <xsl:template  match="para[ *[ local-name() = $hub:list-element-names] ]"  mode="hub:default_" priority="10">
     <xsl:variable name="dissolve" as="element(*)+">
-      <xsl:for-each-group select="node()" group-adjacent="exists(self::&xpathListElement;)">
+      <xsl:for-each-group select="node()" group-adjacent="exists(self::*[ local-name() = $hub:list-element-names])">
         <xsl:choose>
           <xsl:when test="current-grouping-key()">
             <xsl:sequence select="current-group()" />
@@ -113,7 +100,7 @@
           <xsl:otherwise>
             <para xmlns="http://docbook.org/ns/docbook">
               <xsl:sequence select="@*" />
-              <xsl:sequence select="current-group() except &xpathListElement;" />
+              <xsl:sequence select="current-group() except *[ local-name() = $hub:list-element-names]" />
             </para>
           </xsl:otherwise>
         </xsl:choose>
@@ -122,10 +109,10 @@
     <xsl:apply-templates select="$dissolve" mode="#current" />
   </xsl:template>
 
-  <xsl:template  match="para[ &xpathListElement; ]"  mode="hub:default hub:default_renderFootnote" priority="10">
+  <xsl:template  match="para[ *[ local-name() = $hub:list-element-names] ]"  mode="hub:default hub:default_renderFootnote" priority="10">
     <xsl:param name="fn" as="element(footnote)?" tunnel="yes"/>
     <xsl:variable name="dissolve" as="element(*)+">
-      <xsl:for-each-group select="node()" group-adjacent="exists(self::&xpathListElement;)">
+      <xsl:for-each-group select="node()" group-adjacent="exists(self::*[ local-name() = $hub:list-element-names])">
         <xsl:choose>
           <xsl:when test="current-grouping-key()">
             <xsl:sequence select="current-group()" />
@@ -133,7 +120,7 @@
           <xsl:otherwise>
             <para xmlns="http://docbook.org/ns/docbook">
               <xsl:sequence select="@*" />
-              <xsl:sequence select="current-group() except &xpathListElement;" />
+              <xsl:sequence select="current-group() except *[ local-name() = $hub:list-element-names]" />
             </para>
           </xsl:otherwise>
         </xsl:choose>
@@ -143,12 +130,12 @@
   </xsl:template>
 
 
-  <xsl:template  match="&xpathListElement;"  mode="hub:default hub:default_renderFootnote">
+  <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="hub:default hub:default_renderFootnote">
     <xsl:apply-templates  mode="hub:default"/>
   </xsl:template>
 
 
-  <xsl:template  match="&xpathListElement;/listitem"  mode="hub:default hub:default_renderFootnote">
+  <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem"  mode="hub:default hub:default_renderFootnote">
     <xsl:apply-templates  mode="hub:default"/>
   </xsl:template>
 
@@ -177,9 +164,9 @@
 
 
   <!-- a para within listitem creates a w:p with special pPr-properties -->
-  <xsl:template  match="&xpathListElement;/listitem/para"  mode="hub:default hub:default_renderFootnote">
-    <xsl:variable name="ilvl"  select="count( ancestor::*[self::&xpathListElement;]) - 1" as="xs:integer"/>
-    <xsl:variable name="numId" select="letex:getNumId( ancestor::*[self::&xpathListElement;][1]/generate-id() )" />
+  <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem/para"  mode="hub:default hub:default_renderFootnote">
+    <xsl:variable name="ilvl"  select="count( ancestor::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
+    <xsl:variable name="numId" select="letex:getNumId( ancestor::*[self::*[ local-name() = $hub:list-element-names]][1]/generate-id() )" />
     <!-- §§ should we consider scoping? -->
     <xsl:variable name="in-blockquote" select="if (ancestor::blockquote) then 'Bq' else ''" as="xs:string" />
     <xsl:variable name="continuation" select="if (position() eq 1) then '' else 'Cont'" as="xs:string" />
@@ -207,9 +194,9 @@
 
   <xsl:template  match="variablelist"  mode="numbering" priority="2"/>
 
-  <xsl:template  match="&xpathListElement;"  mode="numbering">
+  <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="numbering">
 
-    <xsl:variable name="ilvl"  select="count( ancestor-or-self::*[self::&xpathListElement;]) - 1" as="xs:integer"/>
+    <xsl:variable name="ilvl"  select="count( ancestor-or-self::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
     <!-- ~~~~~~~~~~~~~~~~~~~~ w:num ~~~~~~~~~~~~~~~~~~~~ -->
     <w:num>
       <xsl:attribute  name="w:numId"  select="letex:getNumId( generate-id())"/>
@@ -226,7 +213,7 @@
          -->
 <!--     <w:abstractNum> -->
 <!--       <xsl:attribute  name="w:abstractNumId"  select="letex:getAbstractNumId( .)"/> -->
-<!--       <\!-\- because we apply a separate w:num/w:abstractNum to each &xpathListElement; regardless of numbering level, we do need only one <w:lvl> with @w:ilvl="0" -\-> -->
+<!--       <\!-\- because we apply a separate w:num/w:abstractNum to each *[ local-name() = $hub:list-element-names] regardless of numbering level, we do need only one <w:lvl> with @w:ilvl="0" -\-> -->
 <!--       <w:lvl w:ilvl="0"> -->
 <!--         <w:start w:val="1"/> -->
 <!--         <w:numFmt w:val="{if ( @numeration eq 'loweralpha') -->

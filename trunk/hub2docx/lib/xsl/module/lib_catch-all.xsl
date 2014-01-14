@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~     Authors: Gerrit Imsieke, Ralph Krüger                                                                             ~
-~              (C) le-tex publishing services GmbH Leipzig (2010)                                                       ~
-~                                                                                                                       ~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--->
-
-<!DOCTYPE xsl:stylesheet>
-
 <xsl:stylesheet version="2.0"
     xmlns:xsl		= "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
@@ -23,14 +12,16 @@
     xmlns:docx2hub      = "http://www.le-tex.de/namespace/docx2hub"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+    xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
-    xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn dbk xlink o w m wp r docx2hub"
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn dbk xlink o w m r docx2hub"
 >
 
 
@@ -43,7 +34,7 @@
   <xsl:template match="*"
                 mode="hub:default"
                 priority="-1000">
-    <xsl:copy copy-namespaces="no">
+    <xsl:copy>
       <xsl:copy-of          select="@*"/>
       <xsl:attribute        name="hub:default-no-match"  select="'true'"/>
       <xsl:apply-templates  select="node()"  mode="#current"/>
@@ -88,7 +79,7 @@
 
   <!-- remove text runs that stem from ignorable whitespace in the source -->
 
-  <xsl:template  match="@docx2hub:origin"  mode="hub:clean" priority="100"/>
+  <xsl:template  match="@origin"  mode="hub:clean" priority="100"/>
 
   <xsl:template  match="w:r[not(parent::w:p or parent::w:hyperlink)]"  mode="hub:clean" />
 <!-- <xsl:template  match="w:body/w:r"  mode="clean" /> -->
@@ -117,25 +108,5 @@
     </xsl:copy>
   </xsl:template>
   <xsl:template  match="@hub:default-no-match | @hub:morerows"  mode="hub:clean" />
-
-
-  <xsl:template match="*[@role = 'hub:foreign']" mode="hub:default" priority="12">
-    <xsl:message select="'GGGGGGGGGGGGGGGGg'"></xsl:message>
-    <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="@*, node()" mode="hub:foreign"/>
-    </xsl:copy>
-  </xsl:template>
-  
-  <xsl:template match="@* | * | w:drawing | w:txbxContent | w:pict" mode="hub:foreign">
-    <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </xsl:copy>
-  </xsl:template>
-  
-  <xsl:template match="w:*" mode="hub:foreign">
-    <xsl:apply-templates select="." mode="#current"/>
-  </xsl:template>
-  
-  
 
 </xsl:stylesheet>

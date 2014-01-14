@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~     Authors: Gerrit Imsieke, Ralph Krüger                                                                             ~
-~              (C) le-tex publishing services GmbH Leipzig (2010)                                                       ~
-~                                                                                                                       ~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--->
-
-<!DOCTYPE xsl:stylesheet>
-
 <xsl:stylesheet version="2.0"
     xmlns:xsl		= "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
@@ -23,6 +12,7 @@
     xmlns:docx2hub      = "http://www.le-tex.de/namespace/docx2hub"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
@@ -50,7 +40,7 @@
         <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align" mode="props" />      
       </xsl:perform-sort>
     </xsl:variable>
-    <w:p docx2hub:origin="default_p_parentnotlistitem">
+    <w:p origin="default_p_parentnotlistitem">
       <xsl:if  test="$pPr">
         <w:pPr>
           <xsl:sequence  select="$pPr" />
@@ -71,7 +61,7 @@
       <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
       <w:pStyle w:val="BlockText"/>
     </xsl:variable>
-    <w:p docx2hub:origin="default_p_parentblockq">
+    <w:p origin="default_p_parentblockq">
       <xsl:if  test="$pPr">
         <w:pPr>
           <xsl:sequence  select="$pPr" />
@@ -88,7 +78,7 @@
   </xsl:template>
 
   <xsl:template match="simpara[not(parent::footnote)]" mode="hub:default">
-    <w:p docx2hub:origin="default_simpara">
+    <w:p origin="default_simpara">
       <xsl:apply-templates mode="#current" />
     </w:p>
   </xsl:template>

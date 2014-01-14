@@ -12,9 +12,13 @@
   xmlns:letex = "http://www.le-tex.de/namespace"
   xmlns:dbk = "http://docbook.org/ns/docbook"
   xmlns:v             = "urn:schemas-microsoft-com:vml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+  xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+  xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
   
   xpath-default-namespace = "http://docbook.org/ns/docbook"
-  exclude-result-prefixes="xs docx2hub hub"
+  exclude-result-prefixes="xs docx2hub hub hub2docx letex dbk"
   version="2.0">
 
   <!-- mode merge:
