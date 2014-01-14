@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~     Authors: Gerrit Imsieke, Ralph Krüger                                                                             ~
-~              (C) le-tex publishing services GmbH Leipzig (2010)                                                       ~
-~                                                                                                                       ~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--->
-
-<!DOCTYPE xsl:stylesheet>
-
 <xsl:stylesheet version="2.0"
     xmlns:xsl		= "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
@@ -22,6 +11,7 @@
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
@@ -90,7 +80,7 @@
           <xsl:for-each select="('top', 'left', 'bottom', 'right' )">
             <xsl:element name="w:{current()}">
               <xsl:attribute name="w:val"    select="'single'" />
-              <xsl:attribute name="w:sz"     select="10" />
+              <xsl:attribute name="w:sz"     select="4" />
               <xsl:attribute name="w:space " select="0" />
               <xsl:attribute name="w:color " select="if($current-color ne '') then $current-color else '000000'" />
             </xsl:element>
@@ -521,7 +511,7 @@
           <xsl:for-each select="(tokenize(., '\s+'))[matches(., 'Border$')]">
             <xsl:element name="w:{replace(., 'Border', '')}">
               <xsl:attribute name="w:val"    select="'single'" />
-              <xsl:attribute name="w:sz"     select="10" />
+              <xsl:attribute name="w:sz"     select="4" /><!-- 0.5pt -->
               <xsl:attribute name="w:space " select="0" />
               <xsl:if test="letex:current-color($context, '', 'dark') ne ''">
                 <xsl:attribute name="w:color " select="replace( letex:current-color($context, '', 'dark'), '#', '' )" />

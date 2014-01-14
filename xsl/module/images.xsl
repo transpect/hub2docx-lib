@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~     Authors: Gerrit Imsieke, Ralph Krüger                                                                             ~
-~              (C) le-tex publishing services GmbH Leipzig (2010)                                                       ~
-~                                                                                                                       ~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--->
-
-<!DOCTYPE xsl:stylesheet>
-
 <xsl:stylesheet version="2.0"
     xmlns:xsl		= "http://www.w3.org/1999/XSL/Transform"
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
@@ -23,6 +12,7 @@
     xmlns:docx2hub      = "http://www.le-tex.de/namespace/docx2hub"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
@@ -51,7 +41,7 @@
             return generate-id($f)" />
 
   <xsl:template match="mediaobject[not(parent::para)]" mode="hub:default">
-    <w:p docx2hub:origin="default_i_mediaonotparentp">
+    <w:p origin="default_i_mediaonotparentp">
       <xsl:call-template name="insert-picture"/>
     </w:p>
   </xsl:template>
@@ -123,7 +113,7 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:variable name="inset" as="xs:string" select="concat(if (exists(@css:padding-left)) then @css:padding-left else '0.1in',',',if (exists(@css:padding-top)) then @css:padding-top else '0.05in',',',if (exists(@css:padding-right)) then @css:padding-right else '0.1in',',',if (exists(@css:padding-bottom)) then @css:padding-bottom else '0.05in')"/>
-    <w:p docx2hub:origin="default_i_sidebarnotparpara">
+    <w:p origin="default_i_sidebarnotparpara">
       <xsl:if test="exists(para[@role]) and (every $i in (para/@role) satisfies $i eq (para/@role)[1])">
         <w:pPr>
           <w:pStyle w:val="{(para/@role)[1]}"/>
@@ -173,7 +163,7 @@
   </xsl:template>
   
   <xsl:template match="figure/title" mode="hub:default">
-    <w:p docx2hub:origin="default_i_figtitle">
+    <w:p origin="default_i_figtitle">
       <w:pPr>
         <w:pStyle w:val="FigureTitle"/>
       </w:pPr>
@@ -182,7 +172,7 @@
   </xsl:template>
 
   <xsl:template  match="mediaobject"  mode="hub:default-DISABLED">
-    <w:p docx2hub:origin="default_i_mediaobj">
+    <w:p origin="default_i_mediaobj">
       <w:r>
         <w:rPr>
           <w:noProof/>

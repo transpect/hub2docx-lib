@@ -9,7 +9,10 @@
   xmlns:dbk = "http://docbook.org/ns/docbook"
   xmlns:css = "http://www.w3.org/1996/css"
   xmlns:letex = "http://www.le-tex.de/namespace"
-
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+  xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+  
   xpath-default-namespace = "http://docbook.org/ns/docbook"
   exclude-result-prefixes="xs docx2hub hub"
   version="2.0">
