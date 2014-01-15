@@ -60,7 +60,7 @@
   </xsl:template>
   
   <xsl:template match="@*" mode="documentRels" priority="-1001">
-    <xsl:attribute name="{name(.)}" select="."/>>
+    <xsl:attribute name="{name(.)}" select="."/>
   </xsl:template>
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->

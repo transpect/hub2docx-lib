@@ -76,7 +76,7 @@
       <xsl:variable name="current-color" select="replace( letex:current-color(., (), ()), '#', '' )" />
       <xsl:variable name="default-tblPrContent" as="element(*)+">
         <w:tblW w:w="0" w:type="auto"/>
-        <w:tblBorders>
+        <!--<w:tblBorders>
           <xsl:for-each select="('top', 'left', 'bottom', 'right' )">
             <xsl:element name="w:{current()}">
               <xsl:attribute name="w:val"    select="'single'" />
@@ -85,7 +85,7 @@
               <xsl:attribute name="w:color " select="if($current-color ne '') then $current-color else '000000'" />
             </xsl:element>
           </xsl:for-each>
-        </w:tblBorders>
+        </w:tblBorders>-->
         <w:tblLook w:val="0000"/>
       </xsl:variable>
       <w:tblPr>
