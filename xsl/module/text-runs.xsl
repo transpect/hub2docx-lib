@@ -34,7 +34,7 @@
        There is only one problem left: some runProperties may be mutually exclusive or toggle properties.
        This cases are dealt with by this template, which therefore should be called every time when the tunneled rPrContent is to be modified.
        -->
-  <xsl:template  name="mergeRunProperties">
+  <xsl:template  name="mergeRunProperties" as="element(*)*">
     <xsl:param  name="inherited_rPrContent"  as="element(*)*"/><!-- w:… property elements -->
     <xsl:param  name="new_rPrContent"        as="element(*)*"/><!-- w:… property elements -->
 
@@ -79,7 +79,7 @@
   <xsl:template  match="  text()
                         | phrase[@role eq 'hub:ooxml-symbol'][@css:font-family][@annotations]
                         | phrase[@role eq 'hub:foreign']"  mode="hub:default">
-    <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:param  name="rPrContent" as="element(*)*" tunnel="yes"/>
     <w:r>
       <xsl:if  test="$rPrContent">
         <w:rPr>
@@ -115,7 +115,7 @@
   <xsl:template  match="text()[matches( . , '^\s+$')][not(ancestor::para or ancestor::title)]" />
 
   <xsl:template  match="text()"  mode="hub:default" priority="-10000">
-    <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:param  name="rPrContent"  as="element(*)*" tunnel="yes"/>
     <w:r>
       <xsl:if  test="$rPrContent">
         <w:rPr>
@@ -160,7 +160,7 @@
     <xsl:apply-templates mode="#current" >
       <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*"><!-- w:… property elements -->
         <xsl:call-template  name="mergeRunProperties">
-          <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+          <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"  as="element(*)*"/>
           <xsl:with-param name="new_rPrContent" as="element(*)*">
             <xsl:apply-templates select="@role, @css:*, @xml:lang" mode="props"/>
             <xsl:sequence select="letex:borders(.)"/>
@@ -176,11 +176,11 @@
   </xsl:template>
 
   <xsl:template  match="subscript | superscript"  mode="hub:default">
-    <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:param  name="rPrContent"  as="element(*)*" tunnel="yes"/>
     <xsl:apply-templates  select="node()"  mode="#current">
-      <xsl:with-param  name="rPrContent"  tunnel="yes">
+      <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
         <xsl:call-template  name="mergeRunProperties">
-          <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+          <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
           <xsl:with-param  name="new_rPrContent" as="element(w:vertAlign)">
             <w:vertAlign w:val="{ if ( self::subscript )
                                   then 'subscript'
@@ -216,16 +216,22 @@
     <w:smallCaps w:val="true"/>
   </xsl:template>
 
-  <xsl:template match="@css:text-decoration-line[. eq 'underline']" mode="props">
+  <xsl:template match="@css:text-decoration-line[. eq 'underline']" mode="props" as="element(w:u)">
     <w:u w:val="single">
       <xsl:apply-templates select="../@css:text-decoration-color" mode="props-secondary"/>
+      <xsl:apply-templates select="../@css:text-decoration-style" mode="props-secondary"/>
     </w:u>
   </xsl:template>
   <xsl:template match="@css:text-decoration-color" mode="props-secondary">
     <xsl:attribute name="w:color" select="letex:retrieve-color-attribute-val(.)"/>
   </xsl:template>
+  <xsl:template match="@css:text-decoration-style" mode="props-secondary">
+    <xsl:attribute name="w:val" select=" letex:border-style(.)"/>
+  </xsl:template>
+  
   <xsl:template match="@css:text-decoration-color" mode="props"/>
-
+  <xsl:template match="@css:text-decoration-style" mode="props"/>
+  
   <xsl:template match="@css:text-decoration-line[. eq 'line-through']" mode="props">
     <w:strike w:val="on" />
   </xsl:template>
@@ -358,7 +364,7 @@
         <xsl:sequence select="'dotted'"/>
       </xsl:when>
       <xsl:when test="$style-val eq 'dashed'">
-        <xsl:sequence select="'dashed'"/>
+        <xsl:sequence select="'dash'"/>
       </xsl:when>
       <xsl:when test="$style-val eq 'double'">
         <xsl:sequence select="'double'"/>
@@ -373,56 +379,6 @@
         />
       </xsl:otherwise>
     </xsl:choose>
-
-  </xsl:function>
-
-  <xsl:function name="letex:resolve-text-props-by-role-name" as="element()*">
-    <xsl:param name="role" as="xs:string"/>
-    <xsl:for-each select="distinct-values(tokenize(lower-case($role), '&#x20;'))">
-      <xsl:choose>
-        <xsl:when  test=". = ( 'strong', 'bold' )">
-          <w:b/>
-        </xsl:when>
-        <xsl:when  test=". = ( 'em', 'it', 'italic' )">
-          <w:i/>
-        </xsl:when>
-        <xsl:when  test=". = ( 'italicstrong' , 'bolditalic' )">
-          <w:b/>
-          <w:i/>
-        </xsl:when>
-        <xsl:when  test=". = ( 'underline' )">
-          <w:u w:val="single"/>
-        </xsl:when>
-        <xsl:when  test=". = ( 'smallcaps' )">
-          <w:smallCaps  w:val="true"/>
-        </xsl:when>
-        <xsl:when  test=". = ( 'smallcapsstrong' )">
-          <w:smallCaps  w:val="true"/>
-          <w:b/>
-        </xsl:when>
-        <xsl:when  test=". = ( 'italicsmallcaps' )">
-          <w:smallCaps  w:val="true"/>
-          <w:i/>
-        </xsl:when>
-        <xsl:when test=". = 'antsblack'">
-          <w:effect w:val="antsBlack"/><!-- builtin 'Black Dashed Line Animation' -->
-        </xsl:when>
-        <xsl:when test=". = 'antsred'">
-          <w:effect w:val="antsRed"/><!-- builtin 'Marching Red Ants' -->
-        </xsl:when>
-        <xsl:when test=". = 'blinkbackground'">
-          <w:effect w:val="blinkBackground"/><!-- builtin 'Blinking Background Animation' -->
-        </xsl:when>
-        <xsl:when test=". = 'noeffect'">
-          <w:effect w:val="none"/>
-        </xsl:when>
-        <xsl:when  test=". eq 'br'" />
-        <xsl:when  test=". eq 'pagebreakbefore'" />
-        <xsl:otherwise>
-          <w:rStyle hub:val="{$role}"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:for-each>
   </xsl:function>
 
   <xsl:template match="w:rStyle" mode="letex:propsortkey" as="xs:integer">

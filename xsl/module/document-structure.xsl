@@ -32,6 +32,8 @@
     in (//*[local-name() = ('mediaobject', 'inlinemediaobject')] | //link[@role eq 'uri' or (not(@role) and @xlink:href)]) 
     return generate-id($f)" as="xs:string *"/>
 
+  <xsl:key name="by-genid" match="*" use="generate-id()"/>
+
   <xsl:variable name="page-settings" as="element(w:sectPr)">
     <xsl:variable name="a4-portrait-width" select="11906" as="xs:integer" />
     <xsl:variable name="a4-portrait-height" select="16838" as="xs:integer" />
@@ -84,7 +86,7 @@
       <w:fonts />
       <w:docRels>
         <rel:Relationships>
-          <xsl:apply-templates mode="documentRels"/>
+          <xsl:apply-templates select="key('by-genid', $rels, $root)" mode="documentRels"/>
         </rel:Relationships>
       </w:docRels>
       <w:header>
@@ -104,7 +106,7 @@
       </w:document>
     </w:root_converted>
   </xsl:template>
-
+  
   <xsl:template  match="book | Body | hub"  mode="hub:default">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
@@ -146,7 +148,7 @@
         <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
       </xsl:if>
       <xsl:apply-templates  select="node()"  mode="#current">
-        <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes"/>
+        <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
       </xsl:apply-templates>
       <xsl:if test="../@xml:id">
         <w:bookmarkEnd    w:id="{generate-id(..)}"/>
@@ -184,7 +186,7 @@
         <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
       </xsl:if>
       <xsl:apply-templates  select="node()"  mode="#current">
-        <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes"/>
+        <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
       </xsl:apply-templates>
       <xsl:if test="../@xml:id">
         <w:bookmarkEnd    w:id="{generate-id(..)}"/>

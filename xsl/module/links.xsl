@@ -46,7 +46,7 @@
       <xsl:message  terminate="yes" select="'ERROR: element &quot;anchor&quot; must not have any content!'"/>
     </xsl:if>
     <!-- § has to be located within w:p ? -->
-    <w:bookmarkStart  w:id="{generate-id()}"  w:name="bm_{generate-id()}_"/>
+    <w:bookmarkStart  w:id="{generate-id()}"  w:name="{@xml:id}"/>
     <!-- there must be some content in a bookmark -->
     <w:r>
       <w:t>&#xfeff;</w:t>
@@ -61,7 +61,7 @@
        Should also handle biblioref in the future.
        -->
   <xsl:template  match="xref[@role eq 'bibref']"  mode="hub:default">
-    <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
     <xsl:variable  name="targetNodes"  select="for $le in (@linkend, tokenize(@linkends, '\s+')) return key('by-id', $le)" as="element(*)*"/>
     <w:r>
       <w:t>[</w:t>
@@ -78,7 +78,7 @@
       </w:r>
       <w:r>
         <xsl:call-template  name="mergeRunProperties">
-          <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+          <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
           <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
             <w:rStyle w:val="bibref"/>
           </xsl:with-param>
@@ -104,7 +104,7 @@
   </xsl:template>
 
   <xsl:template  match="xref[@role eq 'internal' and @xrefstyle = ('page', 'pagera', 'pagerb')]"  mode="hub:default">
-    <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:param  name="rPrContent"  as="element(*)*" tunnel="yes"/>
     <xsl:variable  name="targetNode"  select="key('by-id', @xlink:href)"/>
     <xsl:choose>
       <xsl:when  test="count( $targetNode) ne 1">
@@ -112,9 +112,9 @@
         <xsl:message  terminate="no" select="."/>
 
         <xsl:apply-templates  select="node()"  mode="#current" >
-          <xsl:with-param  name="rPrContent"  tunnel="yes">
+          <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
             <xsl:call-template  name="mergeRunProperties">
-              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
               <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
                 <xsl:if  test="@role eq 'bibref'">
                   <w:rStyle w:val="LiteraturverweisZchn"/>
@@ -136,13 +136,13 @@
   </xsl:template>
 
   <xsl:template  match="link[@role = ( 'internal', 'bibref' )]"  mode="hub:default">
-    <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:param  name="rPrContent" as="element(*)*" tunnel="yes"/>
     <xsl:choose>
       <xsl:when  test="@xlink:href eq 'id_NOTFOUND_DEADLINK'">
         <xsl:apply-templates  select="node()"  mode="#current" >
-          <xsl:with-param  name="rPrContent"  tunnel="yes">
+          <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
             <xsl:call-template  name="mergeRunProperties">
-              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
               <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
                 <!-- §§ this rStyle has still to be defined or replaced by another one! -->
                 <w:rStyle  w:val="DeadHyperlink"/>
@@ -159,9 +159,9 @@
             <xsl:message  terminate="no" select="."/>
 
             <xsl:apply-templates  select="node()"  mode="#current" >
-              <xsl:with-param  name="rPrContent"  tunnel="yes">
+              <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
                 <xsl:call-template  name="mergeRunProperties">
-                  <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+                  <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
                   <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
                     <xsl:if  test="@role eq 'bibref'">
                       <w:rStyle w:val="LiteraturverweisZchn"/>
@@ -174,27 +174,19 @@
           </xsl:when>
           <xsl:otherwise>
             <!-- § This stuff has to be located within w:p! Is this guaranteed? -->
-
-<!--             <w:r> -->
-<!--               <w:t>p.&#xa0;</w:t> -->
-<!--             </w:r> -->
-
             <w:r>
               <w:fldChar w:fldCharType="begin"/>
             </w:r>
-
             <w:r>
               <w:instrText xml:space="preserve"> HYPERLINK \l bm_<xsl:value-of  select="$targetNode/generate-id()"/>_ \o "<xsl:value-of  select="string-join((., if(@role eq 'bibref') then () else ''), ' ')"/>"</w:instrText>
             </w:r>
-
             <w:r>
               <w:fldChar w:fldCharType="separate"/>
             </w:r>
-
             <xsl:apply-templates  select="node()"  mode="#current" >
-              <xsl:with-param  name="rPrContent"  tunnel="yes">
+              <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
                 <xsl:call-template  name="mergeRunProperties">
-                  <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+                  <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
                   <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
                     <xsl:if  test="@role eq 'bibref'">
                       <w:rStyle w:val="bibref"/>
@@ -203,11 +195,9 @@
                 </xsl:call-template>
               </xsl:with-param>
             </xsl:apply-templates>
-
             <w:r>
               <w:fldChar w:fldCharType="end"/>
             </w:r>
-
           </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>
@@ -215,7 +205,7 @@
   </xsl:template>
 
   <xsl:template  match="link[not(@role)][@linkend]"  mode="hub:default" priority="3">
-    <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
     <xsl:variable  name="targetNode"  select="key('by-id', @linkend)"/>
     <xsl:choose>
       <xsl:when  test="count( $targetNode) ne 1">
@@ -223,9 +213,9 @@
         <xsl:message  terminate="no" select="."/>
         
         <xsl:apply-templates  select="node()"  mode="#current" >
-          <xsl:with-param  name="rPrContent"  tunnel="yes">
+          <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
             <xsl:call-template  name="mergeRunProperties">
-              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
               <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
                 <w:rStyle w:val="InternalRef"/>
               </xsl:with-param>
@@ -234,22 +224,22 @@
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
+        <xsl:variable name="target" select="@linkend" as="xs:string"/><!-- include some sanitization here -->
+        <xsl:variable name="title" select="(@xlink:title, string-join((., if(@role eq 'bibref') then () else ''), ' '))[1]" as="xs:string"/>
         <w:r>
           <w:fldChar w:fldCharType="begin"/>
         </w:r>
-        
         <w:r>
-          <w:instrText xml:space="preserve"> HYPERLINK \l bm_<xsl:value-of  select="$targetNode/generate-id()"/>_ \o "<xsl:value-of  select="string-join((., if(@role eq 'bibref') then () else ''), ' ')"/>"</w:instrText>
+          <w:instrText xml:space="preserve"> HYPERLINK \l <xsl:value-of select="$target"/> \o "<xsl:value-of  select="$title"/>"</w:instrText>
         </w:r>
-
         <w:r>
           <w:fldChar w:fldCharType="separate"/>
         </w:r>
 
         <xsl:apply-templates  select="node()"  mode="#current" >
-          <xsl:with-param  name="rPrContent"  tunnel="yes">
+          <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
             <xsl:call-template  name="mergeRunProperties">
-              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
               <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
                 <w:rStyle w:val="InternalRef"/>
               </xsl:with-param>
@@ -267,12 +257,12 @@
 
 
   <xsl:template  match="link[@role eq 'uri' or (not(@role) and @xlink:href)]"  mode="hub:default">
-    <xsl:param  name="rPrContent"  as="node()*"  tunnel="yes"/>
+    <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
     <w:hyperlink  r:id="{index-of( $rels, generate-id(.))}"  w:history="1">
       <xsl:apply-templates  select="node()"  mode="#current" >
-        <xsl:with-param  name="rPrContent"  tunnel="yes">
+        <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
           <xsl:call-template  name="mergeRunProperties">
-            <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"/>
+            <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
             <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
               <w:rStyle  w:val="Hyperlink"/>
             </xsl:with-param>
