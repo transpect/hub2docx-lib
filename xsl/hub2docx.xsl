@@ -20,6 +20,7 @@
   <xsl:import href="http://transpect.le-tex.de/docx_modify/xsl/identity.xsl"/>
   <xsl:import href="http://transpect.le-tex.de/docx_modify/xsl/props.xsl"/>
   <xsl:import href="http://transpect.le-tex.de/xslt-util/lengths/lengths.xsl"/>
+  <xsl:import href="http://transpect.le-tex.de/xslt-util/colors/colors.xsl"/>
   
   <xsl:import href="module/lib_catch-all.xsl"/>
   <xsl:import href="module/lib_color.xsl"/>
