@@ -51,7 +51,7 @@
     <w:r>
       <w:t>&#xfeff;</w:t>
     </w:r>
-    <w:bookmarkEnd    w:id="{generate-id()}"/>
+    <w:bookmarkEnd w:id="{generate-id()}"/>
   </xsl:template>
 
   <xsl:key name="by-id" match="*[@xml:id]" use="@xml:id" />
@@ -204,11 +204,11 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template  match="link[not(@role)][@linkend]"  mode="hub:default" priority="3">
+  <xsl:template  match="link[not(@role)][@linkend | @xlink:href]"  mode="hub:default" priority="3">
     <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
     <xsl:variable  name="targetNode"  select="key('by-id', @linkend)"/>
     <xsl:choose>
-      <xsl:when  test="count( $targetNode) ne 1">
+      <xsl:when  test="not(@xlink:href) and (count($targetNode) ne 1)">
         <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous (internal @linkend link).'"/>
         <xsl:message  terminate="no" select="."/>
         
@@ -224,13 +224,16 @@
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="target" select="@linkend" as="xs:string"/><!-- include some sanitization here -->
+        <xsl:variable name="target" select="@linkend | @xlink:href" as="xs:string"/><!-- include some sanitization here -->
         <xsl:variable name="title" select="(@xlink:title, string-join((., if(@role eq 'bibref') then () else ''), ' '))[1]" as="xs:string"/>
+        <xsl:if test="@xml:id">
+          <w:bookmarkStart  w:id="{generate-id()}"  w:name="{@xml:id}"/>  
+        </xsl:if>
         <w:r>
           <w:fldChar w:fldCharType="begin"/>
         </w:r>
         <w:r>
-          <w:instrText xml:space="preserve"> HYPERLINK \l <xsl:value-of select="$target"/> \o "<xsl:value-of  select="$title"/>"</w:instrText>
+          <w:instrText xml:space="preserve"> HYPERLINK <xsl:value-of select="if (@linkend) then '\l' else ''"/> <xsl:value-of select="$target"/> \o "<xsl:value-of  select="$title"/>"</w:instrText>
         </w:r>
         <w:r>
           <w:fldChar w:fldCharType="separate"/>
@@ -250,13 +253,16 @@
         <w:r>
           <w:fldChar w:fldCharType="end"/>
         </w:r>
-
+        <xsl:if test="@xml:id">
+          <w:bookmarkEnd  w:id="{generate-id()}"/>  
+        </xsl:if>
+        
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
-
-  <xsl:template  match="link[@role eq 'uri' or (not(@role) and @xlink:href)]"  mode="hub:default">
+  <!-- abandoned. will create field function HYPERLINKs for external links, too -->
+  <xsl:template  match="link[@role eq 'uri' or (not(@role) and @xlink:href)]"  mode="hub:default_">
     <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
     <w:hyperlink  r:id="{index-of( $rels, generate-id(.))}"  w:history="1">
       <xsl:apply-templates  select="node()"  mode="#current" >

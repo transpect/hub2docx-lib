@@ -32,7 +32,7 @@
   <xsl:template  match="table | informaltable"  mode="hub:default">
     <xsl:apply-templates  select="self::informaltable/@xml:id | caption | info"  mode="#current" />
     <xsl:variable name="tblPrContent" as="element(*)*">
-      <xsl:apply-templates select="@css:width, @css:text-align, @frame" mode="tblPr"/>
+      <xsl:apply-templates select="@css:width, @css:text-align, @css:background-color, @frame" mode="tblPr"/>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="tgroup">
@@ -48,7 +48,8 @@
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
-    <w:p>
+    <!-- GI 2014-01-25: What was this for?
+      <w:p>
       <xsl:variable name="pPr" as="element(*)*">
         <xsl:apply-templates  select="@css:page-break-after" mode="props" />
       </xsl:variable>
@@ -57,7 +58,7 @@
           <xsl:sequence  select="$pPr" />
         </w:pPr>
       </xsl:if>
-    </w:p>
+    </w:p>-->
   </xsl:template>
 
   <xsl:template  match="informaltable/@xml:id"  mode="hub:default">
@@ -162,7 +163,7 @@
         </w:tblPrEx>
       </xsl:if>
       <xsl:variable name="trPr" as="element()*">
-        <xsl:apply-templates  select="$cals-rows[1]/@class | $cals-rows[1]/@css:height | $cals-rows[1]/@css:page-break-inside"  mode="trPr" />
+        <xsl:apply-templates  select="$cals-rows[1]/(@class | @css:height | @css:min-height | @css:page-break-inside)"  mode="trPr" />
         <xsl:if test="$cals-rows[1]/ancestor::thead">
           <w:tblHeader/>
         </xsl:if>
@@ -189,7 +190,9 @@
             <xsl:for-each select="$cals-rows[1]/*[self::entry or self::td or self::th]">
               <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then string(number(@rowspan)-1) else ''"/>
               <xsl:variable  name="tcPr" as="element()*">
-                <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1], @css:*" mode="tcPr" />
+                <xsl:call-template name="letex:tcPr">
+                  <xsl:with-param name="name-to-int-map" select="$name-to-int-map"/>
+                </xsl:call-template>
               </xsl:variable>
               <xsl:variable name="pPr" as="element(*)*">
                 <xsl:apply-templates select="para/@css:page-break-after" mode="props"/>
@@ -302,6 +305,10 @@
     <xsl:sequence select="20"/>
   </xsl:template>
   
+  <xsl:template match="w:tblLayout" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="24"/>
+  </xsl:template>
+  
   <xsl:template match="w:tblBorders" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="40"/>
   </xsl:template>
@@ -309,7 +316,27 @@
   <xsl:template match="w:tblLook" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="50"/>
   </xsl:template>
-  
+
+  <xsl:template name="letex:tcPr" as="element(*)*">
+    <xsl:param name="name-to-int-map" as="document-node(element(map))"/>
+    <xsl:apply-templates select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], 
+                                 @class, 
+                                 (@rowsep, @colsep)[1], 
+                                 @css:*[not(starts-with(local-name(), 'padding-'))]" mode="tcPr"/>
+    <xsl:if test="@css:*[starts-with(local-name(), 'padding-')]">
+      <w:tcMar>
+        <xsl:apply-templates select="@css:padding-top, @css:padding-left, @css:padding-bottom, @css:padding-right" mode="tcPr"/>
+      </w:tcMar>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="@css:*[starts-with(local-name(), 'padding-')][matches(., '(mm|pt)$')]" mode="tcPr">
+    <xsl:element name="w:{replace(local-name(), 'padding-', '')}">
+      <xsl:attribute name="w:w" select="letex:length-to-unitless-twip(.)"/>
+      <xsl:attribute name="w:type" select="'dxa'"/>
+    </xsl:element>
+  </xsl:template>
+
   <xsl:function name="letex:position-tcs" as="element(w:tc)*">
     <xsl:param name="built-entries" as="element(w:tc)*"/>
     <xsl:param name="cals-entries" as="element(*)*"/>
@@ -355,7 +382,11 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="tcPr" as="element(*)*">
-          <xsl:apply-templates select="($cals-entries[1]/@colspan, letex:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend))[1], $cals-entries[1]/@class, ($cals-entries[1]/@rowsep, $cals-entries[1]/@colsep)[1], $cals-entries[1]/@css:*" mode="tcPr"/>
+          <xsl:for-each select="$cals-entries[1]">
+            <xsl:call-template name="letex:tcPr">
+              <xsl:with-param name="name-to-int-map" select="$name-to-int-map"/>
+            </xsl:call-template>
+          </xsl:for-each>
         </xsl:variable>
         <xsl:variable name="pPr" as="element(*)*">
           <xsl:apply-templates select="$cals-entries[1]/para/@css:page-break-avoid" mode="props"/>
@@ -459,7 +490,9 @@
     <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
     <w:tc>
       <xsl:variable  name="tcPr">
-        <xsl:apply-templates  select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], @class, (@rowsep, @colsep)[1], @css:*" mode="tcPr"/>
+        <xsl:call-template name="letex:tcPr">
+          <xsl:with-param name="name-to-int-map" select="$name-to-int-map"/>
+        </xsl:call-template>
       </xsl:variable>
       <xsl:if test="$tcPr">
         <w:tcPr>
@@ -535,7 +568,7 @@
   
   <xsl:template match="@css:width" mode="tcPr">
     <xsl:element name="w:tcW">
-      <xsl:attribute name="w:w" select="round(letex:length-to-unitless-twip(.))"/>
+      <xsl:attribute name="w:w" select="if (. = 'auto') then 0 else round(letex:length-to-unitless-twip(.))"/>
       <xsl:attribute name="w:type" select="if (matches(.,'pct$')) then 'pct' else if (matches(.,'(pt|mm)$')) then 'dxa' else 'auto'"/>
     </xsl:element>
   </xsl:template>
@@ -544,7 +577,7 @@
     <w:vAlign w:val="{if (.='middle') then 'center' else .}"/>
   </xsl:template>
 
-  <xsl:template match="@css:background-color" mode="tcPr trPr">
+  <xsl:template match="@css:background-color" mode="tcPr trPr tblPr">
     <w:shd w:val="clear" w:color="auto" w:fill="{letex:retrieve-color-attribute-val(.)}"/>
   </xsl:template>
 
@@ -566,19 +599,25 @@
   
   <xsl:template match="@css:width" mode="tblPr">
     <xsl:element name="w:tblW">
-      <xsl:attribute name="w:w" select="if (matches(.,'pct$')) then replace(.,'pct$','') else if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else '0'"/>
-      <xsl:attribute name="w:type" select="if (matches(.,'pct$')) then 'pct' else if (matches(.,'pt$')) then 'dxa' else 'auto'"/>
+      <xsl:attribute name="w:w" select="if (. = 'auto') then 0
+                                        else if (matches(.,'%$')) 
+                                          then replace(.,'%$','') 
+                                          else round(letex:length-to-unitless-twip(.))"/>
+      <xsl:attribute name="w:type" select="if (matches(.,'%$')) then 'pct' else if (matches(.,'(pt|mm)$')) then 'dxa' else 'auto'"/>
     </xsl:element>
+    <xsl:if test="matches(.,'(auto|pt|mm)$')">
+      <w:tblLayout w:type="fixed"/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="@css:text-align" mode="tblPr">
     <w:jc w:val="{.}"/>
   </xsl:template>
   
-  <xsl:template match="@css:height" mode="trPr">
+  <xsl:template match="@css:height | @css:min-height" mode="trPr">
     <xsl:element name="w:trHeight">
       <xsl:attribute name="w:val" select="if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else ."/>
-      <xsl:attribute name="w:hRule" select="'atLeast'"/>
+      <xsl:attribute name="w:hRule" select="if (local-name() = 'height') then 'exact' else 'atLeast'"/>
     </xsl:element>
   </xsl:template>
   

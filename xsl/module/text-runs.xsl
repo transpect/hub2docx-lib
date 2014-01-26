@@ -98,14 +98,16 @@
             <xsl:if  test="matches( . , '^\s|\s$')">
               <xsl:attribute  name="xml:space"  select="'preserve'"/>
             </xsl:if>
-            <xsl:choose>
+            <xsl:value-of select="."/>
+            <!-- We don’t use xml:space="preserve" in Hub. All space must be preserved. 
+              <xsl:choose>
               <xsl:when test="ancestor::*[@xml:space][1]/@xml:space eq 'preserve'">
                 <xsl:value-of select="."/>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="replace(., '\s+', ' ')"/>
               </xsl:otherwise>
-            </xsl:choose>
+            </xsl:choose>-->
           </w:t>    
         </xsl:otherwise>
       </xsl:choose>
