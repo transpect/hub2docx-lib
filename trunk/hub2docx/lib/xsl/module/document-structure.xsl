@@ -29,7 +29,9 @@
   
   <!-- speed up the index-of() a little bit -->
   <xsl:variable  name="rels" select="for $f 
-    in (//*[local-name() = ('mediaobject', 'inlinemediaobject')] | //link[@role eq 'uri' or (not(@role) and @xlink:href)]) 
+    in (  //*[local-name() = ('mediaobject', 'inlinemediaobject')] 
+        (: | //link[@role eq 'uri' or (not(@role) and @xlink:href)] :)
+       ) 
     return generate-id($f)" as="xs:string *"/>
 
   <xsl:key name="by-genid" match="*" use="generate-id()"/>
