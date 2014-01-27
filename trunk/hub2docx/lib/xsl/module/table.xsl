@@ -48,17 +48,18 @@
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
-    <!-- GI 2014-01-25: What was this for?
+    <xsl:if test="matches(following-sibling::node()[1]/local-name(),'^(informal)?table$')">
       <w:p>
-      <xsl:variable name="pPr" as="element(*)*">
-        <xsl:apply-templates  select="@css:page-break-after" mode="props" />
-      </xsl:variable>
-      <xsl:if  test="$pPr">
-        <w:pPr>
-          <xsl:sequence  select="$pPr" />
-        </w:pPr>
-      </xsl:if>
-    </w:p>-->
+        <xsl:variable name="pPr" as="element(*)*">
+          <xsl:apply-templates  select="@css:page-break-after" mode="props" />
+        </xsl:variable>
+        <xsl:if  test="$pPr">
+          <w:pPr>
+            <xsl:sequence  select="$pPr" />
+          </w:pPr>
+        </xsl:if>
+      </w:p>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template  match="informaltable/@xml:id"  mode="hub:default">
@@ -569,7 +570,7 @@
   <xsl:template match="@css:width" mode="tcPr">
     <xsl:element name="w:tcW">
       <xsl:attribute name="w:w" select="if (. = 'auto') then 0 else round(letex:length-to-unitless-twip(.))"/>
-      <xsl:attribute name="w:type" select="if (matches(.,'pct$')) then 'pct' else if (matches(.,'(pt|mm)$')) then 'dxa' else 'auto'"/>
+      <xsl:attribute name="w:type" select="if (matches(.,'%$')) then 'pct' else if (matches(.,'(pt|mm)$')) then 'dxa' else 'auto'"/>
     </xsl:element>
   </xsl:template>
   
@@ -600,9 +601,7 @@
   <xsl:template match="@css:width" mode="tblPr">
     <xsl:element name="w:tblW">
       <xsl:attribute name="w:w" select="if (. = 'auto') then 0
-                                        else if (matches(.,'%$')) 
-                                          then replace(.,'%$','') 
-                                          else round(letex:length-to-unitless-twip(.))"/>
+                                        else round(letex:length-to-unitless-twip(.))"/>
       <xsl:attribute name="w:type" select="if (matches(.,'%$')) then 'pct' else if (matches(.,'(pt|mm)$')) then 'dxa' else 'auto'"/>
     </xsl:element>
     <xsl:if test="matches(.,'(auto|pt|mm)$')">
