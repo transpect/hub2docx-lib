@@ -125,7 +125,7 @@
             path="m,l,21600r21600,l21600,xe">
             <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
             <xsl:if test="@css:background-color ne ''">
-              <xsl:attribute name="fillcolor" select="concat('#', letex:retrieve-color-attribute-val(@css:background-color))"/>
+              <xsl:attribute name="fillcolor" select="concat('#', letex:convert-css-color(@css:background-color, 'hex'))"/>
             </xsl:if>
             <xsl:if test="@css:border-style = 'none'">
               <xsl:attribute name="stroked" select="'false'"/>
@@ -155,7 +155,7 @@
           <xsl:attribute name="o:spt" select="'100'"/>
           <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
           <xsl:if test="@css:background-color ne ''">
-            <xsl:attribute name="fillcolor" select="concat('#', letex:retrieve-color-attribute-val(@css:background-color))"/>
+            <xsl:attribute name="fillcolor" select="concat('#', letex:convert-css-color(@css:background-color, 'hex'))"/>
           </xsl:if>
         </xsl:element>
       </w:pict>

@@ -141,10 +141,6 @@
         <w:pStyle w:val="{concat( $heading-prefix, string(letex:headinglevel(.)))}"/>
       </w:pPr>
       <xsl:variable name="rPrContent" as="element(w:color)?">
-				<xsl:variable name="color" select="replace( letex:current-color(., (), ()), '#', '' )" />
-        <xsl:if test="$color">
-          <w:color w:val="{$color}"/>
-        </xsl:if>
       </xsl:variable>
       <xsl:if test="../@xml:id">
         <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>

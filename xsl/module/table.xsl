@@ -75,7 +75,6 @@
   <xsl:template name="create-table" as="element(*)+">
     <xsl:param name="tblPrContent" as="element(*)*" tunnel="yes" />
     <w:tbl>
-      <xsl:variable name="current-color" select="replace( letex:current-color(., (), ()), '#', '' )" />
       <xsl:variable name="default-tblPrContent" as="element(*)+">
         <w:tblW w:w="0" w:type="auto"/>
         <!--<w:tblBorders>
@@ -216,7 +215,7 @@
                 <xsl:apply-templates mode="hub:default"/>
               </w:tc>
               <xsl:if test="exists(@namest) or exists(@colspan)">
-                <xsl:for-each select="1 to (xs:integer(@colspan), xs:integer(letex:cals-colspan($name-to-int-map, @namest, @nameend)))[1]-1">
+                <xsl:for-each select="1 to (xs:integer((@colspan,1)[1]), xs:integer(letex:cals-colspan($name-to-int-map, @namest, @nameend)))[1]-1">
                   <w:tc>
                     <w:tcPr>
                       <xsl:perform-sort>
@@ -547,9 +546,6 @@
               <xsl:attribute name="w:val"    select="'single'" />
               <xsl:attribute name="w:sz"     select="4" /><!-- 0.5pt -->
               <xsl:attribute name="w:space " select="0" />
-              <xsl:if test="letex:current-color($context, '', 'dark') ne ''">
-                <xsl:attribute name="w:color " select="replace( letex:current-color($context, '', 'dark'), '#', '' )" />
-              </xsl:if>
             </xsl:element>
           </xsl:for-each>
         </w:tcBorders>
@@ -579,7 +575,7 @@
   </xsl:template>
 
   <xsl:template match="@css:background-color" mode="tcPr trPr tblPr">
-    <w:shd w:val="clear" w:color="auto" w:fill="{letex:retrieve-color-attribute-val(.)}"/>
+    <w:shd w:val="clear" w:color="auto" w:fill="{letex:convert-css-color(., 'hex')}"/>
   </xsl:template>
 
   <xsl:template match="@frame" mode="tblPr">
