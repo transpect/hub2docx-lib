@@ -225,7 +225,7 @@
     </w:u>
   </xsl:template>
   <xsl:template match="@css:text-decoration-color" mode="props-secondary">
-    <xsl:attribute name="w:color" select="letex:retrieve-color-attribute-val(.)"/>
+    <xsl:attribute name="w:color" select="letex:convert-css-color(., 'hex')"/>
   </xsl:template>
   <xsl:template match="@css:text-decoration-style" mode="props-secondary">
     <xsl:attribute name="w:val" select=" letex:border-style(.)"/>
@@ -239,7 +239,7 @@
   </xsl:template>
   
   <xsl:template match="@css:background-color" mode="props">
-    <w:shd w:fill="{letex:retrieve-color-attribute-val(.)}" w:val="clear"/>
+    <w:shd w:fill="{letex:convert-css-color(., 'hex')}" w:val="clear"/>
   </xsl:template>
 
   <xsl:template match="@css:*[starts-with(local-name(), 'border-')]" mode="props"/>
@@ -249,7 +249,7 @@
   </xsl:template>
   
   <xsl:template match="@css:color" mode="props">
-    <w:color w:val="{letex:retrieve-color-attribute-val(.)}"/>
+    <w:color w:val="{letex:convert-css-color(., 'hex')}"/>
   </xsl:template>
   
   <xsl:template match="@css:text-transform[. = 'uppercase']" mode="props">
@@ -296,7 +296,7 @@
             <xsl:attribute name="w:val" select="letex:border-style($styles[1])"/>
             <xsl:attribute name="w:sz" select="letex:length-to-border-width-type($widths[1])"/>
             <xsl:attribute name="w:space" select="letex:length-to-unitless-twip(($elt/@css:margin-top, '0pt')[1])"/>
-            <xsl:attribute name="w:color" select="if ($colors) then letex:retrieve-color-attribute-val($colors[1]) else 'auto'"/>
+            <xsl:attribute name="w:color" select="if ($colors) then letex:convert-css-color($colors[1], 'hex') else 'auto'"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:for-each select="('top', 'left', 'bottom', 'right')">
@@ -311,27 +311,6 @@
         </xsl:choose>
       </xsl:element>
     </xsl:if>
-    <!--<xsl:if test="$cssattribs[matches(local-name(), '^border.*(width|style|color)$')][not(matches(., '^0+[^0]*$'))]">
-      <xsl:if test="$cssattribs[matches(local-name(), 'border.(top|right|bottom|left).+$')]">
-        <xsl:message select="'Border direction attribute: not implemented yet.'"/>
-      </xsl:if>
-      <xsl:variable name="borderwidth" as="xs:string?">
-        <xsl:sequence select="if ($cssattribs[local-name() eq 'border-width'][matches(., 'pt$')]) 
-                              then xs:string(xs:integer(replace($cssattribs[local-name() eq 'border-width'], '\s*pt$', '')) * 12) 
-                              else '12'"/>
-      </xsl:variable>
-      <xsl:variable name="bordercolor" as="xs:string?">
-        <xsl:choose>
-          <xsl:when test="$cssattribs[local-name() eq 'border-color'][not(.='')]">
-            <xsl:sequence select="letex:retrieve-color-attribute-val($cssattribs[local-name() eq 'border-color'])"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:sequence select="'auto'"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <w:bdr w:val="{$borderstyle}" w:sz="{$borderwidth}" w:space="0" w:color="{$bordercolor}"/>
-    </xsl:if>-->
   </xsl:function>
 
   <xsl:template match="@css:border-top-style | @css:border-bottom-style | @css:border-left-style | @css:border-right-style" mode="props-secondary">
@@ -353,7 +332,7 @@
   </xsl:template>
 
   <xsl:template match="@css:border-top-color | @css:border-bottom-color | @css:border-left-color | @css:border-right-color" mode="props-secondary">
-    <xsl:attribute name="w:color" select="letex:retrieve-color-attribute-val(.)"/>
+    <xsl:attribute name="w:color" select="letex:convert-css-color(., 'hex')"/>
   </xsl:template>
   
   <xsl:function name="letex:border-style" as="xs:string">
