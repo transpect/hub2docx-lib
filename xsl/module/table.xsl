@@ -575,7 +575,7 @@
   </xsl:template>
 
   <xsl:template match="@css:background-color" mode="tcPr trPr tblPr">
-    <w:shd w:val="clear" w:color="auto" w:fill="{letex:convert-css-color(., 'hex')}"/>
+    <w:shd w:val="clear" w:color="auto" w:fill="{substring(letex:convert-css-color(., 'hex'), 2, 6)}"/>
   </xsl:template>
 
   <xsl:template match="@frame" mode="tblPr">
