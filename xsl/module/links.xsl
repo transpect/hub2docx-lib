@@ -216,8 +216,9 @@
           <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
             <xsl:call-template  name="mergeRunProperties">
               <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-              <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
-                <w:rStyle w:val="InternalRef"/>
+              <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
+                <!-- Does anyone need this style? If so, please call it hub:InternalRef -->
+                <!-- <w:rStyle w:val="InternalRef"/>-->
               </xsl:with-param>
             </xsl:call-template>
           </xsl:with-param>
