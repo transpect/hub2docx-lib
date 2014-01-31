@@ -34,7 +34,7 @@
       <xsl:apply-templates select="/*/w:document/@xml:base" mode="docx2hub:modify"/>
     </xsl:variable>
     <w:root>
-      <xsl:apply-templates select="collection()/w:root/node()" mode="#current">
+      <xsl:apply-templates select="collection()/w:root/*" mode="#current">
         <xsl:with-param name="document-xml-base-modified" tunnel="yes"
           select="$document-xml-base-modified" />
         <xsl:with-param name="footnoteIdOffset" tunnel="yes"
