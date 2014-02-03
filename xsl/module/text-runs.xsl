@@ -225,7 +225,7 @@
     </w:u>
   </xsl:template>
   <xsl:template match="@css:text-decoration-color" mode="props-secondary">
-    <xsl:attribute name="w:color" select="letex:convert-css-color(., 'hex')"/>
+    <xsl:attribute name="w:color" select="substring(letex:convert-css-color(., 'hex'), 2, 6)"/>
   </xsl:template>
   <xsl:template match="@css:text-decoration-style" mode="props-secondary">
     <xsl:attribute name="w:val" select=" letex:border-style(.)"/>
@@ -239,7 +239,7 @@
   </xsl:template>
   
   <xsl:template match="@css:background-color" mode="props">
-    <w:shd w:fill="{letex:convert-css-color(., 'hex')}" w:val="clear"/>
+    <w:shd w:fill="{substring(letex:convert-css-color(., 'hex'), 2, 6)}" w:val="clear"/>
   </xsl:template>
 
   <xsl:template match="@css:*[starts-with(local-name(), 'border-')]" mode="props"/>
@@ -249,7 +249,7 @@
   </xsl:template>
   
   <xsl:template match="@css:color" mode="props">
-    <w:color w:val="{letex:convert-css-color(., 'hex')}"/>
+    <w:color w:val="{substring(letex:convert-css-color(., 'hex'), 2, 6)}"/>
   </xsl:template>
   
   <xsl:template match="@css:text-transform[. = 'uppercase']" mode="props">
@@ -296,7 +296,7 @@
             <xsl:attribute name="w:val" select="letex:border-style($styles[1])"/>
             <xsl:attribute name="w:sz" select="letex:length-to-border-width-type($widths[1])"/>
             <xsl:attribute name="w:space" select="letex:length-to-unitless-twip(($elt/@css:margin-top, '0pt')[1])"/>
-            <xsl:attribute name="w:color" select="if ($colors) then letex:convert-css-color($colors[1], 'hex') else 'auto'"/>
+            <xsl:attribute name="w:color" select="if ($colors) then substring(letex:convert-css-color($colors[1], 'hex'), 2, 6) else 'auto'"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:for-each select="('top', 'left', 'bottom', 'right')">
@@ -332,7 +332,7 @@
   </xsl:template>
 
   <xsl:template match="@css:border-top-color | @css:border-bottom-color | @css:border-left-color | @css:border-right-color" mode="props-secondary">
-    <xsl:attribute name="w:color" select="letex:convert-css-color(., 'hex')"/>
+    <xsl:attribute name="w:color" select="substring(letex:convert-css-color(., 'hex'), 2, 6)"/>
   </xsl:template>
   
   <xsl:function name="letex:border-style" as="xs:string">
@@ -386,17 +386,20 @@
     <xsl:sequence select="100"/>
   </xsl:template>
 
+  <xsl:template match="w:u" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="115"/>
+  </xsl:template>
+  
+  <xsl:template match="w:sz" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="110"/>
+  </xsl:template>
+  
   <xsl:template match="w:shd" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="120"/>
   </xsl:template>
 
-  <xsl:template match="w:sz" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="110"/>
-  </xsl:template>
-
-  <xsl:template match="w:u" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="300"/>
-  </xsl:template>
+  
+  
   
   <xsl:template  match="@css:*"  mode="hub:default">
     <xsl:copy />

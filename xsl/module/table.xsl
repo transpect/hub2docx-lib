@@ -280,6 +280,10 @@
   <xsl:template match="w:tcBorders" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="140"/>
   </xsl:template>
+
+  <xsl:template match="w:tcMar" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="145"/>
+  </xsl:template>
   
   <xsl:template match="w:noWrap" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="160"/>
@@ -306,15 +310,15 @@
   </xsl:template>
   
   <xsl:template match="w:tblLayout" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="24"/>
+    <xsl:sequence select="224"/>
   </xsl:template>
   
   <xsl:template match="w:tblBorders" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="40"/>
+    <xsl:sequence select="240"/>
   </xsl:template>
   
   <xsl:template match="w:tblLook" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="50"/>
+    <xsl:sequence select="250"/>
   </xsl:template>
 
   <xsl:template name="letex:tcPr" as="element(*)*">
