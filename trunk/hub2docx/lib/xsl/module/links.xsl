@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="2.0"
-    xmlns:xsl		= "http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
-    xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
-    xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
-    xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
-    xmlns:xlink		= "http://www.w3.org/1999/xlink"
-    xmlns:css           = "http://www.w3.org/1996/css"
-    
-    xmlns:o		= "urn:schemas-microsoft-com:office:office"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-    xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
-    xmlns:r		= "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-    xmlns:rel		= "http://schemas.openxmlformats.org/package/2006/relationships"
-    xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+    xmlns:xsl = "http://www.w3.org/1999/XSL/Transform"
+    xmlns:xs = "http://www.w3.org/2001/XMLSchema"
+    xmlns:xsldoc = "http://www.bacman.net/XSLdoc"
+    xmlns:saxon = "http://saxon.sf.net/"
+    xmlns:letex = "http://www.le-tex.de/namespace"
+    xmlns:saxExtFn = "java:saxonExtensionFunctions"
+    xmlns:hub = "http://www.le-tex.de/namespace/hub"
+    xmlns:xlink = "http://www.w3.org/1999/xlink"
+    xmlns:css = "http://www.w3.org/1996/css"
+
+    xmlns:o = "urn:schemas-microsoft-com:office:office"
+    xmlns:mc = "http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+    xmlns:m = "http://schemas.openxmlformats.org/officeDocument/2006/math"
+    xmlns:r = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+    xmlns:rel = "http://schemas.openxmlformats.org/package/2006/relationships"
+    xmlns:wp = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
@@ -57,15 +57,24 @@
   <xsl:key name="by-id" match="*[@xml:id]" use="@xml:id" />
 
 
+  <xsl:variable name="xref-text-before" as="xs:string"
+    select="'['"/>
+  <xsl:variable name="xref-text-after" as="xs:string"
+    select="']'"/>
+
   <!-- Automatically resolved references to bibliography entries. 
        Should also handle biblioref in the future.
        -->
   <xsl:template  match="xref[@role eq 'bibref']"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
     <xsl:variable  name="targetNodes"  select="for $le in (@linkend, tokenize(@linkends, '\s+')) return key('by-id', $le)" as="element(*)*"/>
-    <w:r>
-      <w:t>[</w:t>
-    </w:r>
+    <xsl:if test="not(preceding::text()[1][ends-with(., $xref-text-before)])">
+      <w:r>
+        <w:t>
+          <xsl:value-of select="$xref-text-before"/>
+        </w:t>
+      </w:r>
+    </xsl:if>
     <xsl:for-each select="$targetNodes">
       <w:r>
         <w:fldChar w:fldCharType="begin"/>
@@ -98,9 +107,13 @@
         </w:r>
       </xsl:if>
     </xsl:for-each>
-    <w:r>
-      <w:t>]</w:t>
-    </w:r>
+    <xsl:if test="not(following::text()[1][starts-with(., $xref-text-after)])">
+      <w:r>
+        <w:t>
+          <xsl:value-of select="$xref-text-after"/>
+        </w:t>
+      </w:r>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template  match="xref[@role eq 'internal' and @xrefstyle = ('page', 'pagera', 'pagerb')]"  mode="hub:default">
@@ -286,10 +299,10 @@
 
   <!-- §§ profiling sinnvoll/nötig?! -->
   <xsl:template  match="link[@role eq 'uri' or (not(@role) and @xlink:href)]"  mode="documentRels">
-		<xsl:if test="matches( ., ' ' )">
-			<xsl:message select="'WARNING: space in target replaced with underscore', ."/>
-		</xsl:if>
-		<xsl:variable name="Target" select="if( matches( ., ' ' ) ) then replace( ., ' ', '_' ) else ."/>
+    <xsl:if test="matches( ., ' ' )">
+      <xsl:message select="'WARNING: space in target replaced with underscore', ."/>
+    </xsl:if>
+    <xsl:variable name="Target" select="if( matches( ., ' ' ) ) then replace( ., ' ', '_' ) else ."/>
     <rel:Relationship Id="{index-of( $rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"  Target="{$Target}"  TargetMode="External"/>
   </xsl:template>
 
