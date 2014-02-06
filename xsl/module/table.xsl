@@ -260,6 +260,24 @@
   <xsl:template match="w:tc[w:tcPr/w:hMerge/@w:val = 'continue']" mode="hub:clean"/>
 
   <xsl:template match="w:tc/w:tcPr/w:hMerge" mode="hub:clean"/>
+
+  <xsl:variable name="EG_BlockLevelElts" as="xs:string+"
+    select="('w:customXml', 'w:sdt', 'w:p', 'w:tbl', 'w:proofErr', 'w:permStart',
+             'w:permEnd', 'w:bookmarkStart', 'w:bookmarkEnd', 'w:moveFromRangeStart', 
+             'w:moveFromRangeEnd', 'w:moveToRangeStart', 'w:moveToRangeEnd', 'w:commentRangeStart',
+             'w:commentRangeEnd', 'w:customXmlInsRangeStart', 'w:customXmlInsRangeEnd', 
+             'w:customXmlDelRangeStart', 'w:customXmlDelRangeEnd',
+             'w:customXmlMoveFromRangeStart', 'w:customXmlMoveFromRangeEnd',
+             'w:customXmlMoveToRangeStart', 'w:customXmlMoveToRangeEnd', 'w:ins', 'w:del',
+             'w:moveFrom', 'w:moveTo', 'm:oMathPara', 'm:oMath', 'w:altChunk')"/>
+
+  <!-- empty, invalid cell -->
+  <xsl:template match="w:tc[not(*[name() = $EG_BlockLevelElts])]" mode="hub:clean">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <w:p/>
+    </xsl:copy>
+  </xsl:template>
   
   <xsl:template match="w:tcW" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="0"/>
