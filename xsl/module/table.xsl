@@ -99,7 +99,13 @@
         <xsl:document>
           <map xmlns="http://docbook.org/ns/docbook">
             <xsl:for-each select="colspec">
-              <item key="{@colname}" val="{@colnum}"/>
+              <xsl:variable name="colnum" as="xs:string"
+                select="if(@colnum ne '') then @colnum else replace(@colname, '^c(\d+)$', '$1')"/>
+              <xsl:if test="$colnum eq ''">
+                <xsl:message select="'ERROR: element colspec: @colnum', @colnum, 'is empty/nonexistent or nonreadable @colname ', @colname"/>
+              </xsl:if>
+              <item key="{@colname}" 
+                val="{$colnum}"/>
             </xsl:for-each>
           </map>
         </xsl:document>
