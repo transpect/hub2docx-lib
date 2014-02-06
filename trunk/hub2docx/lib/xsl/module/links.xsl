@@ -86,12 +86,14 @@
         <w:fldChar w:fldCharType="separate"/>
       </w:r>
       <w:r>
-        <xsl:call-template  name="mergeRunProperties">
-          <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-          <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
-            <w:rStyle w:val="bibref"/>
-          </xsl:with-param>
-        </xsl:call-template>
+        <w:rPr>
+          <xsl:call-template  name="mergeRunProperties">
+            <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
+            <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
+              <w:rStyle w:val="bibref"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </w:rPr>
         <w:t>
           <xsl:value-of select="index-of((//biblioentry union //bibliomixed)/@xml:id, @xml:id)"/>
         </w:t>
