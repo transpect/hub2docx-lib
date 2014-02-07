@@ -23,6 +23,11 @@
     exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink css o w m wp r docx2hub"
 >
 
+  <xsl:key name="styleId" match="w:style" use="@w:styleId"/>
+
+  <xsl:variable name="docx-template" as="element(w:root)"
+    select="collection()/w:root"/>
+
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <!-- mode="hub:default" -->
@@ -80,23 +85,26 @@
   <xsl:template match="@role[. = 'ttt:token']" mode="props"/>
     
   <xsl:template match="@role" mode="props">
-    <xsl:variable name="rule" select="key('style-by-name', .)" as="element(css:rule)?"/>
+    <xsl:variable name="rule-in-source" select="key('style-by-name', .)" as="element(css:rule)?"/>
+    <xsl:variable name="role-in-template" select="key('styleId', ., $docx-template)" as="element(w:style)?"/>
+    <xsl:variable name="parent-is-para" select="boolean(parent::para or parent::simpara)" as="xs:boolean"/>
+    <xsl:variable name="parent-is-inline" select="boolean(parent::phrase)" as="xs:boolean"/>
     <xsl:choose>
-      <xsl:when test="exists($rule)">
+      <xsl:when test="exists($rule-in-source)">
         <xsl:variable name="elt-name" as="xs:string">
           <xsl:choose>
-            <xsl:when test="$rule/@layout-type = 'inline'">
+            <xsl:when test="$rule-in-source/@layout-type = 'inline'">
               <xsl:sequence select="'w:rStyle'"/>
             </xsl:when>
-            <xsl:when test="$rule/@layout-type = 'para'">
+            <xsl:when test="$rule-in-source/@layout-type = 'para'">
               <xsl:sequence select="'w:pStyle'"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:choose>
-                <xsl:when test="parent::para or parent::simpara">
+                <xsl:when test="$parent-is-para">
                   <xsl:sequence select="'w:pStyle'"/>
                 </xsl:when>
-                <xsl:when test="parent::phrase">
+                <xsl:when test="$parent-is-inline">
                   <xsl:sequence select="'w:rStyle'"/>
                 </xsl:when>
                 <xsl:otherwise>
@@ -109,7 +117,23 @@
         </xsl:variable>
         <xsl:element name="{$elt-name}">
           <xsl:attribute name="w:val" select="."/>
+          <xsl:choose>
+            <xsl:when test="$elt-name eq 'w:pStyle' and $role-in-template/@w:type eq 'paragraph'">
+              <xsl:attribute name="hub:para-role-in-template" select="'yes'"/>
+            </xsl:when>
+            <xsl:when test="$elt-name eq 'w:rStyle' and $role-in-template/@w:type eq 'character'">
+              <xsl:attribute name="hub:inline-role-in-template" select="'yes'"/>
+            </xsl:when>
+          </xsl:choose>
         </xsl:element>
+      </xsl:when>
+      <!-- para not defined with css:rule but role exists in template-->
+      <xsl:when test="$parent-is-para and $role-in-template/@w:type eq 'paragraph'">
+        <w:pStyle w:val="{.}" hub:para-role-in-template="yes"/>
+      </xsl:when>
+      <!-- inline role not defined in css:rule but exists in template-->
+      <xsl:when test="$parent-is-inline and $role-in-template/@w:type eq 'character'">
+        <w:rStyle w:val="{.}" hub:inline-role-in-template="yes"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message select="'para.xsl, match=@role: no style for role ', string(.)"/>
