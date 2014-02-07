@@ -31,7 +31,7 @@
   <!-- See also lists.xsl (preprocesses paras that contain lists)
        -->
 
-  <xsl:template  match="para[ not( parent::listitem) ]"  mode="hub:default">
+  <xsl:template  match="para[ not( parent::listitem) ] | simpara[not(parent::footnote)]"  mode="hub:default">
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:perform-sort>
         <xsl:sort data-type="number" order="ascending">
@@ -40,7 +40,7 @@
         <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align" mode="props" />      
       </xsl:perform-sort>
     </xsl:variable>
-    <w:p origin="default_p_parentnotlistitem">
+    <w:p origin="{if(self::para) then 'default_p_parentnotlistitem' else 'default_simpara'}">
       <xsl:if  test="$pPr">
         <w:pPr>
           <xsl:sequence  select="$pPr" />
@@ -77,12 +77,6 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template match="simpara[not(parent::footnote)]" mode="hub:default">
-    <w:p origin="default_simpara">
-      <xsl:apply-templates mode="#current" />
-    </w:p>
-  </xsl:template>
-
   <xsl:template match="@role[. = 'ttt:token']" mode="props"/>
     
   <xsl:template match="@role" mode="props">
@@ -99,14 +93,14 @@
             </xsl:when>
             <xsl:otherwise>
               <xsl:choose>
-                <xsl:when test="parent::para">
+                <xsl:when test="parent::para or parent::simpara">
                   <xsl:sequence select="'w:pStyle'"/>
                 </xsl:when>
                 <xsl:when test="parent::phrase">
                   <xsl:sequence select="'w:rStyle'"/>
                 </xsl:when>
                 <xsl:otherwise>
-                  <xsl:message><xsl:value-of select="parent::*"/> not implemented as parent for @role="<xsl:value-of select="."/>"</xsl:message>
+                  <xsl:message><xsl:value-of select="name(parent::*), ' with content ', parent::*"/> not implemented as parent for @role="<xsl:value-of select="."/>"</xsl:message>
                   <xsl:sequence select="'implementMe'"/>
                 </xsl:otherwise>
               </xsl:choose>
@@ -121,7 +115,7 @@
         <xsl:message select="'para.xsl, match=@role: no style for role ', string(.)"/>
         <xsl:variable name="elt-name">
           <xsl:choose>
-            <xsl:when test="parent::para">
+            <xsl:when test="parent::para or parent::simpara">
               <xsl:sequence select="'w:pStyle'"/>
             </xsl:when>
             <xsl:when test="parent::phrase">
