@@ -105,8 +105,17 @@
                                 ') will just be copied by a &quot;match anything&quot; template for mode=&quot;#all&quot;',
                                 '&#x0A;&#x09;&#x09;This should not happen. Please contact the hub2docx maintainer.')"/>
       </xsl:for-each>
+      <xsl:if test=".//w:rStyle/@hub:inline-role-in-template">
+        <xsl:message select="'&#xa;Following inline roles are mapped with corresponding format in template:', 
+                              distinct-values(.//w:rStyle[@hub:inline-role-in-template eq 'yes']/@w:val)"/>
+      </xsl:if>
+      <xsl:if test=".//w:pStyle/@hub:para-role-in-template">
+        <xsl:message select="'&#xa;Following para roles are mapped with corresponding format in template:', 
+                              distinct-values(.//w:pStyle[@hub:para-role-in-template eq 'yes']/@w:val)"/>
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
   <xsl:template  match="@hub:default-no-match | @hub:morerows"  mode="hub:clean" />
+  <xsl:template  match="@hub:inline-role-in-template | @hub:para-role-in-template"  mode="hub:clean" />
 
 </xsl:stylesheet>
