@@ -16,6 +16,7 @@
   xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
   xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
   xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
+  xmlns:customProps = "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
   
   xpath-default-namespace = "http://docbook.org/ns/docbook"
   exclude-result-prefixes="xs docx2hub hub hub2docx letex dbk"
@@ -106,6 +107,11 @@
           PartName="/word/footer{$footerIdOffset + @hub:offset}.xml"
           ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
       </xsl:for-each>
+      <xsl:if test="collection()/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
+        <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types" 
+          PartName="/docProps/custom.xml"
+          ContentType="application/vnd.openxmlformats-officedocument.custom-properties+xml"/>
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
 
@@ -168,6 +174,15 @@
       <xsl:apply-templates select="collection()/w:root_converted/w:comments/node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
+  
+  <xsl:template match="w:settings" mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, * except w:docVars" mode="#current"/>
+      <w:docVars>
+        <xsl:sequence select="collection()/w:root_converted/w:settings/w:docVars/w:docVar"/>
+      </w:docVars>
+    </xsl:copy>
+  </xsl:template>
 
   <xsl:template 
     mode="hub:merge"
@@ -177,7 +192,49 @@
     <xsl:attribute name="w:id" select=". + $commentIdOffset"/>
   </xsl:template>
 
+  <!-- container relationship (_rels/.rels) changes/additions -->
+  
+  <xsl:template mode="hub:merge" match="w:containerRels/rel:Relationships">
+    <xsl:variable name="other-rels" as="element(rel:Relationship)+"
+      select="*[not(@Type = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties')]"/>
+    <xsl:variable name="rid" as="xs:double" select="max(for $i in $other-rels/@Id return number(substring($i, 4))) + 1"/>
+    <xsl:copy>
+      <xsl:apply-templates  mode="#current"
+        select="@*, $other-rels"/>
+      <xsl:if test="collection()/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
+        <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships" 
+          Id="rId{$rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties" Target="docProps/custom.xml"/>
+      </xsl:if>
+    </xsl:copy>
+  </xsl:template>
 
+  <xsl:template mode="hub:merge" match="w:containerProps">
+    <xsl:copy>
+      <xsl:apply-templates  mode="#current" select="* except customProps:Properties"/>
+      <xsl:if test="collection()/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
+        <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties">
+          <xsl:if test="*[1]/@xml:base">
+            <xsl:variable name="prelim" as="attribute(xml:base)">
+              <xsl:attribute name="xml:base" select="replace(*[1]/@xml:base, '[^/]+$', 'custom.xml')"/>  
+            </xsl:variable>
+            <xsl:apply-templates select="$prelim" mode="docx2hub:modify"/><!-- out dir -->
+          </xsl:if>
+          <xsl:apply-templates  mode="#current"
+            select="collection()/w:root_converted/w:containerProps/customProps:Properties/customProps:property"/>
+        </Properties>
+      </xsl:if>
+    </xsl:copy>
+  </xsl:template>
+    
+  <xsl:template match="customProps:property" mode="hub:merge">
+    <xsl:copy>
+      <xsl:copy-of select="@*"/>
+      <xsl:attribute name="pid" select="position() + 1"/><!-- has to start with 2, for whatever reason -->
+      <xsl:apply-templates select="*" mode="#current"/>
+    </xsl:copy>
+    
+  </xsl:template>
+  
   <!-- relationship changes/additions -->
 
   <xsl:template 
