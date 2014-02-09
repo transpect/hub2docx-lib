@@ -29,7 +29,7 @@
 <!-- ================================================================================ -->
 
   <!-- speed up the index-of() a little bit -->
-  <xsl:variable  name="hyperlinks"  select="//link[@role eq 'uri' or (not(@role) and @xlink:href)]"/>
+  <xsl:variable  name="hyperlinks"  select="//link[@role eq 'uri' or @xlink:href]"/>
 
 
 <!-- ================================================================================ -->
@@ -219,9 +219,9 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template  match="link[not(@role)][@linkend | @xlink:href]"  mode="hub:default" priority="3">
-    <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
-    <xsl:variable  name="targetNode"  select="key('by-id', @linkend)"/>
+  <xsl:template match="link" mode="hub:default" priority="3">
+    <xsl:param name="rPrContent" as="element(*)*" tunnel="yes"/>
+    <xsl:variable name="targetNode" select="key('by-id', @linkend)"/>
     <xsl:choose>
       <xsl:when  test="not(@xlink:href) and (count($targetNode) ne 1)">
         <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous (internal @linkend link).'"/>
@@ -277,30 +277,12 @@
     </xsl:choose>
   </xsl:template>
 
-  <!-- abandoned. will create field function HYPERLINKs for external links, too -->
-  <xsl:template  match="link[@role eq 'uri' or (not(@role) and @xlink:href)]"  mode="hub:default_">
-    <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
-    <w:hyperlink  r:id="{index-of( $rels, generate-id(.))}"  w:history="1">
-      <xsl:apply-templates  select="node()"  mode="#current" >
-        <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
-          <xsl:call-template  name="mergeRunProperties">
-            <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-            <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
-              <w:rStyle  w:val="Hyperlink"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </xsl:with-param>
-      </xsl:apply-templates>
-    </w:hyperlink>
-  </xsl:template>
-
-
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <!-- mode="documentRels" -->
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <!-- §§ profiling sinnvoll/nötig?! -->
-  <xsl:template  match="link[@role eq 'uri' or (not(@role) and @xlink:href)]"  mode="documentRels">
+  <xsl:template  match="link[@role eq 'uri' or @xlink:href]"  mode="documentRels">
     <xsl:if test="matches( ., ' ' )">
       <xsl:message select="'WARNING: space in target replaced with underscore', ."/>
     </xsl:if>

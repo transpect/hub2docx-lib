@@ -9,19 +9,16 @@
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
     xmlns:css           = "http://www.w3.org/1996/css"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
+    xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xmlns:rel		= "http://schemas.openxmlformats.org/package/2006/relationships"
-
     xpath-default-namespace = "http://docbook.org/ns/docbook"
-
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn css xlink o w m wp r"
->
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn css xlink o w m wp r">
 
   <!-- ================================================================================ -->
   <!-- VARIABLES -->
@@ -73,6 +70,9 @@
 
   <xsl:template  match="/*"  mode="hub:default">
     <w:root_converted>
+      <w:containerProps>
+        <xsl:apply-templates select="info/keywordset[@role = 'custom-meta']" mode="#current"/>
+      </w:containerProps>
       <w:styles />
       <w:numbering>
         <xsl:apply-templates mode="numbering"/>
@@ -81,7 +81,9 @@
         <xsl:apply-templates mode="footnotes"/>
       </w:footnotes>
       <w:endnotes />
-      <w:settings />
+      <w:settings >
+        <xsl:apply-templates select="info/keywordset[@role = 'docVars']" mode="#current"/>
+      </w:settings>
       <w:comments>
         <xsl:apply-templates mode="comments"/>
       </w:comments>
@@ -113,6 +115,31 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
+  <xsl:template match="keywordset[@role = 'custom-meta']" mode="hub:default">
+    <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"> 
+      <xsl:apply-templates mode="#current"/>
+    </Properties>
+  </xsl:template>
+
+  <xsl:template match="keywordset[@role = 'custom-meta']/keyword" mode="hub:default">
+    <property xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
+      fmtid="{{D5CDD505-2E9C-101B-9397-08002B2CF9AE}}" pid="fill-me-with-an-int" name="{@role}"> 
+      <vt:lpwstr>
+        <xsl:value-of select="."/>
+      </vt:lpwstr>
+    </property>
+  </xsl:template>
+  
+  <xsl:template match="keywordset[@role = 'docVars']" mode="hub:default">
+    <w:docVars>
+      <xsl:apply-templates mode="#current"/>
+    </w:docVars>
+  </xsl:template>
+
+  <xsl:template match="keywordset[@role = 'docVars']/keyword" mode="hub:default">
+    <w:docVar w:name="{@role}" w:val="{.}"/>
+  </xsl:template>
+  
   <xsl:template  match="chapter"  mode="hub:default" priority="123">
     <xsl:message select="'...Chapter: ', string-join(title//text()[not(ancestor::indexterm)], '')"/>
     <xsl:apply-templates  select="node()"  mode="#current" />

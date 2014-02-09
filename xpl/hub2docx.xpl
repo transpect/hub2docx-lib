@@ -17,11 +17,22 @@
   type="hub2docx:modify"
   >
   
-  <p:option name="file" required="true"/>
+  <p:documentation>This is meant to be fed into the xpl port of http://transpect.le-tex.de/docx_modify/xpl/docx_modify.xpl</p:documentation>
+  
+  <p:option name="file" required="true">
+    <p:documentation>A docx template file. Parts of it will be replaced with the transformed
+    source document.
+    The file option will probably not be used here, so declare it obsolete?</p:documentation>
+  </p:option>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
   
-  <p:input port="source" primary="true" sequence="true"/>
+  <p:input port="source" primary="true" sequence="true">
+    <p:documentation>A Hub XML document (version 1.1 or newer).
+    Please note that the following mapping will occur:
+    - keyowrdset[@role='custom-meta'] will map to {http://schemas.openxmlformats.org/officeDocument/2006/custom-properties}Properties in docProps/custom.xml (editable in the Word UI)
+    - keywordset[@role='docVars'] will map to w:docVars in word/settings.xml</p:documentation>
+  </p:input>
   <p:input port="stylesheet" />
   <p:input port="parameters" kind="parameter" primary="true"/>
   <p:output port="result" primary="true" />
