@@ -30,10 +30,12 @@
   <p:input port="source" primary="true" sequence="true">
     <p:documentation>A Hub XML document (version 1.1 or newer).
     Please note that the following mapping will occur:
-    - keyowrdset[@role='custom-meta'] will map to {http://schemas.openxmlformats.org/officeDocument/2006/custom-properties}Properties in docProps/custom.xml (editable in the Word UI)
+    - keywordset[@role='custom-meta'] will map to {http://schemas.openxmlformats.org/officeDocument/2006/custom-properties}Properties in docProps/custom.xml (editable in the Word UI)
     - keywordset[@role='docVars'] will map to w:docVars in word/settings.xml</p:documentation>
   </p:input>
-  <p:input port="stylesheet" />
+  <p:input port="stylesheet">
+    <p:document href="../xsl/hub2docx.xsl"/>
+  </p:input>
   <p:input port="parameters" kind="parameter" primary="true"/>
   <p:output port="result" primary="true" />
   
