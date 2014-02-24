@@ -67,7 +67,7 @@
       in (  //*[local-name() = ('mediaobject', 'inlinemediaobject')] 
       (: | //link[@role eq 'uri' or (not(@role) and @xlink:href)] :)
       ) 
-      return generate-id($f)" as="xs:string+"/>
+      return generate-id($f)" as="xs:string*"/>
     <w:root_converted>
       <w:containerProps>
         <xsl:apply-templates select="info/keywordset[@role = 'custom-meta']" mode="#current"/>
