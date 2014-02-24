@@ -47,6 +47,7 @@
   </xsl:template>
 
   <xsl:template match="inlinemediaobject | para/mediaobject" mode="hub:default" name="insert-picture">
+    <xsl:param name="rels" as="xs:string*" tunnel="yes"/>
     <xsl:variable name="pictstyle" as="xs:string*">
       <xsl:for-each select="@css:position|@css:margin-left|@css:margin-top|@css:z-index|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
@@ -58,7 +59,8 @@
         <w:r>
           <w:pict>
             <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{string-join($pictstyle,';')}">
-              <v:imagedata hub:fileref="{replace(.//@fileref, '^container:word/', '')}" id="img{index-of($MediaIds, generate-id(.))}" o:title=""/>
+              <v:imagedata hub:fileref="{replace(.//@fileref, '^container:word/', '')}" r:id="{index-of($rels, generate-id(.))}"
+                id="img{index-of($MediaIds, generate-id(.))}" o:title=""/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
               </xsl:if>
@@ -221,12 +223,14 @@
   <xsl:template  match="inlinemediaobject[not(count(.//imagedata) eq 1 and matches(.//imagedata/@fileref, '^container[:]'))] | 
                         mediaobject[not(count(.//imagedata) eq 1 and matches(.//imagedata/@fileref, '^container[:]'))]"  
                  mode="documentRels">
+    <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  
       Target="{.//@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>
   </xsl:template>
 
   <xsl:template  match="*[self::inlinemediaobject | self::mediaobject][starts-with(imageobject/imagedata/@fileref, 'container:')]"  
     mode="documentRels">
+    <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  
       Target="{replace(imageobject/imagedata/@fileref, 'container:word/', '')}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>
   </xsl:template>
