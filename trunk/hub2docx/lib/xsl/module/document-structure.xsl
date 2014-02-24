@@ -24,13 +24,6 @@
   <!-- VARIABLES -->
   <!-- ================================================================================ -->
   
-  <!-- speed up the index-of() a little bit -->
-  <xsl:variable  name="rels" select="for $f 
-    in (  //*[local-name() = ('mediaobject', 'inlinemediaobject')] 
-        (: | //link[@role eq 'uri' or (not(@role) and @xlink:href)] :)
-       ) 
-    return generate-id($f)" as="xs:string *"/>
-
   <xsl:key name="by-genid" match="*" use="generate-id()"/>
 
   <xsl:variable name="page-settings" as="element(w:sectPr)">
@@ -69,6 +62,12 @@
   <xsl:variable name="root" select="/" as="document-node(element(*))" />
 
   <xsl:template  match="/*"  mode="hub:default">
+    <!-- speed up the index-of() a little bit -->
+    <xsl:variable  name="rels" select="for $f 
+      in (  //*[local-name() = ('mediaobject', 'inlinemediaobject')] 
+      (: | //link[@role eq 'uri' or (not(@role) and @xlink:href)] :)
+      ) 
+      return generate-id($f)" as="xs:string+"/>
     <w:root_converted>
       <w:containerProps>
         <xsl:apply-templates select="info/keywordset[@role = 'custom-meta']" mode="#current"/>
@@ -90,7 +89,9 @@
       <w:fonts />
       <w:docRels>
         <rel:Relationships>
-          <xsl:apply-templates select="key('by-genid', $rels, $root)" mode="documentRels"/>
+          <xsl:apply-templates select="key('by-genid', $rels, $root)" mode="documentRels">
+            <xsl:with-param name="rels" select="$rels" as="xs:string*" tunnel="yes"/>
+          </xsl:apply-templates>
         </rel:Relationships>
       </w:docRels>
       <w:header>
@@ -105,7 +106,9 @@
       </w:footer>
       <w:document>
         <w:body>
-          <xsl:next-match/>
+          <xsl:next-match>
+            <xsl:with-param name="rels" select="$rels" as="xs:string*" tunnel="yes"/>
+          </xsl:next-match>
         </w:body>
       </w:document>
     </w:root_converted>

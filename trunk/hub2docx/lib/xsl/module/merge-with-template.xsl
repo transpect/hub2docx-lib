@@ -86,7 +86,8 @@
     <xsl:param name="headerIdOffset" tunnel="yes" />
     <xsl:param name="footerIdOffset" tunnel="yes" />
     <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates  mode="#current"
+        select="@*, *[not(@ContentType = 'application/vnd.openxmlformats-officedocument.custom-properties+xml')]"/>
       <xsl:if test="not(ct:Override[@PartName eq '/word/comments.xml'])  and  
                     collection()/w:root_converted/w:comments/node()">
         <Override PartName="/word/comments.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
@@ -251,7 +252,8 @@
     <xsl:param name="headerIdOffset" tunnel="yes" />
     <xsl:param name="footerIdOffset" tunnel="yes" />
     <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates  mode="#current"
+        select="@*, *[not(@Target = collection()/w:root_converted/w:docRels/rel:Relationships/*/@Target)]"/>
       <xsl:apply-templates select="collection()/w:root_converted/w:docRels/rel:Relationships/*" mode="#current"/>
       <xsl:if test="not(collection()/w:root/w:comments) and
                     collection()/w:root_converted/w:comments/node()">

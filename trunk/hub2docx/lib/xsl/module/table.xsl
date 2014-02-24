@@ -139,6 +139,7 @@
   </xsl:template>-->
   
   <xsl:template match="thead | tbody | tfoot" mode="hub:default">
+    <xsl:param name="rels" as="xs:string*" tunnel="yes"/>
     <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
     <xsl:variable name="cols" select="parent::*/@cols"/>
     <xsl:for-each-group select="*" 
@@ -150,7 +151,7 @@
                                 then (@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1] 
                                 else 1
                              ) = $cols]">
-      <xsl:sequence select="letex:position-trs((),current-group(),$name-to-int-map)"/>
+      <xsl:sequence select="letex:position-trs((), current-group(), $name-to-int-map, $rels)"/>
     </xsl:for-each-group>
   </xsl:template>
   
@@ -158,6 +159,7 @@
     <xsl:param name="built-rows" as="element(w:tr)*"/>
     <xsl:param name="cals-rows" as="element(*)*"/>
     <xsl:param name="name-to-int-map" as="document-node(element(map))"/>
+    <xsl:param name="rels" as="xs:string*"/>
    
     <xsl:variable name="tr-head" as="element(*)*">
       <xsl:variable name="tblPrEx" as="element(*)*">
@@ -218,7 +220,9 @@
                     <xsl:sequence select="$tcPr"/>
                   </xsl:perform-sort>
                 </w:tcPr>
-                <xsl:apply-templates mode="hub:default"/>
+                <xsl:apply-templates mode="hub:default">
+                  <xsl:with-param name="rels" select="$rels" tunnel="yes"/>
+                </xsl:apply-templates>
               </w:tc>
               <xsl:if test="exists(@namest) or exists(@colspan)">
                 <xsl:for-each select="1 to (xs:integer((@colspan,1)[1]), xs:integer(letex:cals-colspan($name-to-int-map, @namest, @nameend)))[1]-1">
@@ -248,17 +252,17 @@
             </xsl:for-each>
           </w:tr>
         </xsl:variable>
-        <xsl:sequence select="letex:position-trs($new-built-rows,$cals-rows[position() gt 1],$name-to-int-map)"/>
+        <xsl:sequence select="letex:position-trs($new-built-rows, $cals-rows[position() gt 1], $name-to-int-map, $rels)"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="new-built-rows" as="element(w:tr)*">
           <xsl:sequence select="$built-rows"/>
           <w:tr>
             <xsl:sequence select="$tr-head"/>
-            <xsl:sequence select="letex:position-tcs($built-rows[last()]/w:tc,$cals-rows[1]/*[self::entry or self::td or self::th],$name-to-int-map)"/>
+            <xsl:sequence select="letex:position-tcs($built-rows[last()]/w:tc,$cals-rows[1]/*[self::entry or self::td or self::th],$name-to-int-map, $rels)"/>
           </w:tr>
         </xsl:variable>
-        <xsl:sequence select="letex:position-trs($new-built-rows,$cals-rows[position() gt 1],$name-to-int-map)"/>
+        <xsl:sequence select="letex:position-trs($new-built-rows, $cals-rows[position() gt 1], $name-to-int-map, $rels)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
@@ -369,7 +373,8 @@
     <xsl:param name="built-entries" as="element(w:tc)*"/>
     <xsl:param name="cals-entries" as="element(*)*"/>
     <xsl:param name="name-to-int-map" as="document-node(element(map))"/>
-
+    <xsl:param name="rels" as="xs:string*"/>
+    
     <xsl:choose>
       <xsl:when test="empty($cals-entries)">
         <xsl:for-each select="$built-entries[w:tcPr/w:vMerge[@hub:morerows  and number(@hub:morerows) gt 0]]">
@@ -405,7 +410,7 @@
           </w:p>
         </w:tc>
 <!--        <w:tc schnarz="c"/>-->
-        <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1],$cals-entries,$name-to-int-map)"/>
+        <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1], $cals-entries, $name-to-int-map, $rels)"/>
 <!--        <w:tc schnarz="/c"/>-->
       </xsl:when>
       <xsl:otherwise>
@@ -435,7 +440,9 @@
                 <xsl:sequence select="$tcPr"/>
               </xsl:perform-sort>
             </w:tcPr>
-          <xsl:apply-templates select="$cals-entries[1]/node()" mode="hub:default"/>
+          <xsl:apply-templates select="$cals-entries[1]/node()" mode="hub:default">
+            <xsl:with-param name="rels" select="$rels" tunnel="yes"/>
+          </xsl:apply-templates>
         </w:tc>
         <xsl:if test="exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan)">
           <xsl:for-each select="1 to (xs:integer($cals-entries[1]/@colspan), xs:integer(letex:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend)))[1]-1">
@@ -471,7 +478,7 @@
             <xsl:sequence select="$cals-entries[position() gt 1]"></xsl:sequence>
           </ce>
         </w:tc>-->
-        <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1],$cals-entries[position() gt 1],$name-to-int-map)"/>
+        <xsl:sequence select="letex:position-tcs($built-entries[position() gt 1], $cals-entries[position() gt 1], $name-to-int-map, $rels)"/>
 <!--        <w:tc schnarz="/b"/>-->
       </xsl:otherwise>
     </xsl:choose>
