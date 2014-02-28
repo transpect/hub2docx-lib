@@ -47,12 +47,12 @@
                        return number( substring( $rId, 4))
                   )" />
         <xsl:with-param name="headerIdOffset" tunnel="yes"
-          select="max( for $i in collection()/w:root/w:header/w:hdr/@xml:base 
-                       return number(replace(tokenize($i, '/')[last()], '^header(\d+)\.xml$', '$1'))
+          select="max( (0, for $i in collection()/w:root/w:header/w:hdr/@xml:base 
+                       return number(replace(tokenize($i, '/')[last()], '^header(\d+)\.xml$', '$1')))
                   )"/>
         <xsl:with-param name="footerIdOffset" tunnel="yes"
-          select="max( for $i in collection()/w:root/w:footer/w:ftr/@xml:base 
-                       return number(replace(tokenize($i, '/')[last()], '^footer(\d+)\.xml$', '$1'))
+          select="max( (0, for $i in collection()/w:root/w:footer/w:ftr/@xml:base 
+                       return number(replace(tokenize($i, '/')[last()], '^footer(\d+)\.xml$', '$1')))
                   )"/>
       </xsl:apply-templates>
     </w:root>
