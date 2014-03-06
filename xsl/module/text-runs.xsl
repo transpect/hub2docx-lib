@@ -292,7 +292,7 @@
                 and count(distinct-values($styles)) = 1 and count(distinct-values($widths)) = 1 and count(distinct-values($colors)) = (0, 1)"/>
       <xsl:element name="{$targetName}">
         <xsl:choose>
-          <xsl:when test="$all-same">
+          <xsl:when test="$all-same and not($targetName = 'w:tcBorders')">
             <xsl:attribute name="w:val" select="letex:border-style($styles[1])"/>
             <xsl:attribute name="w:sz" select="letex:length-to-border-width-type($widths[1])"/>
             <xsl:attribute name="w:space" select="letex:length-to-unitless-twip(($elt/@css:margin-top, '0pt')[1])"/>
