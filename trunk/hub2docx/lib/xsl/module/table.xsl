@@ -355,6 +355,7 @@
                                  @class, 
                                  (@rowsep, @colsep)[1], 
                                  @css:*[not(starts-with(local-name(), 'padding-'))]" mode="tcPr"/>
+    <xsl:sequence select="letex:borders(.)"/>
     <xsl:if test="@css:*[starts-with(local-name(), 'padding-')]">
       <w:tcMar>
         <xsl:apply-templates select="@css:padding-top, @css:padding-left, @css:padding-bottom, @css:padding-right" mode="tcPr"/>
