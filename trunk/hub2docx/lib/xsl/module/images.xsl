@@ -157,7 +157,7 @@
           <xsl:attribute name="o:spt" select="'100'"/>
           <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
           <xsl:if test="@css:background-color ne ''">
-            <xsl:attribute name="fillcolor" select="concat('#', letex:convert-css-color(@css:background-color, 'hex'))"/>
+            <xsl:attribute name="fillcolor" select="letex:convert-css-color(@css:background-color, 'hex')"/>
           </xsl:if>
         </xsl:element>
       </w:pict>
