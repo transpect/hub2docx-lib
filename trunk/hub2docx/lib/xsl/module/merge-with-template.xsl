@@ -85,6 +85,7 @@
     <xsl:param name="relationIdOffset" tunnel="yes" />
     <xsl:param name="headerIdOffset" tunnel="yes" />
     <xsl:param name="footerIdOffset" tunnel="yes" />
+    <xsl:variable name="Overrides" as="element(ct:Override)*" select="ct:Override"/>
     <xsl:copy>
       <xsl:apply-templates  mode="#current"
         select="@*, *[not(@ContentType = 'application/vnd.openxmlformats-officedocument.custom-properties+xml')]"/>
@@ -99,14 +100,20 @@
           ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml"/>
       </xsl:if>
       <xsl:for-each select="collection()/w:root_converted/*/w:hdr">
-        <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
-          PartName="/word/header{$headerIdOffset + @hub:offset}.xml"
-          ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>
+        <xsl:variable name="number" select="$headerIdOffset + @hub:offset"/>
+        <xsl:if test="not($Overrides[@PartName eq concat('/word/header',$number,'.xml')])">
+          <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
+            PartName="/word/header{$number}.xml"
+            ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>
+        </xsl:if>
       </xsl:for-each>
       <xsl:for-each select="collection()/w:root_converted/*/w:ftr">
-        <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
-          PartName="/word/footer{$footerIdOffset + @hub:offset}.xml"
-          ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
+        <xsl:variable name="number" select="$footerIdOffset + @hub:offset"/>
+        <xsl:if test="not($Overrides[@PartName eq concat('/word/footer',$number,'.xml')])">
+          <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
+            PartName="/word/footer{$number}.xml"
+            ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
+        </xsl:if>
       </xsl:for-each>
       <xsl:if test="collection()/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
         <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types" 
