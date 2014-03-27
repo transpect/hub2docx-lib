@@ -58,6 +58,11 @@
       <xsl:if test="@xml:id">
         <w:bookmarkEnd w:id="{generate-id()}"/>
       </xsl:if>
+      <xsl:if test="@css:page-break-after = 'always'">
+        <w:r>
+          <w:br w:type="page"/>
+        </w:r>
+      </xsl:if>
     </w:p>
   </xsl:template>
 
