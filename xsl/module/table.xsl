@@ -48,7 +48,7 @@
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:if test="matches(following-sibling::node()[1]/local-name(),'^(informal)?table$')">
+    <xsl:if test="matches(following-sibling::*[1]/local-name(),'^(informal)?table$')">
       <w:p>
         <xsl:variable name="pPr" as="element(*)*">
           <xsl:apply-templates  select="@css:page-break-after" mode="props" />
