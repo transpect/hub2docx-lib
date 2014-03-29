@@ -36,21 +36,39 @@
   <!-- See also lists.xsl (preprocesses paras that contain lists)
        -->
 
-  <xsl:template  match="para[ not( parent::listitem) ] | simpara[not(parent::footnote)]"  mode="hub:default">
+  <xsl:template name="hub:pPr" as="element(w:pPr)?">
+    <xsl:param name="default-pPrs" as="element(*)*" tunnel="yes"/>
+    <xsl:variable name="unsorted" as="element(*)*">
+      <xsl:apply-templates select="@css:page-break-after, 
+                                   @css:page-break-inside, 
+                                   @role, 
+                                   @css:page-break-before, 
+                                   @css:text-indent, 
+                                   (@css:widows, @css:orphans)[1], 
+                                   @css:margin-bottom, 
+                                   @css:margin-top, 
+                                   @css:line-height, 
+                                   @css:text-align" mode="props" />      
+    </xsl:variable>
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:perform-sort>
         <xsl:sort data-type="number" order="ascending">
           <xsl:apply-templates select="." mode="letex:propsortkey"/>
         </xsl:sort>
-        <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align" mode="props" />      
+        <xsl:sequence select="$unsorted"/>
+        <xsl:sequence select="$default-pPrs[not(name() = $unsorted/name())]"/>
       </xsl:perform-sort>
     </xsl:variable>
+    <xsl:if  test="$pPr">
+      <w:pPr>
+        <xsl:sequence  select="$pPr" />
+      </w:pPr>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template  match="para[ not( parent::listitem) ] | simpara[not(parent::footnote)]"  mode="hub:default">
     <w:p origin="{if(self::para) then 'default_p_parentnotlistitem' else 'default_simpara'}">
-      <xsl:if  test="$pPr">
-        <w:pPr>
-          <xsl:sequence  select="$pPr" />
-        </w:pPr>
-      </xsl:if>
+      <xsl:call-template name="hub:pPr"/>
       <xsl:if test="@xml:id">
         <w:bookmarkStart w:id="{generate-id()}"  w:name="bm_{generate-id(.)}_"/>
       </xsl:if>

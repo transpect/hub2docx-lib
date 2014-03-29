@@ -134,7 +134,7 @@
   </xsl:template>
 
   <xsl:template match="w:r[not(parent::w:p)]" mode="remove-misplaced-runs" priority="3000">
-    <xsl:message>HURZ
+    <xsl:message>removed misplaced text run <xsl:copy-of select="."/>
     </xsl:message>
   </xsl:template>
 
