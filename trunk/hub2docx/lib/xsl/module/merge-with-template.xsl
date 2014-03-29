@@ -40,8 +40,11 @@
           select="$document-xml-base-modified" />
         <xsl:with-param name="footnoteIdOffset" tunnel="yes"
           select="(xs:integer(max(collection()/w:root/w:footnotes/w:footnote/@w:id)), 0)[1]" />
+        <!--<xsl:with-param name="commentIdOffset" tunnel="yes"
+          select="(xs:integer(max(collection()/w:root/w:comments/w:comment/@w:id)), 0)[1]" />-->
+        <!-- they’ll all be generated, so no need to count offsets from existing comments? -->
         <xsl:with-param name="commentIdOffset" tunnel="yes"
-          select="(xs:integer(max(collection()/w:root/w:comments/w:comment/@w:id)), 0)[1]" />
+          select="0" />
         <xsl:with-param name="relationIdOffset" tunnel="yes"
           select="max( for $rId in collection()/w:root/w:docRels/rel:Relationships/rel:Relationship/@Id
                        return number( substring( $rId, 4))
@@ -178,8 +181,7 @@
 
   <xsl:template match="w:comments" mode="hub:merge">
     <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="hub:merge" />
-      <xsl:apply-templates select="collection()/w:root_converted/w:comments/node()" mode="#current"/>
+      <xsl:apply-templates select="@*, collection()/w:root_converted/w:comments/node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
   

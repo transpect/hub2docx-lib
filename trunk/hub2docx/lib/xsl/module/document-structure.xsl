@@ -84,7 +84,7 @@
         <xsl:apply-templates select="info/keywordset[@role = 'docVars']" mode="#current"/>
       </w:settings>
       <w:comments>
-        <xsl:apply-templates mode="comments"/>
+        <xsl:apply-templates select="//annotation" mode="comments"/>
       </w:comments>
       <w:fonts />
       <w:docRels>

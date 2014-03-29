@@ -21,12 +21,13 @@
     exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r"
 >
 
+  <!-- should pass it as a tunneled parameter in the comments and hub:default modes -->
   <xsl:variable name="originalCommentIds" as="xs:string*"
     select="for $c in //annotation return generate-id($c)" />
 
   <xsl:function name="letex:comment-id" as="xs:integer">
     <xsl:param name="comment" as="element(annotation)" />
-    <xsl:sequence select="index-of($originalCommentIds, generate-id($comment))" />
+    <xsl:sequence select="index-of($originalCommentIds, generate-id($comment)) - 1" />
   </xsl:function>
   
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -34,11 +35,19 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template match="annotation" mode="hub:default">
+    <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/><!-- w:… property elements -->
     <w:commentRangeStart w:id="{letex:comment-id(.)}"/>
     <w:commentRangeEnd w:id="{letex:comment-id(.)}"/>
     <w:r>
       <w:rPr>
-        <w:rStyle w:val="CommentReference"/>
+        <xsl:call-template  name="mergeRunProperties">
+          <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"  as="element(*)*"/>
+          <xsl:with-param name="new_rPrContent" as="element(*)*">
+            <xsl:if test="not($rPrContent/self::w:rStyle)">
+              <w:rStyle w:val="CommentReference"/>  
+            </xsl:if>
+          </xsl:with-param>
+        </xsl:call-template>
       </w:rPr>
       <w:commentReference w:id="{letex:comment-id(.)}"/>
     </w:r>
@@ -50,16 +59,21 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template match="annotation" mode="comments">
-    <w:comment w:id="{letex:comment-id(.)}" w:author="le-tex hub2docx" w:date="{current-dateTime()}" w:initials="h2d"><!--2013-08-30T10:47:00Z-->
+    <w:comment w:id="{letex:comment-id(.)}" 
+      w:author="{(info/author/personname/othername[@role = 'display-name'], 'le-tex hub2docx')[1]}"
+      w:date="{(info/date, current-dateTime())[1] (: 2013-08-30T10:47:00Z :)}"
+      w:initials="{(info/author/personname/othername[@role = 'initials'], 'h2d')[1]}">
       <xsl:apply-templates  mode="comments"/>
     </w:comment>
   </xsl:template>
 
   <xsl:template match="annotation/para" mode="comments" priority="3">
     <w:p>
-      <w:pPr>
-        <w:pStyle w:val="CommentText"/>
-      </w:pPr>
+      <xsl:call-template name="hub:pPr">
+        <xsl:with-param name="default-pPrs">
+          <w:pStyle w:val="CommentText"/>
+        </xsl:with-param>
+      </xsl:call-template>
       <w:r>
         <w:rPr>
           <w:rStyle w:val="CommentReference"/>
@@ -70,6 +84,8 @@
     </w:p>
   </xsl:template>
 
+  <xsl:template match="annotation/info" mode="comments" priority="2"/>
+    
   <xsl:template match="annotation/*" mode="comments">
     <xsl:apply-templates select="." mode="hub:default" />
   </xsl:template>
