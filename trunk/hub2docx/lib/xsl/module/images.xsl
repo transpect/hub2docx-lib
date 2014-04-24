@@ -40,13 +40,13 @@
             in //*[local-name() = ('mediaobject', 'inlinemediaobject')] 
             return generate-id($f)" />
 
-  <xsl:template match="mediaobject[not(parent::para)]" mode="hub:default">
+  <xsl:template match="mediaobject[not(ancestor::para)]" mode="hub:default">
     <w:p origin="default_i_mediaonotparentp">
       <xsl:call-template name="insert-picture"/>
     </w:p>
   </xsl:template>
 
-  <xsl:template match="inlinemediaobject | para/mediaobject" mode="hub:default" name="insert-picture">
+  <xsl:template match="inlinemediaobject | mediaobject[ancestor::para]" mode="hub:default" name="insert-picture">
     <xsl:param name="rels" as="xs:string*" tunnel="yes"/>
     <xsl:variable name="pictstyle" as="xs:string*">
       <xsl:for-each select="@css:position|@css:margin-left|@css:margin-top|@css:z-index|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
