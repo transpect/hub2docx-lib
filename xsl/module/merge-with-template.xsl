@@ -15,6 +15,7 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
   xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+  xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
   xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
   xmlns:customProps = "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
   
