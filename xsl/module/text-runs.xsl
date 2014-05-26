@@ -395,7 +395,7 @@
   </xsl:template>
   
   <xsl:template match="w:shd" mode="letex:propsortkey" as="xs:integer">
-    <xsl:sequence select="120"/>
+    <xsl:sequence select="143"/>
   </xsl:template>
 
   
