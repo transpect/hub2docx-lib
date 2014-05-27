@@ -32,7 +32,7 @@
   <xsl:template  match="table | informaltable"  mode="hub:default">
     <xsl:apply-templates  select="self::informaltable/@xml:id | caption | info"  mode="#current" />
     <xsl:variable name="tblPrContent" as="element(*)*">
-      <xsl:apply-templates select="@css:width, @css:text-align, @css:background-color, @frame" mode="tblPr"/>
+      <xsl:apply-templates select="@css:width, @css:text-align, @css:background-color, @css:margin-left, @css:margin-right, @frame" mode="tblPr"/>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="tgroup">
@@ -640,7 +640,13 @@
       <w:tblLayout w:type="fixed"/>
     </xsl:if>
   </xsl:template>
-  
+
+  <xsl:template match="@css:margin-left | @css:margin-right" mode="tblPr">
+    <xsl:element name="w:tblInd" w:type="dxa">
+      <xsl:attribute name="w:w" select="if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else ."/>
+    </xsl:element>
+  </xsl:template>
+
   <xsl:template match="@css:text-align" mode="tblPr">
     <w:jc w:val="{.}"/>
   </xsl:template>
