@@ -44,11 +44,13 @@
                                    @role, 
                                    @css:page-break-before, 
                                    (@css:widows, @css:orphans)[1], 
+                                   @css:background-color,
                                    @css:margin-bottom, 
                                    @css:margin-top, 
                                    @css:line-height, 
                                    @css:text-align" mode="props" />
       <xsl:call-template name="w:ind"/>      
+      <xsl:sequence select="letex:borders(.)"/>
     </xsl:variable>
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:perform-sort>
@@ -215,7 +217,7 @@
         <xsl:attribute name="w:hanging" select="-1 * $indent"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:attribute name="w:firstLine" select="-1 * $indent"/>
+        <xsl:attribute name="w:firstLine" select="$indent"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
