@@ -43,12 +43,12 @@
                                    @css:page-break-inside, 
                                    @role, 
                                    @css:page-break-before, 
-                                   @css:text-indent, 
                                    (@css:widows, @css:orphans)[1], 
                                    @css:margin-bottom, 
                                    @css:margin-top, 
                                    @css:line-height, 
-                                   @css:text-align" mode="props" />      
+                                   @css:text-align" mode="props" />
+      <xsl:call-template name="w:ind"/>      
     </xsl:variable>
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:perform-sort>
@@ -197,19 +197,32 @@
     <w:jc w:val="{if (. = 'justify') then 'both' else .}"/>
   </xsl:template>
   
+  <xsl:template name="w:ind">
+    <xsl:variable name="atts" as="attribute(*)*">
+      <xsl:apply-templates select="@css:text-indent | @css:margin-left | @css:margin-right" mode="props"/>
+    </xsl:variable>
+    <xsl:if test="exists($atts)">
+      <w:ind>
+        <xsl:sequence select="$atts"/>
+      </w:ind>  
+    </xsl:if>    
+  </xsl:template>
+
   <xsl:template match="@css:text-indent" mode="props">
-    <xsl:variable name="twips" as="xs:integer" select="xs:integer(round(letex:length-to-unitless-twip(.)))"/>
-    <w:ind>
-      <xsl:choose>
-        <!-- dunno whether this is correct. -->
-        <xsl:when test="$twips lt 0">
-          <xsl:attribute name="w:hanging" select="-1 * $twips"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:attribute name="w:firstLine" select="-1 * $twips"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </w:ind>
+    <xsl:variable name="indent" as="xs:integer" select="xs:integer(round(letex:length-to-unitless-twip(.)))"/>  
+    <xsl:choose>
+      <xsl:when test="$indent lt 0">
+        <xsl:attribute name="w:hanging" select="-1 * $indent"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:attribute name="w:firstLine" select="-1 * $indent"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="@css:margin-left | @css:margin-right" mode="props">
+    <xsl:attribute name="w:{replace(local-name(), 'margin-', '')}" 
+      select="xs:integer(round(letex:length-to-unitless-twip(.)))"></xsl:attribute>
   </xsl:template>
   
   <xsl:template match="@css:page-break-before" mode="props">
