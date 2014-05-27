@@ -292,7 +292,7 @@
                 and count(distinct-values($styles)) = 1 and count(distinct-values($widths)) = 1 and count(distinct-values($colors)) = (0, 1)"/>
       <xsl:element name="{$targetName}">
         <xsl:choose>
-          <xsl:when test="$all-same and not($targetName = 'w:tcBorders')">
+          <xsl:when test="$all-same and $targetName = 'w:bdr'">
             <xsl:attribute name="w:val" select="letex:border-style($styles[1])"/>
             <xsl:attribute name="w:sz" select="letex:length-to-border-width-type($widths[1])"/>
             <xsl:attribute name="w:space" select="letex:length-to-unitless-twip(($elt/@css:margin-top, '0pt')[1])"/>
@@ -316,15 +316,13 @@
   <xsl:template match="@css:border-top-style | @css:border-bottom-style | @css:border-left-style | @css:border-right-style" mode="props-secondary">
     <xsl:param name="width" as="attribute()?"/>
     <xsl:param name="color" as="attribute()?"/>
-    <xsl:param name="targetName"/>
-    <xsl:choose>
-      <xsl:when test="$targetName = 'w:tcBorders'">
-        <xsl:element name="w:{replace(local-name(), 'border-(.+)-style', '$1')}">
-          <xsl:attribute name="w:val" select="letex:border-style(.)"/>
-          <xsl:apply-templates select="$width, $color" mode="#current"/>
-        </xsl:element>
-      </xsl:when>
-    </xsl:choose>
+    <xsl:param name="targetName" as="xs:string"/>
+    <xsl:if test="$targetName = ('w:tcBorders', 'w:pBdr')">
+      <xsl:element name="w:{replace(local-name(), 'border-(.+)-style', '$1')}">
+        <xsl:attribute name="w:val" select="letex:border-style(.)"/>
+        <xsl:apply-templates select="$width, $color" mode="#current"/>
+      </xsl:element>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="@css:border-top-width | @css:border-bottom-width | @css:border-left-width | @css:border-right-width" mode="props-secondary">
