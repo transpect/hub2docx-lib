@@ -218,6 +218,10 @@
     <w:smallCaps w:val="true"/>
   </xsl:template>
 
+  <xsl:template match="@css:position[. = 'relative'][../@css:top]" mode="props">
+    <w:position w:val="{letex:length-to-unitless-twip(../@css:top) * -1}"/> 
+  </xsl:template>
+
   <xsl:template match="@css:text-decoration-line[. eq 'underline']" mode="props" as="element(w:u)">
     <w:u w:val="single">
       <xsl:apply-templates select="../@css:text-decoration-color" mode="props-secondary"/>
@@ -382,6 +386,10 @@
   
   <xsl:template match="w:color" mode="letex:propsortkey" as="xs:integer">
     <xsl:sequence select="100"/>
+  </xsl:template>
+
+  <xsl:template match="w:position" mode="letex:propsortkey" as="xs:integer">
+    <xsl:sequence select="105"/>
   </xsl:template>
 
   <xsl:template match="w:u" mode="letex:propsortkey" as="xs:integer">
