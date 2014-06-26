@@ -239,7 +239,14 @@
   <xsl:template match="@css:text-decoration-style" mode="props"/>
   
   <xsl:template match="@css:text-decoration-line[. eq 'line-through']" mode="props">
-    <w:strike w:val="on" />
+    <xsl:choose>
+      <xsl:when test="../@css:text-decoration-style = 'double'">
+        <w:dstrike w:val="true" />
+      </xsl:when>
+      <xsl:otherwise>
+        <w:strike w:val="true"/>    
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="@css:background-color" mode="props">
