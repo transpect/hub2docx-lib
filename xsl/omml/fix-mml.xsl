@@ -103,13 +103,73 @@
     </xsl:choose>
   </xsl:template>
   
-  <xsl:template match="*:mrow[count(node()[self::* or self::text()[not(matches(.,'^\s*$'))]])=1][*[self::*:msub or self::*:msup][child::*[1][self::*:mrow[not(child::node())]]]]" mode="fix-mml">
-    <xsl:message>
-      TEST:
-      <xsl:copy-of select="."/>
-      :TEST
-    </xsl:message>
-    <xsl:next-match/>
+  <xsl:template match="*[descendant-or-self::*:mrow[count(node()[self::* or self::text()[not(matches(.,'^\s*$'))]])=1]
+                                                   [*[self::*:msub or self::*:msup]
+                                                     [child::*[1][self::*:mrow[not(child::node())]]]
+                                                   ]
+                        ]
+                        [preceding-sibling::node()[self::* or self::text()[not(matches(.,'^\s*$'))]]]
+                        [not(descendant::*[descendant-or-self::*:mrow[count(node()[self::* or self::text()[not(matches(.,'^\s*$'))]])=1]
+                                                                     [*[self::*:msub or self::*:msup]
+                                                                       [child::*[1][self::*:mrow[not(child::node())]]]
+                                                                     ]
+                                          ]
+                                          [preceding-sibling::node()[self::* or self::text()[not(matches(.,'^\s*$'))]]])
+                        ]" mode="fix-mml">
+    <xsl:call-template name="replace-empty-mrow">
+      <xsl:with-param name="context" select="." as="node()"/>
+      <xsl:with-param name="content" select="preceding-sibling::node()[self::* or self::text()[not(matches(.,'^\s*$'))]][1]" as="node()"/>
+    </xsl:call-template>
+  </xsl:template>
+  
+  <xsl:template match="node()[self::* or self::text()[not(matches(.,'^\s*$'))]]
+                             [following-sibling::*[1]
+                                                  [self::*[descendant-or-self::*:mrow[count(node()[self::* or self::text()[not(matches(.,'^\s*$'))]])=1]
+                                                                                     [*[self::*:msub or self::*:msup]
+                                                                                       [child::*[1][self::*:mrow[not(child::node())]]]
+                                                                                     ]
+                                                          ]
+                                                          [not(descendant::*[descendant-or-self::*:mrow[count(node()[self::* or
+                                                                                                                     self::text()[not(matches(.,'^\s*$'))]
+                                                                                                                    ])=1
+                                                                                                       ]
+                                                                                                       [*[self::*:msub or self::*:msup]
+                                                                                                         [child::*[1][self::*:mrow[not(child::node())]]]
+                                                                                                       ]
+                                                                            ]
+                                                                            [preceding-sibling::node()[self::* or self::text()[not(matches(.,'^\s*$'))]]])
+                                                          ]
+                                                  ]
+                             ]" mode="fix-mml">
+    <xsl:param name="display" select="false()"/>
+    
+    <xsl:if test="$display">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template name="replace-empty-mrow">
+    <xsl:param name="context" as="node()"/>
+    <xsl:param name="content" as="node()"/>
+    
+    <xsl:choose>
+      <xsl:when test="$context[self::*:mrow[not(child::node())]]">
+        <mml:mrow>
+          <xsl:apply-templates select="$content" mode="#current">
+            <xsl:with-param name="display" select="true()"/>
+          </xsl:apply-templates>
+        </mml:mrow>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:element name="{name($context)}">
+          <xsl:call-template name="replace-empty-mrow">
+            <xsl:with-param name="context" select="$context/node()[self::* or self::text()[not(matches(.,'^\s*$'))]][1]"/>
+            <xsl:with-param name="content" select="$content"/>
+          </xsl:call-template>
+          <xsl:apply-templates select="$context/node() except $context/node()[self::* or self::text()[not(matches(.,'^\s*$'))]][1]" mode="#current"/>
+        </xsl:element>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
 </xsl:stylesheet>
