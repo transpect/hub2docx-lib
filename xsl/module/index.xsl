@@ -67,6 +67,9 @@
     <xsl:if  test="see/*">
       <xsl:message  terminate="yes"  select="'ERROR: children of see-elements are not supported yet.'"/>
     </xsl:if>
+    <xsl:if test=".//seealso">
+      <xsl:message  terminate="no"   select="'WARNING: indexterm with seealso element(s). Not supported yet.'"/>
+    </xsl:if>
     <w:r>
       <w:fldChar w:fldCharType="begin"/>
     </w:r>
