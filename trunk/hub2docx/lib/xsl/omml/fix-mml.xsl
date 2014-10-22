@@ -3,7 +3,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:letex		= "http://www.le-tex.de/namespace"
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
-  exclude-result-prefixes="xs"
+  exclude-result-prefixes="xs letex"
   version="2.0">
   
   <xsl:template match="node() | @*" mode="fix-mml">
@@ -146,6 +146,63 @@
     <xsl:if test="$display">
       <xsl:next-match/>
     </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="*[*:mo[not(@stretchy)][matches(.,'^(\(|\))$')]][count(*:mo[not(@stretchy)][matches(.,'^\)$')])=count(*:mo[not(@stretchy)][matches(.,'^\($')])]" mode="fix-mml">
+    <xsl:call-template name="mo-to-mfenced">
+      <xsl:with-param name="context" select="."/>
+      <xsl:with-param name="bracket-type" select="'\('"/>
+    </xsl:call-template>
+  </xsl:template>
+  
+  <xsl:template match="*[*:mo[not(@stretchy)][matches(.,'^(\{|\})$')]][count(*:mo[not(@stretchy)][matches(.,'^\}$')])=count(*:mo[not(@stretchy)][matches(.,'^\{$')])]" mode="fix-mml">
+    <xsl:call-template name="mo-to-mfenced">
+      <xsl:with-param name="context" select="."/>
+      <xsl:with-param name="bracket-type" select="'\{'"/>
+    </xsl:call-template>
+  </xsl:template>
+  
+  <xsl:template match="*[*:mo[not(@stretchy)][matches(.,'^(\[|\])$')]][count(*:mo[not(@stretchy)][matches(.,'^\]$')])=count(*:mo[not(@stretchy)][matches(.,'^\[$')])]" mode="fix-mml">
+    <xsl:call-template name="mo-to-mfenced">
+      <xsl:with-param name="context" select="."/>
+      <xsl:with-param name="bracket-type" select="'\['"/>
+    </xsl:call-template>
+  </xsl:template>
+  
+  <xsl:template name="mo-to-mfenced">
+    <xsl:param name="context" as="node()"/>
+    <xsl:param name="bracket-type" as="xs:string"/>
+
+    <xsl:variable name="new-context">
+      <xsl:element name="{$context/name()}">
+        <xsl:apply-templates select="$context/@*" mode="#current"/>
+        <xsl:for-each-group select="$context/node()" group-starting-with="*:mo[not(@stretchy)][matches(.,concat('^',$bracket-type,'$'))]">
+          <xsl:for-each-group select="current-group()" group-ending-with="*:mo[not(@stretchy)][matches(.,concat('^',if ($bracket-type='\(') then '\)' else if ($bracket-type='\{') then '\}' else '\]','$'))]">
+            <xsl:choose>
+              <xsl:when test="current-group()[1][self::*:mo[not(@stretchy)][matches(.,concat('^',$bracket-type,'$'))]] and current-group()[last()][self::*:mo[not(@stretchy)][matches(.,concat('^',if ($bracket-type='\(') then '\)' else if ($bracket-type='\{') then '\}' else '\]','$'))]]">
+                <mml:mfenced open="{if ($bracket-type='\(') then '(' else if ($bracket-type='\{') then '{' else '['}" close="{if ($bracket-type='\(') then ')' else if ($bracket-type='\{') then '}' else ']'}">
+                  <xsl:apply-templates select="current-group()[position() gt 1][position() lt last()]" mode="#current"/>
+                </mml:mfenced>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates select="current-group()" mode="#current"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each-group>
+        </xsl:for-each-group>
+      </xsl:element>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$new-context/*:mo[not(@stretchy)][matches(.,concat('^(',$bracket-type,'|',if ($bracket-type='\(') then '\)' else if ($bracket-type='\{') then '\}' else '\]',')$'))] and count($new-context/*:mo[not(@stretchy)][matches(.,concat('^',if ($bracket-type='\(') then '\)' else if ($bracket-type='\{') then '\}' else '\]','$'))])=count($new-context/*:mo[not(@stretchy)][matches(.,concat('^',$bracket-type,'$'))])">
+        <xsl:call-template name="mo-to-mfenced">
+          <xsl:with-param name="context" select="$new-context"/>
+          <xsl:with-param name="bracket-type" select="$bracket-type"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="$new-context"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template name="replace-empty-mrow">
