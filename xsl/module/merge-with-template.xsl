@@ -134,6 +134,14 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- merge numbering -->
+
+  <xsl:template match="w:numbering" mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="hub:merge" />
+      <xsl:apply-templates select="collection()/w:root_converted/w:numbering/node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
 
   <!-- footnote changes/additions -->
 

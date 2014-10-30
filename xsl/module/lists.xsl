@@ -195,7 +195,6 @@
   <xsl:template  match="variablelist"  mode="numbering" priority="2"/>
 
   <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="numbering">
-
     <xsl:variable name="ilvl"  select="count( ancestor-or-self::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
     <!-- ~~~~~~~~~~~~~~~~~~~~ w:num ~~~~~~~~~~~~~~~~~~~~ -->
     <w:num>
@@ -206,7 +205,6 @@
       </w:lvlOverride> 
     </w:num>
     <xsl:apply-templates  mode="#current"/>
-
     <!-- ~~~~~~~~~~~~~~~~~~~~ w:abstractNumId ~~~~~~~~~~~~~~~~~~~~ -->
     <!-- Currently we do not want to generate the w:abstractNum-elements referenced by the w:num/w:numId/@val.
          Instead we reference the existing w:abstractNum from the template-numbering.xml-file and adapt the visual appearance using Microbugs Office Word 2007.
