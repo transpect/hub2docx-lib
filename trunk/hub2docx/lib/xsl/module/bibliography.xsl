@@ -9,7 +9,7 @@
     xmlns:hub		= "http://www.le-tex.de/namespace/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    
+    xmlns:css           = "http://www.w3.org/1996/css"
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:w		= "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
@@ -18,7 +18,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r css"
 >
 
 
@@ -32,10 +32,16 @@
 
 
   <xsl:template  match="bibliography/title"  mode="hub:default" >
+    <xsl:variable name="pPr" as="element(*)*">
+      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
+      <w:pStyle w:val="Heading{letex:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 1}"/>
+    </xsl:variable>
     <w:p>
-      <w:pPr>
-        <w:pStyle w:val="Heading{letex:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 1}"/>
-      </w:pPr>
+      <xsl:if  test="$pPr">
+        <w:pPr>
+          <xsl:sequence  select="$pPr" />
+        </w:pPr>
+      </xsl:if>
       <xsl:apply-templates  select="node()"  mode="#current" />
     </w:p>
   </xsl:template>
@@ -47,10 +53,16 @@
 
 
   <xsl:template  match="bibliodiv/title"  mode="hub:default" >
+    <xsl:variable name="pPr" as="element(*)*">
+      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
+      <w:pStyle w:val="Heading{letex:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 2}"/>
+    </xsl:variable>
     <w:p>
-      <w:pPr>
-        <w:pStyle w:val="Heading{letex:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 2}"/>
-      </w:pPr>
+      <xsl:if  test="$pPr">
+        <w:pPr>
+          <xsl:sequence  select="$pPr" />
+        </w:pPr>
+      </xsl:if>
       <xsl:apply-templates  select="node()"  mode="#current" />
     </w:p>
   </xsl:template>

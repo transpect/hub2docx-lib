@@ -166,10 +166,16 @@
                                | parent::preface | parent::appendix | parent::bibliography
                                | parent::sect1 | parent::sect2 | parent::sect3 | parent::sect4 | parent::sect5 | parent::sect6 
                              ]"  mode="hub:default">
+    <xsl:variable name="pPr" as="element(*)*">
+      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
+      <w:pStyle w:val="{concat( $heading-prefix, string(letex:headinglevel(.)))}"/>
+    </xsl:variable>
     <w:p>
-      <w:pPr>
-        <w:pStyle w:val="{concat( $heading-prefix, string(letex:headinglevel(.)))}"/>
-      </w:pPr>
+      <xsl:if  test="$pPr">
+        <w:pPr>
+          <xsl:sequence  select="$pPr" />
+        </w:pPr>
+      </xsl:if>
       <xsl:variable name="rPrContent" as="element(w:color)?">
       </xsl:variable>
       <xsl:if test="../@xml:id">
@@ -190,24 +196,36 @@
   </xsl:template>
 
   <xsl:template  match="book/title | book/subtitle"  mode="hub:default">
-    <w:p>
-      <w:pPr>
-        <w:pStyle w:val="{concat(
+    <xsl:variable name="pPr" as="element(*)*">
+      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
+      <w:pStyle w:val="{concat(
                            upper-case(
                              substring(name(.),1,1)
                            ),
                            substring(name(.),2)
                          )}"/>
-      </w:pPr>
+    </xsl:variable>
+    <w:p>
+      <xsl:if  test="$pPr">
+        <w:pPr>
+          <xsl:sequence  select="$pPr" />
+        </w:pPr>
+      </xsl:if>
       <xsl:apply-templates mode="#current" />
     </w:p>
   </xsl:template>
 
   <xsl:template  match="title[ parent::blockquote ]"  mode="hub:default">
+    <xsl:variable name="pPr" as="element(*)*">
+      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
+      <w:pStyle w:val="blockquotetitle"/>
+    </xsl:variable>
     <w:p>
-      <w:pPr>
-        <w:pStyle w:val="blockquotetitle"/>
-      </w:pPr>
+      <xsl:if  test="$pPr">
+        <w:pPr>
+          <xsl:sequence  select="$pPr" />
+        </w:pPr>
+      </xsl:if>
       <xsl:variable name="rPrContent" as="element(*)*">
       </xsl:variable>
       <xsl:if test="../@xml:id">
@@ -220,12 +238,10 @@
         <w:bookmarkEnd    w:id="{generate-id(..)}"/>
       </xsl:if>
     </w:p>
-  </xsl:template>
-  
+  </xsl:template>  
 
   <xsl:template  match="title"  mode="hub:default"  priority="-1">
     <xsl:message  terminate="yes" select="concat( 'ERROR: title parent not expected: ', parent::*/name())"/>
   </xsl:template>
-
 
 </xsl:stylesheet>

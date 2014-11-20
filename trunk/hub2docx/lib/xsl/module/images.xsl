@@ -165,10 +165,16 @@
   </xsl:template>
   
   <xsl:template match="figure/title" mode="hub:default">
+    <xsl:variable name="pPr" as="element(*)*">
+      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
+      <w:pStyle w:val="FigureTitle"/>
+    </xsl:variable>
     <w:p origin="default_i_figtitle">
-      <w:pPr>
-        <w:pStyle w:val="FigureTitle"/>
-      </w:pPr>
+      <xsl:if  test="$pPr">
+        <w:pPr>
+          <xsl:sequence  select="$pPr" />
+        </w:pPr>
+      </xsl:if>
       <xsl:apply-templates mode="#current"/>
     </w:p>
   </xsl:template>
