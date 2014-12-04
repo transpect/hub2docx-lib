@@ -231,7 +231,11 @@
                  mode="documentRels">
     <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  
-      Target="{.//@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>
+      Target="{.//@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+      <xsl:if test="not(matches(.//@fileref,'^media'))">
+        <xsl:attribute name="TargetMode" select="'External'"/>
+      </xsl:if>
+    </Relationship>
   </xsl:template>
 
   <xsl:template  match="*[self::inlinemediaobject | self::mediaobject][starts-with(imageobject/imagedata/@fileref, 'container:')]"  
