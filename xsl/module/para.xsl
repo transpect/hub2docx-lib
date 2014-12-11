@@ -47,7 +47,7 @@
                                    @css:background-color,
                                    @css:margin-bottom, 
                                    @css:margin-top, 
-                                   @css:line-height, 
+                                   @css:line-height,
                                    @css:text-align" mode="props" />
       <xsl:call-template name="w:ind"/>      
       <xsl:sequence select="letex:borders(.)"/>
@@ -192,7 +192,20 @@
   </xsl:template>
   
   <xsl:template match="@css:line-height" mode="props">
-    <w:spacing w:line="{letex:length-to-unitless-twip(.)}"/>
+    <w:spacing>
+      <xsl:choose>
+        <xsl:when test="matches(.,'pt$')">
+          <xsl:attribute name="w:line" select="letex:length-to-unitless-twip(.)"/>
+          <xsl:attribute name="w:lineRule" select="'atLeast'"/>
+        </xsl:when>
+        <xsl:when test="matches(.,'^[0-9\.]+$')">
+          <xsl:attribute name="w:line" select="number(.) * 240"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:attribute name="w:line" select="letex:length-to-unitless-twip(.)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </w:spacing>
   </xsl:template>
   
   <xsl:template match="@css:text-align" mode="props tblPr">
