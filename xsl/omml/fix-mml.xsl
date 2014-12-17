@@ -148,63 +148,6 @@
     </xsl:if>
   </xsl:template>
   
-  <xsl:template match="*[*:mo[not(@stretchy)][matches(.,'^(\(|\))$')]][count(*:mo[not(@stretchy)][matches(.,'^\)$')])=count(*:mo[not(@stretchy)][matches(.,'^\($')])]" mode="fix-mml">
-    <xsl:call-template name="mo-to-mfenced">
-      <xsl:with-param name="context" select="."/>
-      <xsl:with-param name="bracket-type" select="'\('"/>
-    </xsl:call-template>
-  </xsl:template>
-  
-  <xsl:template match="*[*:mo[not(@stretchy)][matches(.,'^(\{|\})$')]][count(*:mo[not(@stretchy)][matches(.,'^\}$')])=count(*:mo[not(@stretchy)][matches(.,'^\{$')])]" mode="fix-mml">
-    <xsl:call-template name="mo-to-mfenced">
-      <xsl:with-param name="context" select="."/>
-      <xsl:with-param name="bracket-type" select="'\{'"/>
-    </xsl:call-template>
-  </xsl:template>
-  
-  <xsl:template match="*[*:mo[not(@stretchy)][matches(.,'^(\[|\])$')]][count(*:mo[not(@stretchy)][matches(.,'^\]$')])=count(*:mo[not(@stretchy)][matches(.,'^\[$')])]" mode="fix-mml">
-    <xsl:call-template name="mo-to-mfenced">
-      <xsl:with-param name="context" select="."/>
-      <xsl:with-param name="bracket-type" select="'\['"/>
-    </xsl:call-template>
-  </xsl:template>
-  
-  <xsl:template name="mo-to-mfenced">
-    <xsl:param name="context" as="node()"/>
-    <xsl:param name="bracket-type" as="xs:string"/>
-
-    <xsl:variable name="new-context">
-      <xsl:element name="{$context/name()}">
-        <xsl:apply-templates select="$context/@*" mode="#current"/>
-        <xsl:for-each-group select="$context/node()" group-starting-with="*:mo[not(@stretchy)][matches(.,concat('^',$bracket-type,'$'))]">
-          <xsl:for-each-group select="current-group()" group-ending-with="*:mo[not(@stretchy)][matches(.,concat('^',if ($bracket-type='\(') then '\)' else if ($bracket-type='\{') then '\}' else '\]','$'))]">
-            <xsl:choose>
-              <xsl:when test="current-group()[1][self::*:mo[not(@stretchy)][matches(.,concat('^',$bracket-type,'$'))]] and current-group()[last()][self::*:mo[not(@stretchy)][matches(.,concat('^',if ($bracket-type='\(') then '\)' else if ($bracket-type='\{') then '\}' else '\]','$'))]]">
-                <mml:mfenced open="{if ($bracket-type='\(') then '(' else if ($bracket-type='\{') then '{' else '['}" close="{if ($bracket-type='\(') then ')' else if ($bracket-type='\{') then '}' else ']'}">
-                  <xsl:apply-templates select="current-group()[position() gt 1][position() lt last()]" mode="#current"/>
-                </mml:mfenced>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:apply-templates select="current-group()" mode="#current"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:for-each-group>
-        </xsl:for-each-group>
-      </xsl:element>
-    </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="$new-context/*:mo[not(@stretchy)][matches(.,concat('^(',$bracket-type,'|',if ($bracket-type='\(') then '\)' else if ($bracket-type='\{') then '\}' else '\]',')$'))] and count($new-context/*:mo[not(@stretchy)][matches(.,concat('^',if ($bracket-type='\(') then '\)' else if ($bracket-type='\{') then '\}' else '\]','$'))])=count($new-context/*:mo[not(@stretchy)][matches(.,concat('^',$bracket-type,'$'))])">
-        <xsl:call-template name="mo-to-mfenced">
-          <xsl:with-param name="context" select="$new-context"/>
-          <xsl:with-param name="bracket-type" select="$bracket-type"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:copy-of select="$new-context"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-  
   <xsl:template name="replace-empty-mrow">
     <xsl:param name="context" as="node()"/>
     <xsl:param name="content" as="node()"/>
@@ -225,6 +168,176 @@
           </xsl:call-template>
           <xsl:apply-templates select="$context/node() except $context/node()[self::* or self::text()[not(matches(.,'^\s*$'))]][1]" mode="#current"/>
         </xsl:element>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:variable name="opening-parenthesis" select="'[\[\{\(]'"/>
+  <xsl:variable name="closing-parenthesis" select="'[\]\}\)]'"/>
+  
+  <xsl:template match="*[descendant::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]
+                        [descendant::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]
+                        [child::*:mo[not(@stretchy='false')][matches(.,concat('^(',$opening-parenthesis,'|',$closing-parenthesis,')$'))]]
+                        [not( ancestor::*[child::*:mo[not(@stretchy='false')][matches(.,concat('^(',$opening-parenthesis,'|',$closing-parenthesis,')$'))]])]" mode="fix-mml">
+    <xsl:param name="processed" select="false()"/>
+    <xsl:choose>
+      <xsl:when test="$processed">
+        <xsl:next-match/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy>
+          <xsl:apply-templates select="@*" mode="#current"/>
+          <xsl:call-template name="repair-parenthesis">
+            <xsl:with-param name="context" select="node()"/>
+          </xsl:call-template>
+        </xsl:copy>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template name="repair-parenthesis">
+    <xsl:param name="context" as="node()*"/>
+    <xsl:choose>
+      <xsl:when test="not($context/descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^(',$opening-parenthesis,'|',$closing-parenthesis,')$'))])">
+        <xsl:apply-templates select="$context" mode="fix-mml">
+          <xsl:with-param name="processed" select="true()"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      <xsl:when test="(count($context/descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]) gt 1 and count($context/descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]) = 0) or (count($context/descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]) = 0 and count($context/descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]) gt 1)">
+        <xsl:apply-templates select="$context" mode="fix-mml">
+          <xsl:with-param name="processed" select="true()"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      <xsl:when test="count($context/descendant-or-self::*:mo[not(@stretchy='false')]
+                                                             [matches(.,concat('^(',$opening-parenthesis,'|',$closing-parenthesis,')$'))]) = 1">
+        
+        <xsl:for-each-group select="$context" 
+                            group-starting-with="*[descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]">
+          <xsl:for-each-group select="current-group()"
+                              group-ending-with="*[descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]">
+            <xsl:choose>
+              <xsl:when test="current-group()[1][self::*[descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]]                                  or 
+                              current-group()[last()]
+                                             [self::*[descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]]">
+                <xsl:choose>
+                  <xsl:when test="current-group()[1][self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]">
+                    <mml:mfenced open="{current-group()[1]}" close="">
+                      <xsl:apply-templates select="current-group()[position() gt 1]" mode="fix-mml">
+                        <xsl:with-param name="processed" select="true()"/>
+                      </xsl:apply-templates>
+                    </mml:mfenced>
+                  </xsl:when>
+                  <xsl:when test="current-group()[last()]
+                    [self::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]">
+                    <mml:mfenced open="" close="{current-group()[last()]}">
+                      <xsl:apply-templates select="current-group()[position() lt last()]" mode="fix-mml">
+                        <xsl:with-param name="processed" select="true()"/>
+                      </xsl:apply-templates>
+                    </mml:mfenced>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:choose>
+                      <xsl:when test="current-group()[1][self::*[descendant::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]]">
+                        <xsl:element name="{current-group()[1]/name()}">
+                          <xsl:copy-of select="current-group()[1]/@*"/>
+                          <xsl:call-template name="repair-parenthesis">
+                            <xsl:with-param name="context" select="current-group()[1]/node()"/>
+                          </xsl:call-template>
+                        </xsl:element>
+                        <xsl:apply-templates select="current-group()[position() gt 1]" mode="fix-mml">
+                          <xsl:with-param name="processed" select="true()"/>
+                        </xsl:apply-templates>
+                      </xsl:when>
+                      <xsl:when test="current-group()[last()]
+                                                     [self::*[descendant::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]]">
+                        <xsl:apply-templates select="current-group()[position() lt last()]" mode="fix-mml">
+                          <xsl:with-param name="processed" select="true()"/>
+                        </xsl:apply-templates>
+                        <xsl:element name="{current-group()[last()]/name()}">
+                          <xsl:copy-of select="current-group()[last()]/@*"/>
+                          <xsl:call-template name="repair-parenthesis">
+                            <xsl:with-param name="context" select="current-group()[last()]/node()"/>
+                          </xsl:call-template>
+                        </xsl:element>
+                      </xsl:when>
+                    </xsl:choose>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates select="current-group()" mode="fix-mml">
+                  <xsl:with-param name="processed" select="true()"/>
+                </xsl:apply-templates>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each-group>
+        </xsl:for-each-group>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="temp" as="node()*">
+        <xsl:for-each-group select="$context" group-starting-with="*[descendant-or-self::*:mo[not(@stretchy='false')]
+                                                                                             [matches(.,concat('^',$opening-parenthesis,'$'))]]">
+          <xsl:choose>
+            <xsl:when test="current-group()[1]
+                                           [descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]">
+              <xsl:for-each-group select="current-group()" 
+                                  group-ending-with="*[descendant-or-self::*:mo[not(@stretchy='false')]
+                                                                               [matches(.,concat('^',$closing-parenthesis,'$'))]]">
+                <xsl:choose>
+                  <xsl:when test="current-group()
+                    [last()][descendant-or-self::*:mo[not(@stretchy='false')]
+                    [matches(.,concat('^',$closing-parenthesis,'$'))]] and current-group()[1]
+                    [descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]">
+                    <xsl:choose>
+                      <xsl:when test="count(current-group())=1">
+                        <xsl:element name="{current-group()/name()}">
+                          <xsl:copy-of select="current-group()/@*"/>
+                          <xsl:call-template name="repair-parenthesis">
+                            <xsl:with-param name="context" select="current-group()/node()"/>
+                          </xsl:call-template>
+                        </xsl:element>
+                      </xsl:when>
+                      <xsl:when test="current-group()[1][self::*:mo[not(@stretchy='false')]
+                        [matches(.,concat('^',$opening-parenthesis,'$'))]
+                        ] and current-group()[last()][self::*:mo[not(@stretchy='false')]
+                        [matches(.,concat('^',$closing-parenthesis,'$'))]]">
+                        <mml:mfenced open="{current-group()[1]}" close="{current-group()[last()]}">
+                          <xsl:copy-of select="current-group()[position() gt 1][position() lt last()]"/>
+                        </mml:mfenced>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:message>
+                          TO_DO: Parentheses in different levels. Implementation required!
+                          <xsl:copy-of select="current-group()"/>
+                        </xsl:message>
+                        <xsl:copy-of select="current-group()"/>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:copy-of select="current-group()"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:for-each-group>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:copy-of select="current-group()"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:for-each-group>
+        </xsl:variable>
+        <xsl:choose>
+          <xsl:when test="not(deep-equal($context,$temp))">
+            <xsl:call-template name="repair-parenthesis">
+              <xsl:with-param name="context" select="$temp"/>
+            </xsl:call-template>  
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="$temp" mode="fix-mml">
+              <xsl:with-param name="processed" select="true()"/>
+            </xsl:apply-templates>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
