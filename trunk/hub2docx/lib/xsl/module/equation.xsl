@@ -16,10 +16,11 @@
     xmlns:omml		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
+    xmlns:mml="http://www.w3.org/1998/Math/MathML"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m omml wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m omml wp r mml"
 >
 
   <xsl:import href="../omml/mml2omml.xsl"/>
@@ -43,8 +44,22 @@
 
   <xsl:template match="m:math" mode="hub:default">
     <oMath xmlns="http://schemas.openxmlformats.org/officeDocument/2006/math">
-      <xsl:apply-templates mode="mml" />
+      <xsl:variable name="mml" as="node()*">
+        <xsl:apply-templates select="." mode="m-to-mml"/>
+      </xsl:variable>
+      <xsl:apply-templates select="$mml" mode="mml" />
     </oMath>
+  </xsl:template>
+  
+  <xsl:template match="m:*" mode="m-to-mml">
+    <xsl:element name="mml:{local-name(.)}">
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:apply-templates mode="#current"/>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="node()[not(self::m:*)] | @*" mode="m-to-mml">
+    <xsl:copy-of select="."/>
   </xsl:template>
 
   <xsl:template  match="informalequation"  mode="hub:default">
