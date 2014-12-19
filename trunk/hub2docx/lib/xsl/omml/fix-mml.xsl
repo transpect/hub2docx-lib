@@ -317,6 +317,25 @@
                           <xsl:copy-of select="current-group()[self::*][last()]"/>
                         </xsl:element>
                       </xsl:when>
+                      <xsl:when test="current-group()[1][self::*:mrow[*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]] or current-group()[last()][self::*:mrow[*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]]">
+                        <xsl:choose>
+                          <xsl:when test="current-group()[1][self::*:mrow[*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]]">
+                            <xsl:copy-of select="current-group()[1]/node()"/>
+                          </xsl:when>
+                          <xsl:otherwise>
+                            <xsl:copy-of select="current-group()[1]"/>
+                          </xsl:otherwise>
+                        </xsl:choose>
+                        <xsl:copy-of select="current-group()[position() gt 1][position() lt last()]"/>
+                        <xsl:choose>
+                          <xsl:when test="current-group()[last()][self::*:mrow[*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]]">
+                            <xsl:copy-of select="current-group()[last()]/node()"/>
+                          </xsl:when>
+                          <xsl:otherwise>
+                            <xsl:copy-of select="current-group()[last()]"/>
+                          </xsl:otherwise>
+                        </xsl:choose>
+                      </xsl:when>
                       <xsl:otherwise>
                         <xsl:message>
                           TO_DO: Parentheses in different levels. Implementation required!
