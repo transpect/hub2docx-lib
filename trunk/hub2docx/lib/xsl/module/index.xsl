@@ -39,10 +39,10 @@
     </w:r>
     <w:r>
       <w:instrText xml:space="preserve">
-        <xsl:value-of  select="concat(   'XE '
+        <xsl:value-of  select="concat(   'XE &quot;'
                                        , primary
                                        , if ( secondary ) then concat( ':', secondary) else ''
-                                       , if ( tertiary )  then concat( ':', tertiary)  else ''
+                                       , if ( tertiary )  then concat( ':', tertiary)  else '&quot;'
                                        , if ( @type )     then concat(' \f ', @type )  else ''		(: the \f-switch determines an index type :)
                                        , concat(' \r bm_', generate-id(), '_' )				(: the \r-switch determines that in an index the page-range of the bookmark will be rendered :)
                                      )"/>

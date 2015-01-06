@@ -249,7 +249,7 @@
           <w:fldChar w:fldCharType="begin"/>
         </w:r>
         <w:r>
-          <w:instrText xml:space="preserve"> HYPERLINK <xsl:value-of select="if (@linkend) then '\l' else ''"/> <xsl:value-of select="$target"/> \o "<xsl:value-of  
+          <w:instrText xml:space="preserve"> HYPERLINK <xsl:value-of select="if (@linkend or @role='internal') then '\l' else ''"/> <xsl:value-of select="$target"/> \o "<xsl:value-of  
             select="replace($title, '(&quot;)', '\\$1')"/>"</w:instrText>
         </w:r>
         <w:r>
