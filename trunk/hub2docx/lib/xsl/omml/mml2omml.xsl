@@ -154,7 +154,7 @@
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="preceding-sibling::*[1][self::mml:munder or self::mml:mover or self::mml:munderover or
-                                                    self::mml:msub or self::mml:msup or self::mml:msubsup]
+                                                    self::mml:msub or self::mml:msup or self::mml:msubsup or self::mml:mrow]
 							      and $fNary='true'">1</xsl:when>
       <xsl:otherwise>0</xsl:otherwise>
     </xsl:choose>
@@ -170,6 +170,11 @@
     <xsl:variable name="fNaryArgument">
       <xsl:call-template name="FIsNaryArgument">
         <xsl:with-param name="ndCur" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="fNary">
+      <xsl:call-template name="isNary">
+        <xsl:with-param name="ndCur" select="child::*[1]" />
       </xsl:call-template>
     </xsl:variable>
     <xsl:if test="$fNaryArgument=0">
@@ -197,7 +202,28 @@
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:apply-templates select="*" mode="#current"/>
+              <xsl:choose>
+                <xsl:when test="$fNary='true' and self::mml:mrow">
+                  <m:nary>
+                    <xsl:call-template name="CreateNaryProp">
+                      <xsl:with-param name="chr">
+                        <xsl:value-of select="normalize-space(child::*[1])" />
+                      </xsl:with-param>
+                      <xsl:with-param name="sMathmlType" select="'mrow'" />
+                      <xsl:with-param name="sGrow" select="'false'"/>
+                    </xsl:call-template>
+                    <m:e>
+                      <xsl:call-template name="CreateArgProp" />
+                      <xsl:call-template name="NaryHandleMrowMstyle">
+                        <xsl:with-param name="ndCur" select="child::*[2]" />
+                      </xsl:call-template>
+                    </m:e>
+                  </m:nary>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:apply-templates select="*" mode="#current"/>
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:otherwise>
@@ -1610,7 +1636,12 @@
                 </xsl:call-template>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:apply-templates select="$ndCur/*" mode="#current" />
+                <xsl:variable name="fNary">
+                  <xsl:call-template name="isNary">
+                    <xsl:with-param name="ndCur" select="$ndCur/*[1]"/>
+                  </xsl:call-template>
+                </xsl:variable>
+                <xsl:apply-templates select="if ($fNary='true') then $ndCur else $ndCur/*" mode="#current" />
               </xsl:otherwise>
             </xsl:choose>
           </xsl:otherwise>
@@ -2934,8 +2965,13 @@
             <xsl:with-param name="ndCur" select="$ndCur" />
           </xsl:call-template>
         </xsl:variable>
+        <xsl:variable name="fNary">
+          <xsl:call-template name="isNary">
+            <xsl:with-param name="ndCur" select="$ndCur/*[1]" />
+          </xsl:call-template>
+        </xsl:variable>
         <xsl:choose>
-          <xsl:when test="$fLinearFraction=1 or $fFunc=1">1</xsl:when>
+          <xsl:when test="$fLinearFraction=1 or $fFunc=1 or $fNary='true'">1</xsl:when>
           <xsl:otherwise>0</xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -3711,6 +3747,7 @@
   <xsl:template name="isNary">
     <!-- ndCur is the element around the nAry operator -->
     <xsl:param name="ndCur" />
+    
     <xsl:variable name="sNdCur">
       <xsl:value-of select="normalize-space($ndCur)" />
     </xsl:variable>
@@ -3807,7 +3844,8 @@
           <xsl:choose>
             <xsl:when test="$sMathmlType='munder' or 
 									$sMathmlType='mover' or 
-									$sMathmlType='munderover'">
+									$sMathmlType='munderover' or
+									$sMathmlType='mrow'">
               <xsl:text>undOvr</xsl:text>
             </xsl:when>
             <xsl:when test="$sMathmlType='msub' or
@@ -3844,7 +3882,8 @@
         <xsl:attribute name="m:val">
           <xsl:choose>
             <xsl:when test="$sMathmlType='mover' or
-						                $sMathmlType='msup'">
+						                $sMathmlType='msup' or
+						                $sMathmlType='mrow'">
               <xsl:text>on</xsl:text>
             </xsl:when>
             <xsl:otherwise>
@@ -3857,7 +3896,8 @@
         <xsl:attribute name="m:val">
           <xsl:choose>
             <xsl:when test="$sMathmlType='munder' or
-						                $sMathmlType='msub'">
+						                $sMathmlType='msub' or
+						                $sMathmlType='mrow'">
               <xsl:text>on</xsl:text>
             </xsl:when>
             <xsl:otherwise>
