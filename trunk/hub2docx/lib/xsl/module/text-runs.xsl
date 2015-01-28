@@ -359,6 +359,12 @@
       <xsl:when test="$style-val eq 'double'">
         <xsl:sequence select="'double'"/>
       </xsl:when>
+      <xsl:when test="$style-val eq 'wavy'">
+        <xsl:sequence select="'wave'"/>
+      </xsl:when>
+      <xsl:when test="$style-val eq 'double-wavy'"><!-- this is a non-CSS property -->
+        <xsl:sequence select="'wavyDouble'"/>
+      </xsl:when>
       <xsl:when test="$style-val = ('none', 'hidden')">
         <xsl:sequence select="'none'"/>
       </xsl:when>
