@@ -32,7 +32,8 @@
        Within the text flow, a footnote generates the marker, which is linked to the textfield the footnotetext starts with (the marker).
        The footnote-marker heading the footnotetext has to be coded as textfield in order to be able to reference the footnotetext. See, e.g., mode="hub:default_renderFootnote".
        -->
-  <xsl:template  match="footnote[ancestor::tr or ancestor::row]"  mode="hub:default">
+  <!-- DISABLED -->
+  <xsl:template  match="footnote[ancestor::tr or ancestor::row]"  mode="hub:default_">
     <w:r>
       <w:fldChar w:fldCharType="begin"/>
     </w:r>
@@ -63,7 +64,7 @@
     <w:bookmarkStart w:id="{letex:fn-bm-id(.)}" w:name="{letex:fn-bookmark(.)}"/>
     <w:r>
       <w:rPr>
-        <w:rStyle w:val="FootnoteReference"/>
+        <w:rStyle w:val="{(collection()//w:styles/w:style[w:name/@w:val = 'footnote reference']/@w:styleId, 'FootnoteReference')[1]}"/>
         <xsl:if test="matches(@label, '[&#xF000;-&#xF7FF;]')">
           <w:rFonts w:ascii="Wingdings" w:hAnsi="Wingdings" w:hint="default"/>
         </xsl:if>
@@ -100,11 +101,13 @@
   </xsl:function>
 
   <!-- within the text flow, a footnoteref behaves exactly like the the referenced footnote -->
-  <xsl:template  match="footnoteref[ancestor::table or ancestor::informaltable]"    mode="hub:default">
+  <!-- DISABLED -->
+  <xsl:template  match="footnoteref[ancestor::table or ancestor::informaltable]"    mode="hub:default_">
     <xsl:apply-templates  select="//footnote[ @xml:id eq current()/@linkend ]"  mode="#current"/>
   </xsl:template>
 
-  <xsl:template  match="footnoteref[not(ancestor::table or ancestor::informaltable)]" mode="hub:default">
+<!--  <xsl:template  match="footnoteref[not(ancestor::table or ancestor::informaltable)]" mode="hub:default">-->
+  <xsl:template  match="footnoteref" mode="hub:default">
     <w:r>
       <w:fldChar w:fldCharType="begin"/>
     </w:r>
@@ -170,7 +173,7 @@
       <xsl:apply-templates select="*[self::para or self::simpara][1]" mode="#current" />
       <xsl:apply-templates select="*[self::para or self::simpara][position() gt 1]" mode="hub:default">
         <xsl:with-param name="pPrContent">
-          <w:pStyle w:val="FootnoteText"/>
+          <w:pStyle w:val="{(collection()//w:styles/w:style[w:name/@w:val = 'footnote text']/@w:styleId, 'FootnoteText')[1]}"/>
         </xsl:with-param>
       </xsl:apply-templates>
     </w:footnote>
@@ -179,11 +182,11 @@
   <xsl:template match="footnote/para | footnote/simpara" mode="footnotes">
     <w:p>
       <w:pPr>
-        <w:pStyle w:val="FootnoteText"/>
+        <w:pStyle w:val="{(collection()//w:styles/w:style[w:name/@w:val = 'footnote text']/@w:styleId, 'FootnoteText')[1]}"/>
       </w:pPr>
       <w:r>
         <w:rPr>
-          <w:rStyle w:val="FootnoteReference"/>
+          <w:rStyle w:val="{(collection()//w:styles/w:style[w:name/@w:val = 'footnote reference']/@w:styleId, 'FootnoteReference')[1]}"/>
         </w:rPr>
         <xsl:choose>
           <xsl:when test="../@label">
