@@ -78,7 +78,7 @@
   <!-- in some context text()-nodes generate a w:r (because the parent-node has not done it yet), in all other cases text()-nodes will be copied by a catch anything rule -->
   <xsl:template  match="  text()
                         | phrase[@role eq 'hub:ooxml-symbol'][@css:font-family][@annotations]
-                        | phrase[@role eq 'hub:foreign']"  mode="hub:default">
+                        | phrase[@role = ('hub:foreign', 'hub:identifier')]"  mode="hub:default">
     <xsl:param  name="rPrContent" as="element(*)*" tunnel="yes"/>
     <w:r>
       <xsl:if  test="$rPrContent">
