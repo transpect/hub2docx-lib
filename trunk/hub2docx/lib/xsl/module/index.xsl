@@ -75,10 +75,10 @@
     </w:r>
     <w:r>
       <w:instrText xml:space="preserve">
-        <xsl:value-of  select="concat(   'XE '
+        <xsl:value-of  select="concat(   'XE &quot;'
                                        , primary
                                        , if ( secondary ) then concat( ':', secondary)   else ''
-                                       , if ( tertiary )  then concat( ':', tertiary)    else ''
+                                       , if ( tertiary )  then concat( ':', tertiary)    else ' &quot;'
                                        , if ( @type )     then concat(' \f ', @type )    else ''		(: the \f-switch determines an index type :)
                                        , if ( see )       then concat(' \t &#x22;See ', see, '&#x22;' )  else ''	(: the \t-switch determines the text rendered in an index for this indexentry :)
                                      )"/>
