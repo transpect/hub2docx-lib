@@ -38,15 +38,20 @@
       <w:fldChar w:fldCharType="begin"/>
     </w:r>
     <w:r>
-      <w:instrText xml:space="preserve">
-        <xsl:value-of  select="concat(   'XE &quot;'
-                                       , primary
-                                       , if ( secondary ) then concat( ':', secondary) else ''
-                                       , if ( tertiary )  then concat( ':', tertiary)  else '&quot;'
-                                       , if ( @type )     then concat(' \f ', @type )  else ''		(: the \f-switch determines an index type :)
-                                       , concat(' \r bm_', generate-id(), '_' )				(: the \r-switch determines that in an index the page-range of the bookmark will be rendered :)
-                                     )"/>
-      </w:instrText>
+      <w:instrText xml:space="preserve"><xsl:value-of 
+        select="concat('XE &quot;'
+                       , hub:get-index-content(primary)
+                       , if ( secondary ) 
+                           then concat( ':', hub:get-index-content(secondary)) 
+                           else ''
+                       , if ( tertiary )  
+                           then concat( ':', hub:get-index-content(tertiary)) 
+                           else '&quot;'
+                       , if ( @type )
+                         then concat(' \f ', @type ) 
+                         else ''		(: the \f-switch determines an index type :)
+                       , concat(' \r bm_', generate-id(), '_' )				(: the \r-switch determines that in an index the page-range of the bookmark will be rendered :)
+                     )"/></w:instrText>
     </w:r>
     <w:r>
       <w:fldChar w:fldCharType="end"/>
@@ -74,20 +79,44 @@
       <w:fldChar w:fldCharType="begin"/>
     </w:r>
     <w:r>
-      <w:instrText xml:space="preserve">
-        <xsl:value-of  select="concat(   'XE &quot;'
-                                       , primary
-                                       , if ( secondary ) then concat( ':', secondary)   else ''
-                                       , if ( tertiary )  then concat( ':', tertiary)    else ' &quot;'
-                                       , if ( @type )     then concat(' \f ', @type )    else ''		(: the \f-switch determines an index type :)
-                                       , if ( see )       then concat(' \t &#x22;See ', see, '&#x22;' )  else ''	(: the \t-switch determines the text rendered in an index for this indexentry :)
-                                     )"/>
-      </w:instrText>
+      <w:instrText xml:space="preserve"><xsl:value-of 
+        select="concat('XE &quot;'
+                       , hub:get-index-content(primary)
+                       , if ( secondary ) 
+                         then concat( ':', hub:get-index-content(secondary))
+                         else ''
+                       , if ( tertiary ) 
+                         then concat( ':', hub:get-index-content(tertiary))
+                         else '&quot;'
+                       , if ( @type )
+                         then concat(' \f ', @type )
+                         else ''		(: the \f-switch determines an index type :)
+                       , if ( see )
+                         then concat(' \t &#x22;See ', hub:get-index-content(see), '&#x22;' )
+                         else ''	(: the \t-switch determines the text rendered in an index for this indexentry :)
+                     )"/></w:instrText>
     </w:r>
     <w:r>
       <w:fldChar w:fldCharType="end"/>
     </w:r>
   </xsl:template>
 
+  <xsl:function name="hub:get-index-content" as="xs:string*">
+    <xsl:param name="indexterm-child" as="element()"/>
+    <xsl:apply-templates select="$indexterm-child" mode="hub:default-indexterm-childs"/>
+  </xsl:function>
+  
+  <xsl:template match="primary | secondary | tertiary | see | seealso" mode="hub:default-indexterm-childs">
+    <xsl:apply-templates select="node()" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="*" mode="hub:default-indexterm-childs">
+    <xsl:message select="'hub2docx, unmapped element ', name(), ' in mode hub:default-indexterm-childs'"/>
+    <xsl:apply-templates select="node()" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="text()" mode="hub:default-indexterm-childs">
+    <xsl:value-of select="replace(., '\s+$', '')"/>
+  </xsl:template>
 
 </xsl:stylesheet>
