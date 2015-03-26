@@ -101,9 +101,12 @@
     </w:r>
   </xsl:template>
 
-  <xsl:function name="hub:get-index-content" as="xs:string*">
+  <xsl:function name="hub:get-index-content" as="xs:string">
     <xsl:param name="indexterm-child" as="element()"/>
-    <xsl:apply-templates select="$indexterm-child" mode="hub:default-indexterm-childs"/>
+    <xsl:variable name="child-content" as="xs:string*">
+      <xsl:apply-templates select="$indexterm-child" mode="hub:default-indexterm-childs"/>
+    </xsl:variable>
+    <xsl:sequence select="string-join($child-content, '')"/>
   </xsl:function>
   
   <xsl:template match="primary | secondary | tertiary | see | seealso" mode="hub:default-indexterm-childs">
