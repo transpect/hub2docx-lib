@@ -113,7 +113,7 @@
     <xsl:variable name="rule-in-source" select="key('style-by-name', .)" as="element(css:rule)?"/>
     <xsl:variable name="role-in-template" select="key('styleId', ., $docx-template)" as="element(w:style)?"/>
     <xsl:variable name="parent-is-para" select="boolean(parent::para or parent::simpara)" as="xs:boolean"/>
-    <xsl:variable name="parent-is-inline" select="boolean(parent::phrase)" as="xs:boolean"/>
+    <xsl:variable name="parent-is-inline" select="boolean(parent::phrase or parent::emphasis)" as="xs:boolean"/>
     <xsl:choose>
       <xsl:when test="exists($rule-in-source)">
         <xsl:variable name="elt-name" as="xs:string">
@@ -164,10 +164,10 @@
         <xsl:message select="'para.xsl, match=@role: no style for role ', string(.)"/>
         <xsl:variable name="elt-name">
           <xsl:choose>
-            <xsl:when test="parent::para or parent::simpara">
+            <xsl:when test="$parent-is-para">
               <xsl:sequence select="'w:pStyle'"/>
             </xsl:when>
-            <xsl:when test="parent::phrase">
+            <xsl:when test="$parent-is-inline">
               <xsl:sequence select="'w:rStyle'"/>
             </xsl:when>
             <xsl:otherwise>
