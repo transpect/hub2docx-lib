@@ -88,8 +88,14 @@
 
   <xsl:template  match="para[ parent::blockquote ]"  mode="hub:default" priority="2">
     <xsl:variable name="pPr" as="element(*)*">
-      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @role, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <w:pStyle w:val="BlockText"/>
+      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
+      <xsl:variable name="pstyle" as="element(w:pStyle)?">
+        <xsl:apply-templates  select="@role" mode="props"/>
+      </xsl:variable>
+      <xsl:sequence select="$pstyle[self::w:pStyle]"/>
+      <xsl:if test="not($pstyle[self::w:pStyle])">
+        <w:pStyle w:val="BlockText"/>
+      </xsl:if>
     </xsl:variable>
     <w:p origin="default_p_parentblockq">
       <xsl:if  test="$pPr">
