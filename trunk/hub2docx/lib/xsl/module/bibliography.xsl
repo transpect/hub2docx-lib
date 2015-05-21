@@ -76,13 +76,17 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
-  <xsl:template  match="bibliomixed"    mode="hub:default">
-    <xsl:variable  name="footnoteId"  select="generate-id()"/>
-    <w:bookmarkStart w:id="{$footnoteId}" w:name="bm_{$footnoteId}_"/>
-    <xsl:apply-templates  select="node()"  mode="#current" />
-    <w:bookmarkEnd w:id="{$footnoteId}"/>
+  <xsl:template  match="bibliomixed"  mode="hub:default">
+    <xsl:variable  name="bibliomixedId"  select="generate-id()"/>
+    <w:bookmarkStart w:id="{$bibliomixedId}" w:name="bm_{$bibliomixedId}_"/>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="bib"/>
+      </w:pPr>
+      <xsl:apply-templates  select="node()"  mode="#current" />
+    </w:p>
+    <w:bookmarkEnd w:id="{$bibliomixedId}"/>
   </xsl:template>
-
 
   <xsl:template  match="bibliomisc"    mode="hub:default">
     <w:p>
