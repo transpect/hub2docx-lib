@@ -18,6 +18,7 @@
   xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
   xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
   xmlns:customProps = "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
+  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
   
   xpath-default-namespace = "http://docbook.org/ns/docbook"
   exclude-result-prefixes="xs docx2hub hub hub2docx letex dbk"
@@ -334,6 +335,10 @@
     <xsl:attribute name="Id" select="concat('rId', $relationIdOffset + . )"/>
   </xsl:template>
 
+  <xsl:template mode="hub:merge" match="a:blip/@r:embed">
+    <xsl:param name="relationIdOffset" tunnel="yes" />
+    <xsl:attribute name="r:embed" select="concat('rId', $relationIdOffset + . )"/>
+  </xsl:template>
 
   <!-- header and footer changes/additions -->
 
