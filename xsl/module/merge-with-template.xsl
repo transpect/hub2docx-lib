@@ -282,11 +282,11 @@
           Target="comments.xml" />
       </xsl:if>
       <xsl:for-each select="collection()/w:root_converted/*/w:*[local-name() = ('ftr', 'hdr')]">
-        <xsl:variable name="type" select="if(local-name() eq 'ftr') then 'footer' else 'header'" as="xs:string"/>
+        <xsl:variable name="type" select="if (local-name() eq 'ftr') then 'footer' else 'header'" as="xs:string"/>
         <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
           Id="rId{$relationIdOffset + @hub:offset}{local-name()}" 
           Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/{$type}" 
-          Target="{$type}{(if(local-name() eq 'ftr') then $footerIdOffset else $headerIdOffset) + @hub:offset}.xml" />
+          Target="{$type}{(if (local-name() eq 'ftr') then $footerIdOffset else $headerIdOffset) + @hub:offset}.xml" />
       </xsl:for-each>
     </xsl:copy>
   </xsl:template>
@@ -407,9 +407,9 @@
     <xsl:param name="relationIdOffset" tunnel="yes"/>
 
     <xsl:variable name="ref-name-short" as="xs:string"
-      select="if(name(..) eq 'w:headerReference') then 'hdr' else 'ftr'"/>
+      select="if (name(..) eq 'w:headerReference') then 'hdr' else 'ftr'"/>
     <xsl:variable name="ref-name-long" as="xs:string"
-      select="if($ref-name-short eq 'hdr') then 'header' else 'footer'"/>
+      select="if ($ref-name-short eq 'hdr') then 'header' else 'footer'"/>
     <xsl:variable name="corresponding-converted-margin-element" as="element(*)?"
       select="collection()/w:root_converted
                 /w:*[local-name() eq $ref-name-long]
