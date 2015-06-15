@@ -70,7 +70,7 @@
   <xsl:template match="annotation/para" mode="comments" priority="3">
     <w:p>
       <xsl:call-template name="hub:pPr">
-        <xsl:with-param name="default-pPrs">
+        <xsl:with-param name="default-pPrs" as="element(w:pStyle)" tunnel="yes">
           <w:pStyle w:val="CommentText"/>
         </xsl:with-param>
       </xsl:call-template>
