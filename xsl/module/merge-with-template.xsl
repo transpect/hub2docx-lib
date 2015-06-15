@@ -74,13 +74,15 @@
     <!-- no footnotes in template: create the footnote root element separately for converted hub footnotes -->
     <xsl:if test="not(../w:footnotes)  and 
                   collection()/w:root_converted/w:footnotes/node()">
-      <w:footnotes xml:base="{replace($document-xml-base-modified, 'document\.xml', 'footnotes.xml')}">
+      <w:footnotes>
+        <xsl:attribute name="xml:base" select="replace($document-xml-base-modified, 'document\.xml', 'footnotes.xml')"/>
         <xsl:apply-templates select="collection()/w:root_converted/w:footnotes/node()" mode="#current"/>
       </w:footnotes>
     </xsl:if>
     <xsl:if test="not(../w:comments)  and
                   collection()/w:root_converted/w:comments/node()">
-      <w:comments xml:base="{replace($document-xml-base-modified, 'document\.xml', 'comments.xml')}">
+      <w:comments>
+        <xsl:attribute name="xml:base" select="replace($document-xml-base-modified, 'document\.xml', 'comments.xml')"/>
         <xsl:apply-templates select="collection()/w:root_converted/w:comments/node()" mode="#current"/>
       </w:comments>
     </xsl:if>
