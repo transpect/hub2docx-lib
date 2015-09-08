@@ -200,7 +200,7 @@
               <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then string(number(@rowspan)-1) else ''"/>
               <xsl:variable  name="tcPr" as="element()*">
                 <xsl:call-template name="letex:tcPr">
-                  <xsl:with-param name="name-to-int-map" select="$name-to-int-map"/>
+                  <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
                 </xsl:call-template>
               </xsl:variable>
               <xsl:variable name="pPr" as="element(*)*">
@@ -351,7 +351,7 @@
   </xsl:template>
 
   <xsl:template name="letex:tcPr" as="element(*)*">
-    <xsl:param name="name-to-int-map" as="document-node(element(map))"/>
+    <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
     <xsl:apply-templates select="(@colspan, letex:cals-colspan($name-to-int-map, @namest, @nameend))[1], 
                                  @class, 
                                  (@rowsep, @colsep)[1], 
@@ -419,7 +419,7 @@
         <xsl:variable name="tcPr" as="element(*)*">
           <xsl:for-each select="$cals-entries[1]">
             <xsl:call-template name="letex:tcPr">
-              <xsl:with-param name="name-to-int-map" select="$name-to-int-map"/>
+              <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
             </xsl:call-template>
           </xsl:for-each>
         </xsl:variable>
@@ -528,7 +528,7 @@
     <w:tc>
       <xsl:variable  name="tcPr">
         <xsl:call-template name="letex:tcPr">
-          <xsl:with-param name="name-to-int-map" select="$name-to-int-map"/>
+          <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
         </xsl:call-template>
       </xsl:variable>
       <xsl:if test="$tcPr">
