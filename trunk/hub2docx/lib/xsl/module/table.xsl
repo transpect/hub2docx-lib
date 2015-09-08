@@ -30,7 +30,7 @@
   <xsl:variable  name="table-scale"  select="20.0"  as="xs:double" />
 
   <xsl:template  match="table | informaltable"  mode="hub:default">
-    <xsl:apply-templates  select="self::informaltable/@xml:id | caption | info"  mode="#current" />
+    <xsl:apply-templates  select="self::informaltable/@xml:id | caption | info | title"  mode="#current" />
     <xsl:variable name="tblPrContent" as="element(*)*">
       <xsl:apply-templates select="@css:width, @css:text-align, @css:background-color, @css:margin-left, @css:margin-right, @frame" mode="tblPr"/>
     </xsl:variable>
@@ -679,6 +679,15 @@
     <w:p>
       <w:pPr>
         <w:pStyle  w:val="Caption"/>
+      </w:pPr>
+      <xsl:apply-templates  select="node()"  mode="#current"/>
+    </w:p>
+  </xsl:template>
+  
+  <xsl:template  match="title"  mode="hub:default">
+    <w:p origin="default_p_title">
+      <w:pPr>
+        <w:pStyle  w:val="Tabletitle"/>
       </w:pPr>
       <xsl:apply-templates  select="node()"  mode="#current"/>
     </w:p>

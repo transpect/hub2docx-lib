@@ -114,9 +114,7 @@
   </xsl:template>
   
   <xsl:template  match="caption"  mode="hub:default" priority="-1">
-    <w:p origin="default_p_caption">
-      <xsl:apply-templates  select="node()"  mode="#current"/>
-    </w:p>
+    <xsl:apply-templates  select="*"  mode="#current"/>
   </xsl:template>
 
   <xsl:template match="@role[. = 'ttt:token']" mode="props"/>
