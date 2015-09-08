@@ -80,38 +80,38 @@
                         | phrase[@role eq 'hub:ooxml-symbol'][@css:font-family][@annotations]
                         | phrase[@role = ('hub:foreign', 'hub:identifier')]"  mode="hub:default">
     <xsl:param  name="rPrContent" as="element(*)*" tunnel="yes"/>
-    <w:r>
-      <xsl:if  test="$rPrContent">
-        <w:rPr>
-          <xsl:sequence  select="$rPrContent"/>
-        </w:rPr>
-      </xsl:if>
-      <xsl:choose>
-        <xsl:when test="self::phrase[@role eq 'hub:ooxml-symbol']">
-          <w:sym w:font="{@css:font-family}" w:char="{@annotations}"/>      
-        </xsl:when>
-        <xsl:when test="self::phrase[@role eq 'hub:foreign']">
-          <xsl:apply-templates mode="hub:foreign"/>      
-        </xsl:when>
-        <xsl:otherwise>
-          <w:t>
-            <xsl:if  test="matches( . , '^\s|\s$')">
-              <xsl:attribute  name="xml:space"  select="'preserve'"/>
-            </xsl:if>
-            <xsl:value-of select="."/>
-            <!-- We don’t use xml:space="preserve" in Hub. All space must be preserved. 
-              <xsl:choose>
-              <xsl:when test="ancestor::*[@xml:space][1]/@xml:space eq 'preserve'">
+    <xsl:choose>
+      <xsl:when test="self::phrase[@role eq 'hub:identifier'][child::*]">
+        <xsl:apply-templates mode="#current">
+          <xsl:with-param name="rPrContent" select="$rPrContent" as="element(*)*" tunnel="yes"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      <xsl:otherwise>
+        <w:r>
+          <xsl:if  test="$rPrContent">
+            <w:rPr>
+              <xsl:sequence  select="$rPrContent"/>
+            </w:rPr>
+          </xsl:if>
+          <xsl:choose>
+            <xsl:when test="self::phrase[@role eq 'hub:ooxml-symbol']">
+              <w:sym w:font="{@css:font-family}" w:char="{@annotations}"/>      
+            </xsl:when>
+            <xsl:when test="self::phrase[@role eq 'hub:foreign']">
+              <xsl:apply-templates mode="hub:foreign"/>      
+            </xsl:when>
+            <xsl:otherwise>
+              <w:t>
+                <xsl:if  test="matches( . , '^\s|\s$')">
+                  <xsl:attribute  name="xml:space"  select="'preserve'"/>
+                </xsl:if>
                 <xsl:value-of select="."/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="replace(., '\s+', ' ')"/>
-              </xsl:otherwise>
-            </xsl:choose>-->
-          </w:t>    
-        </xsl:otherwise>
-      </xsl:choose>
-    </w:r>
+              </w:t>    
+            </xsl:otherwise>
+          </xsl:choose>
+        </w:r>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template  match="text()[matches( . , '^\s+$')][not(ancestor::para or ancestor::title)]" />
