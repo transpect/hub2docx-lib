@@ -144,7 +144,7 @@
   </xsl:template>
   
   <xsl:template  match="chapter"  mode="hub:default" priority="123">
-    <xsl:message select="'...Chapter: ', string-join(title//text()[not(ancestor::indexterm)], '')"/>
+    <xsl:message select="'...Chapter: ', string-join((title, para[1])[1]//text()[not(ancestor::indexterm)], '')"/>
     <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
   </xsl:template>
   
