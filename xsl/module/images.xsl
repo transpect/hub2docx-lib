@@ -83,7 +83,7 @@
     </xsl:choose>
   </xsl:template>
   
-  <xsl:template match="sidebar[parent::para]" mode="hub:default">
+  <xsl:template match="sidebar[parent::para or parent::title]" mode="hub:default">
     <xsl:variable name="sidebar-style" as="xs:string*">
       <xsl:for-each select="@css:position|@css:z-index|@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
@@ -108,7 +108,7 @@
     </w:r>
   </xsl:template>
   
-  <xsl:template match="sidebar[not(parent::para)]" mode="hub:default">
+  <xsl:template match="sidebar[not(parent::para or parent::title)]" mode="hub:default">
     <xsl:variable name="sidebar-style" as="xs:string*">
       <xsl:for-each select="@css:position|@css:z-index|@css:margin-left|@css:margin-top|@css:width|@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
