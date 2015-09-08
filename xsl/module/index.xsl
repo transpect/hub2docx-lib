@@ -122,4 +122,37 @@
     <xsl:value-of select="replace(., '\s+$', '')"/>
   </xsl:template>
 
+  <xsl:template  match="index"  mode="hub:default">
+    <xsl:apply-templates select="node()" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template  match="index/title"  mode="hub:default">
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="IndexHeading"/>
+      </w:pPr>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </w:p>
+  </xsl:template>
+  
+  <xsl:template  match="indexentry"  mode="hub:default">
+    <xsl:for-each select="*[ends-with(local-name(), 'yie')]">
+      <xsl:apply-templates select="." mode="#current"/>
+    </xsl:for-each>
+    <xsl:if test="seeie or seealsoie">
+      <xsl:message  terminate="no"  select="'WARNING: seeie and/or seealsoie-elements within indexentry. Not supported yet!'"/>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template  match="indexentry/*[ends-with(local-name(), 'yie')]"  mode="hub:default">
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Index{if(local-name() eq 'primaryie') then '1' 
+                               else if(local-name() eq 'secondaryie') then '2' 
+                               else '3'}"/>
+      </w:pPr>
+      <xsl:apply-templates mode="#current"/>
+    </w:p>
+  </xsl:template>
+
 </xsl:stylesheet>
