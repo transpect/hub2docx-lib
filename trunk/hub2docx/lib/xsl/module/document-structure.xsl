@@ -145,12 +145,12 @@
   
   <xsl:template  match="chapter"  mode="hub:default" priority="123">
     <xsl:message select="'...Chapter: ', string-join(title//text()[not(ancestor::indexterm)], '')"/>
-    <xsl:apply-templates  select="node()"  mode="#current" />
+    <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
   </xsl:template>
   
 
-  <xsl:template  match="section | sect1 | sect2 | sect3 | sect4 | sect5 | sect6 | appendix | preface | blockquote"  mode="hub:default">
-    <xsl:apply-templates  select="node()"  mode="#current" />
+  <xsl:template  match="section | sect1 | sect2 | sect3 | sect4 | sect5 | sect6 | simplesect | appendix | preface | blockquote | formalpara | example"  mode="hub:default">
+    <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
   </xsl:template>
   
   <xsl:template  match="titleabbrev"  mode="hub:default" />
@@ -163,9 +163,9 @@
   </xsl:function>
 
   <xsl:template  match="title[   parent::chapter | parent::section | parent::glossary 
-                               | parent::preface | parent::appendix | parent::bibliography
+                               | parent::preface | parent::appendix | parent::bibliography | parent::simplesect
                                | parent::sect1 | parent::sect2 | parent::sect3 | parent::sect4 | parent::sect5 | parent::sect6 
-                             ]"  mode="hub:default">
+                             ] | bridgehead"  mode="hub:default">
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
       <w:pStyle w:val="{concat( $heading-prefix, string(letex:headinglevel(.)))}"/>
@@ -215,10 +215,10 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template  match="title[ parent::blockquote ]"  mode="hub:default">
+  <xsl:template  match="title[ parent::*/local-name() = ('blockquote', 'example', 'formalpara') ]"  mode="hub:default">
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <w:pStyle w:val="blockquotetitle"/>
+      <w:pStyle w:val="{local-name(parent::*)}title"/>
     </xsl:variable>
     <w:p>
       <xsl:if  test="$pPr">
@@ -238,10 +238,10 @@
         <w:bookmarkEnd    w:id="{generate-id(..)}"/>
       </xsl:if>
     </w:p>
-  </xsl:template>  
+  </xsl:template>
 
   <xsl:template  match="title"  mode="hub:default"  priority="-1">
-    <xsl:message  terminate="yes" select="concat( 'ERROR: title parent not expected: ', parent::*/name())"/>
+    <xsl:message  terminate="no" select="concat( 'ERROR: title parent not expected: ', parent::*/name())"/>
   </xsl:template>
 
 </xsl:stylesheet>
