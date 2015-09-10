@@ -678,7 +678,7 @@
   <xsl:template  match="caption/para"  mode="hub:default">
     <w:p>
       <w:pPr>
-        <w:pStyle  w:val="Caption"/>
+        <w:pStyle  w:val="{if(@role) then @role else 'Caption'}"/>
       </w:pPr>
       <xsl:apply-templates  select="node()"  mode="#current"/>
     </w:p>
@@ -687,7 +687,7 @@
   <xsl:template  match="title"  mode="hub:default">
     <w:p origin="default_p_title">
       <w:pPr>
-        <w:pStyle  w:val="Tabletitle"/>
+        <w:pStyle  w:val="{if(@role) then @role else 'Tabletitle'}"/>
       </w:pPr>
       <xsl:apply-templates  select="node()"  mode="#current"/>
     </w:p>
