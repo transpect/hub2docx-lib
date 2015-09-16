@@ -80,8 +80,13 @@
                         | phrase[@role eq 'hub:ooxml-symbol'][@css:font-family][@annotations]
                         | phrase[@role = ('hub:foreign', 'hub:identifier')]"  mode="hub:default">
     <xsl:param  name="rPrContent" as="element(*)*" tunnel="yes"/>
+    <xsl:variable name="try-wr" as="node()*">
+      <xsl:apply-templates mode="#current">
+        <xsl:with-param name="rPrContent" select="$rPrContent" as="element(*)*" tunnel="yes"/>
+      </xsl:apply-templates>
+    </xsl:variable>
     <xsl:choose>
-      <xsl:when test="self::phrase[@role eq 'hub:identifier'][child::*]">
+      <xsl:when test="self::phrase[@role eq 'hub:identifier'][child::*] and $try-wr[self::w:r]">
         <xsl:apply-templates mode="#current">
           <xsl:with-param name="rPrContent" select="$rPrContent" as="element(*)*" tunnel="yes"/>
         </xsl:apply-templates>
@@ -94,19 +99,35 @@
             </w:rPr>
           </xsl:if>
           <xsl:choose>
-            <xsl:when test="self::phrase[@role eq 'hub:ooxml-symbol']">
-              <w:sym w:font="{@css:font-family}" w:char="{@annotations}"/>      
-            </xsl:when>
-            <xsl:when test="self::phrase[@role eq 'hub:foreign']">
-              <xsl:apply-templates mode="hub:foreign"/>      
+            <xsl:when test="self::phrase[@role eq 'hub:identifier'][child::*]">
+              <xsl:apply-templates mode="#current">
+                <xsl:with-param name="rPrContent" select="$rPrContent" as="element(*)*" tunnel="yes"/>
+              </xsl:apply-templates>
             </xsl:when>
             <xsl:otherwise>
-              <w:t>
-                <xsl:if  test="matches( . , '^\s|\s$')">
-                  <xsl:attribute  name="xml:space"  select="'preserve'"/>
-                </xsl:if>
-                <xsl:value-of select="."/>
-              </w:t>    
+              <xsl:choose>
+                <xsl:when test="self::phrase[@role eq 'hub:ooxml-symbol']">
+                  <w:sym w:font="{@css:font-family}" w:char="{@annotations}"/>      
+                </xsl:when>
+                <xsl:when test="self::phrase[@role eq 'hub:foreign']">
+                  <xsl:apply-templates mode="hub:foreign"/>      
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:analyze-string select="." regex="&#xad;">
+                    <xsl:matching-substring>
+                      <w:softHyphen/>
+                    </xsl:matching-substring>
+                    <xsl:non-matching-substring>
+                      <w:t>
+                        <xsl:if  test="matches( . , '^\s|\s$')">
+                          <xsl:attribute  name="xml:space"  select="'preserve'"/>
+                        </xsl:if>
+                        <xsl:value-of select="."/>
+                      </w:t>    
+                    </xsl:non-matching-substring>
+                  </xsl:analyze-string>
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:otherwise>
           </xsl:choose>
         </w:r>
@@ -146,7 +167,7 @@
 
   <xsl:template  match="br"  mode="hub:default" priority="2">
     <xsl:choose>
-      <xsl:when test="parent::para or parent::emphasis or parent::phrase">
+      <xsl:when test="parent::para or parent::emphasis or parent::phrase or parent::title">
         <w:r>
           <w:br/>
         </w:r>
