@@ -251,7 +251,7 @@
   </xsl:template>
   
   <xsl:template match="@css:page-break-before" mode="props">
-    <xsl:if test="not(.='avoid')">
+    <xsl:if test="not(.=('avoid','auto'))">
       <w:pageBreakBefore/>
     </xsl:if>
   </xsl:template>
