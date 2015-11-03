@@ -179,51 +179,6 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template  match="mediaobject"  mode="hub:default-DISABLED">
-    <w:p origin="default_i_mediaobj">
-      <w:r>
-        <w:rPr>
-          <w:noProof/>
-        </w:rPr>
-        <w:drawing>
-          <wp:inline distT="0" distB="0" distL="0" distR="0"> -->
-<!--             <wp:extent cx="2682473" cy="2194750"/> -->
-<!--             <wp:effectExtent l="19050" t="0" r="3577" b="0"/> -->
-<!--             <wp:docPr id="1" name="Grafik 0" descr="Abbildung 1.png"/> -->
-<!--             <wp:cNvGraphicFramePr> -->
-<!--               <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/> -->
-<!--             </wp:cNvGraphicFramePr> -->
-            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
-              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-<!--                 <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"> -->
-<!--                   <pic:nvPicPr> -->
-<!--                     <pic:cNvPr id="0" name="Abbildung 1.png"/> -->
-<!--                     <pic:cNvPicPr/> -->
-<!--                   </pic:nvPicPr> -->
-<!--                   <pic:blipFill> -->
-<!--                     <a:blip r:embed="rId8"/> -->
-<!--                     <a:stretch> -->
-<!--                       <a:fillRect/> -->
-<!--                     </a:stretch> -->
-<!--                   </pic:blipFill> -->
-<!--                   <pic:spPr> -->
-<!--                     <a:xfrm> -->
-<!--                       <a:off x="0" y="0"/> -->
-<!--                       <a:ext cx="2682473" cy="2194750"/> -->
-<!--                     </a:xfrm> -->
-<!--                     <a:prstGeom prst="rect"> -->
-<!--                       <a:avLst/> -->
-<!--                     </a:prstGeom> -->
-<!--                   </pic:spPr> -->
-<!--                 </pic:pic> -->
-              </a:graphicData>
-            </a:graphic>
-          </wp:inline>
-        </w:drawing>
-      </w:r>
-    </w:p>
-  </xsl:template>
-
   <!--  mode = "documentRels"-->
   
   <xsl:template  match="inlinemediaobject[not(count(.//imagedata) eq 1 and matches(.//imagedata/@fileref, '^container[:]'))] | 

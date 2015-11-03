@@ -332,12 +332,15 @@
 
   <xsl:template 
     mode="hub:merge"
-    match="//w:root_converted//rel:Relationship/@Id">
+    match="//w:root_converted//rel:Relationship/@Id[. castable as xs:integer]">
     <xsl:param name="relationIdOffset" tunnel="yes" />
+    <!-- We expect relationships only to occur in document.xml. If there is an a:blip in, e.g., footer1.xml,
+      footer1.xml and the associated _rels/footer1.xml.rels will be carried over from the template unchanged.
+      In order to enforce this, we must not match @Ids that appear here as unchanged rId1 instead of 1. -->  
     <xsl:attribute name="Id" select="concat('rId', $relationIdOffset + . )"/>
   </xsl:template>
 
-  <xsl:template mode="hub:merge" match="a:blip/@r:embed">
+  <xsl:template mode="hub:merge" match="a:blip/@r:embed[. castable as xs:integer]">
     <xsl:param name="relationIdOffset" tunnel="yes" />
     <xsl:attribute name="r:embed" select="concat('rId', $relationIdOffset + . )"/>
   </xsl:template>
