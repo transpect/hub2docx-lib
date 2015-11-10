@@ -143,7 +143,7 @@
     <w:docVar w:name="{@role}" w:val="{.}"/>
   </xsl:template>
   
-  <xsl:template  match="chapter"  mode="hub:default" priority="123">
+  <xsl:template  match="chapter"  mode="hub:default">
     <xsl:message select="'...Chapter: ', string-join((title, para[1])[1]//text()[not(ancestor::indexterm)], '')"/>
     <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
   </xsl:template>
