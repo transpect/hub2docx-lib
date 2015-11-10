@@ -79,6 +79,13 @@
         <xsl:apply-templates select="collection()/w:root_converted/w:footnotes/node()" mode="#current"/>
       </w:footnotes>
     </xsl:if>
+    <xsl:if test="not(../w:endnotes)  and 
+                  collection()/w:root_converted/w:endnotes/node()">
+      <w:endnotes>
+        <xsl:attribute name="xml:base" select="replace($document-xml-base-modified, 'document\.xml', 'endnotes.xml')"/>
+        <xsl:apply-templates select="collection()/w:root_converted/w:endnotes/node()" mode="#current"/>
+      </w:endnotes>
+    </xsl:if>
     <xsl:if test="not(../w:comments)  and
                   collection()/w:root_converted/w:comments/node()">
       <w:comments>
@@ -105,6 +112,11 @@
                     collection()/w:root_converted/w:endnotes/node()">
         <Override PartName="/word/endnotes.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
           ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml"/>
+      </xsl:if>
+      <xsl:if test="not(ct:Override[@PartName eq '/word/footnotes.xml'])  and  
+                    collection()/w:root_converted/w:footnotes/node()">
+        <Override PartName="/word/footnotes.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
+          ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/>
       </xsl:if>
       <xsl:for-each select="collection()/w:root_converted/*/w:hdr">
         <xsl:variable name="number" select="$headerIdOffset + @hub:offset"/>
@@ -200,9 +212,11 @@
   <xsl:template match="w:settings" mode="hub:merge">
     <xsl:copy>
       <xsl:apply-templates select="@*, * except w:docVars" mode="#current"/>
-      <w:docVars>
-        <xsl:sequence select="collection()/w:root_converted/w:settings/w:docVars/w:docVar"/>
-      </w:docVars>
+      <xsl:if test="exists(collection()/w:root_converted/w:settings/w:docVars/w:docVar)">
+        <w:docVars>
+          <xsl:sequence select="collection()/w:root_converted/w:settings/w:docVars/w:docVar"/>
+        </w:docVars>
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
 
@@ -282,6 +296,13 @@
           Id="rId{$relationIdOffset}c" 
           Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" 
           Target="comments.xml" />
+      </xsl:if>
+      <xsl:if test="not(collection()/w:root/w:footnotes) and
+                    collection()/w:root_converted/w:footnotes/node()">
+        <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
+          Id="rId{$relationIdOffset}c" 
+          Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" 
+          Target="footnotes.xml" />
       </xsl:if>
       <xsl:for-each select="collection()/w:root_converted/*/w:*[local-name() = ('ftr', 'hdr')]">
         <xsl:variable name="type" select="if (local-name() eq 'ftr') then 'footer' else 'header'" as="xs:string"/>
