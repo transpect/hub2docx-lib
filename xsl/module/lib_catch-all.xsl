@@ -81,7 +81,7 @@
 
   <xsl:template  match="@origin"  mode="hub:clean" priority="100"/>
 
-  <xsl:template  match="w:r[not(parent::w:p or parent::w:hyperlink)]"  mode="hub:clean">
+  <xsl:template  match="w:r[not(parent::*[self::w:p or self::w:hyperlink or self::w:tc])]"  mode="hub:clean">
     <xsl:if test="some $t in w:t satisfies $t[text() and not(matches(., '^[\t\s\n&#xa;]+$'))]">
       <xsl:message select="'hub2docx warning: removing invalid run-text with content from word-document: ', w:t//text()[not(matches(., '^[\t\s\n&#xa;]+$'))]"/>
     </xsl:if>
