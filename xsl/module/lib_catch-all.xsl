@@ -106,8 +106,8 @@
         <xsl:message  select="concat(
                                 '&#x0A;&#x09;&#x09;WARNING: The element &quot;', current(),
                                 '&quot; (Occurrence: ', count($no-match-elements[name() eq current()]),
-                                ') will just be copied by a &quot;match anything&quot; template for mode=&quot;#all&quot;',
-                                '&#x0A;&#x09;&#x09;This should not happen. Please contact the hub2docx maintainer.')"/>
+                                ') is unknown and will be removed from the final document!',
+                                '&#x0A;&#x09;&#x09;This should not happen (in mode hub:clean)! Please contact the hub2docx maintainer.')"/>
       </xsl:for-each>
       <xsl:if test=".//w:rStyle/@hub:inline-role-in-template">
         <xsl:message select="'&#xa;Following inline roles are mapped with corresponding format in template:', 
@@ -119,7 +119,7 @@
       </xsl:if>
     </xsl:copy>
   </xsl:template>
-  <xsl:template  match="@hub:default-no-match | @hub:morerows"  mode="hub:clean" />
+  <xsl:template  match="*[@hub:default-no-match] | @hub:morerows"  mode="hub:clean" />
   <xsl:template  match="@hub:inline-role-in-template | @hub:para-role-in-template"  mode="hub:clean" />
 
 </xsl:stylesheet>
