@@ -112,6 +112,11 @@
         </w:body>
       </w:document>
     </w:root_converted>
+    <!-- see idEmphasisWithoutRoleAttribute in text-runs.xsl -->
+    <xsl:if test="//emphasis[not(@role)]">
+      <xsl:message 
+        select="'Info: There are one or more emphasis elements without a role attribute - falling back to &quot;italic&quot;'"/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template  match="book | Body | hub"  mode="hub:default">
@@ -147,13 +152,23 @@
     <xsl:message select="'...Chapter: ', string-join((title, para[1])[1]//text()[not(ancestor::indexterm)], '')"/>
     <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
   </xsl:template>
-  
 
-  <xsl:template  match="section | sect1 | sect2 | sect3 | sect4 | sect5 | sect6 | simplesect | appendix | preface | blockquote | formalpara | example"  mode="hub:default">
+  <xsl:variable name="structure-elements" as="xs:string*"
+    select="('appendix', 'bibliography', 'blockquote', 'book', 'bookinfo', 
+    'caution', 'chapter', 'epigraph', 'example', 'formalpara', 'glossary', 'note', 'part', 
+    'partintro', 'preface', 'section', 'sect1', 'sect2', 'sect3', 'sect4', 
+    'sect5', 'sect6', 'sidebar', 'simplesect', 'tip', 'warning')"/>
+
+  <xsl:template  match="*[name() = $structure-elements]"  mode="hub:default" priority="-1">
     <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
   </xsl:template>
   
   <xsl:template  match="titleabbrev"  mode="hub:default" />
+
+  <!-- render attribution after blockquote content-->
+  <xsl:template  match="*[local-name() = ('blockquote', 'epigraph')][attribution]"  mode="hub:default">
+    <xsl:apply-templates  select="* except attribution, attribution"  mode="#current" />
+  </xsl:template>
 
   <xsl:function name="letex:headinglevel" as="xs:integer">
     <xsl:param name="context" as="element(*)?" />
@@ -162,28 +177,66 @@
                           else count( $context/(ancestor::part | ancestor::chapter | ancestor::*[starts-with(local-name(), 'sect')]) ) + 1"/>
   </xsl:function>
 
-  <xsl:template  match="title[   parent::chapter | parent::section | parent::glossary 
-                               | parent::preface | parent::appendix | parent::bibliography | parent::simplesect
-                               | parent::sect1 | parent::sect2 | parent::sect3 | parent::sect4 | parent::sect5 | parent::sect6 
-                             ] | bridgehead"  mode="hub:default">
+  <xsl:template  match="  *[local-name() = $structure-elements]/title 
+                        | book/subtitle 
+                        | part/subtitle 
+                        | bridgehead"  mode="hub:default">
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <w:pStyle w:val="{concat( $heading-prefix, string(letex:headinglevel(.)))}"/>
+      <w:pStyle>
+        <xsl:attribute name="w:val">
+          <xsl:choose>
+            <!-- book/title, book/subtitle -->
+            <xsl:when test="parent::book">
+              <xsl:value-of select="concat(
+                                      upper-case(
+                                        substring(name(.),1,1)
+                                      ),
+                                      substring(name(.),2)
+                                    )"/>
+            </xsl:when>
+            <!-- part/title, part/subtitle -->
+            <xsl:when test="parent::part">
+              <xsl:value-of select="concat(
+                                      'Part',
+                                      upper-case(
+                                        substring(name(.),1,1)
+                                      ),
+                                      substring(name(.),2)
+                                    )"/>
+            </xsl:when>
+            <xsl:when test="parent::*[
+                              starts-with(local-name(), 'sect') or 
+                              local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')
+                            ]">
+              <xsl:value-of select="concat( $heading-prefix, string(letex:headinglevel(.)))"/>
+            </xsl:when>
+            <!-- 'blockquote', 'example', 'formalpara', etc. -->
+            <xsl:otherwise>
+              <xsl:value-of select="concat(local-name(parent::*), 'title')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:attribute>
+      </w:pStyle>
     </xsl:variable>
-    <w:p>
+    
+    <w:p origin="default_docstruct_title">
       <xsl:if  test="$pPr">
         <w:pPr>
           <xsl:sequence  select="$pPr" />
         </w:pPr>
       </xsl:if>
       <xsl:variable name="rPrContent" as="element(w:color)?">
+        <!-- formatting deviations applying to text-runs, i.e. text color -->
       </xsl:variable>
       <xsl:if test="../@xml:id">
         <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
       </xsl:if>
+      
       <xsl:apply-templates  select="node()"  mode="#current">
         <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
       </xsl:apply-templates>
+      
       <xsl:if test="../@xml:id">
         <w:bookmarkEnd    w:id="{generate-id(..)}"/>
       </xsl:if>
@@ -193,51 +246,6 @@
   <xsl:template match="w:bookmarkStart/@w:id | w:bookmarkEnd/@w:id" mode="hub:clean">
     <xsl:param name="bookmark-ids" as="xs:string+" tunnel="yes"/>
     <xsl:attribute name="{name()}" select="index-of($bookmark-ids, .)"/>
-  </xsl:template>
-
-  <xsl:template  match="book/title | book/subtitle"  mode="hub:default">
-    <xsl:variable name="pPr" as="element(*)*">
-      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <w:pStyle w:val="{concat(
-                           upper-case(
-                             substring(name(.),1,1)
-                           ),
-                           substring(name(.),2)
-                         )}"/>
-    </xsl:variable>
-    <w:p>
-      <xsl:if  test="$pPr">
-        <w:pPr>
-          <xsl:sequence  select="$pPr" />
-        </w:pPr>
-      </xsl:if>
-      <xsl:apply-templates mode="#current" />
-    </w:p>
-  </xsl:template>
-
-  <xsl:template  match="title[ parent::*/local-name() = ('blockquote', 'example', 'formalpara') ]"  mode="hub:default">
-    <xsl:variable name="pPr" as="element(*)*">
-      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <w:pStyle w:val="{local-name(parent::*)}title"/>
-    </xsl:variable>
-    <w:p>
-      <xsl:if  test="$pPr">
-        <w:pPr>
-          <xsl:sequence  select="$pPr" />
-        </w:pPr>
-      </xsl:if>
-      <xsl:variable name="rPrContent" as="element(*)*">
-      </xsl:variable>
-      <xsl:if test="../@xml:id">
-        <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
-      </xsl:if>
-      <xsl:apply-templates  select="node()"  mode="#current">
-        <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
-      </xsl:apply-templates>
-      <xsl:if test="../@xml:id">
-        <w:bookmarkEnd    w:id="{generate-id(..)}"/>
-      </xsl:if>
-    </w:p>
   </xsl:template>
 
   <xsl:template  match="title"  mode="hub:default"  priority="-1">
