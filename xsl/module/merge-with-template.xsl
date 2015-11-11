@@ -526,6 +526,17 @@
   </xsl:template>
 
   <xsl:template match="v:imagedata[@hub:fileref]/@id" mode="hub:merge" />
+  
+  <xsl:template match="w:pPr/w:pStyle/@w:val[matches(., '^berschrift\d+$')]" mode="hub:merge">
+    <xsl:choose>
+      <xsl:when test="not(collection()/w:root/w:styles/w:style[@type eq 'paragraph']/@w:styleId = .)">
+        <xsl:attribute name="w:val" select="replace(., '^berschrift(\d+)$', 'Heading$1')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
   <!-- catch all -->
 
