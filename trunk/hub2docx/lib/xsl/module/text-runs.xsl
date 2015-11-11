@@ -188,8 +188,7 @@
             <xsl:apply-templates select="@role, @css:*, @xml:lang" mode="props"/>
             <xsl:sequence select="letex:borders(.)"/>
             <xsl:if test="not(@role) and self::emphasis">
-              <xsl:message
-                select="concat( 'Warning: missing role attribute for element ', name(), ' - falling back to &quot;italic&quot;' )"/>
+              <!-- idEmphasisWithoutRoleAttribute -->
               <w:i/>
             </xsl:if>
           </xsl:with-param>
