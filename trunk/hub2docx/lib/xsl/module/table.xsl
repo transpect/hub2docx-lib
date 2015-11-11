@@ -684,7 +684,7 @@
     </w:p>
   </xsl:template>
   
-  <xsl:template  match="title"  mode="hub:default">
+  <xsl:template  match="*[self::table or self::informaltable]/title"  mode="hub:default">
     <w:p origin="default_p_title">
       <w:pPr>
         <w:pStyle  w:val="{if(@role) then @role else 'Tabletitle'}"/>
