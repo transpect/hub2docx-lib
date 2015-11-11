@@ -47,7 +47,9 @@
 
 
   <xsl:param  name="a3paper" select="'no'"/>					<!-- DIN A3 paper -->
-  <xsl:param  name="heading-prefix" select="'Heading'" as="xs:string"/> <!-- Heading w:styleId prefix; use 'berschrift' for German normal.dot -->
+  <!-- Heading w:styleId prefix; use 'berschrift' for German normal.dot, 'Heading' for english normal.dot
+       default: 'berschrift' - will be translated to 'Heading' for non-german normal.dot templates -->
+  <xsl:param  name="heading-prefix" select="'berschrift'" as="xs:string"/>
   <xsl:param  name="landscape" select="'no'"/>				<!-- page orientation landscape -->
 
   <!-- remove header and footer from inner word document: see modules header.xsl and footer.xsl -->
