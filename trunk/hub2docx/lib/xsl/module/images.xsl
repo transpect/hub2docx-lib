@@ -88,6 +88,12 @@
       <xsl:for-each select="@css:position|@css:z-index|@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
+      <xsl:if test="not(descendant-or-self::*/@css:width)">
+        <xsl:value-of select="'mso-width-percent:1000;mso-width-relative:margin'"/>
+      </xsl:if>
+      <xsl:if test="not(descendant-or-self::*/@css:height)">
+        <xsl:value-of select="'mso-height-percent:250;mso-height-relative:margin-bottom'"/>
+      </xsl:if>
     </xsl:variable>
     <xsl:variable name="inset" as="xs:string" select="concat(if (exists(@css:padding-left)) then @css:padding-left else '0.1in',',',if (exists(@css:padding-top)) then @css:padding-top else '0.05in',',',if (exists(@css:padding-right)) then @css:padding-right else '0.1in',',',if (exists(@css:padding-bottom)) then @css:padding-bottom else '0.05in')"/>
     <w:r>
@@ -167,7 +173,7 @@
   <xsl:template match="figure/title" mode="hub:default">
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <w:pStyle w:val="FigureTitle"/>
+      <w:pStyle w:val="Figuretitle"/>
     </xsl:variable>
     <w:p origin="default_i_figtitle">
       <xsl:if  test="$pPr">
