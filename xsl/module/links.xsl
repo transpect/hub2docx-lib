@@ -118,6 +118,28 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template  match="xref[
+                          not(@role eq 'bibref') and 
+                          not(@role eq 'internal' and @xrefstyle = ('page', 'pagera', 'pagerb')) and 
+                          @linkend[key('by-id', .)/(@xreflabel[. ne ''] or title[normalize-space()])]
+                        ]"  mode="hub:default">
+    <xsl:variable  name="targetNode"  select="key('by-id', @linkend)[1]"/>
+    <xsl:variable  name="linktext" as="xs:string"
+      select="if($targetNode/@xreflabel) then $targetNode/@xreflabel
+              else string-join(($targetNode/title)[1]//text()[not(ancestor::*[self::footnote or self::indexterm])], '')"/>
+    <w:r><w:fldChar w:fldCharType="begin"/></w:r>
+    <w:r>
+      <w:instrText xml:space="preserve"> HYPERLINK \l bm_<xsl:value-of  select="$targetNode/generate-id()"/>_ \o "<xsl:value-of  select="replace($linktext, '(&quot;)', '\\$1')"/>"</w:instrText>
+    </w:r>
+    <w:r><w:fldChar w:fldCharType="separate"/></w:r>
+    <w:r>
+      <w:t>
+        <xsl:value-of  select="$linktext"/>
+      </w:t>
+    </w:r>
+    <w:r><w:fldChar w:fldCharType="end"/></w:r>
+  </xsl:template>
+
   <xsl:template  match="xref[@role eq 'internal' and @xrefstyle = ('page', 'pagera', 'pagerb')]"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="element(*)*" tunnel="yes"/>
     <xsl:variable  name="targetNode"  select="key('by-id', @xlink:href)"/>
