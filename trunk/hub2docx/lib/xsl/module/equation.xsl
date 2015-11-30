@@ -34,7 +34,7 @@
       <w:rStyle w:val="InlineEquation" />
     </xsl:variable>
     <xsl:apply-templates select="node()[not(self::text()[matches(., '^\s*$')])]" mode="#current">
-      <xsl:with-param name="rPrContent" select="$rPrContent/*" as="element(*)+" tunnel="yes" />
+      <xsl:with-param name="rPrContent" select="$rPrContent" as="element(*)+" tunnel="yes" />
     </xsl:apply-templates>
   </xsl:template>
 
