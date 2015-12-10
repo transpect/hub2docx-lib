@@ -120,7 +120,12 @@
   <xsl:template match="@role[. = 'ttt:token']" mode="props"/>
     
   <xsl:template match="@role" mode="props">
-    <xsl:variable name="rule-in-source" select="key('style-by-name', .)" as="element(css:rule)?"/>
+    <xsl:variable name="root" as="document-node()?" select="root(.)[. instance of document-node()]"/>
+    <xsl:variable name="rule-in-source" as="element(css:rule)?">
+      <xsl:if test="count($root/*) = 1">
+        <xsl:sequence select="key('style-by-name', .)"></xsl:sequence>
+      </xsl:if>
+    </xsl:variable>
     <xsl:variable name="role-in-template" select="key('styleId', ., $docx-template)" as="element(w:style)?"/>
     <xsl:variable name="parent-is-para" select="boolean(parent::para or parent::simpara)" as="xs:boolean"/>
     <xsl:variable name="parent-is-inline" select="boolean(parent::phrase or parent::emphasis)" as="xs:boolean"/>
