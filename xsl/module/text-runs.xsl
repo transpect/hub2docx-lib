@@ -4,9 +4,9 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:dbk		= "http://docbook.org/ns/docbook"
     xmlns:css           = "http://www.w3.org/1996/css"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
@@ -20,7 +20,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub dbk xlink o w m wp r css"
+    exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn hub dbk xlink o w m wp r css"
 >
 
 
@@ -44,7 +44,7 @@
     <xsl:variable  name="dumbMergedRunProperties"  select="$inherited_rPrContent | $new_rPrContent" as="element(*)*"/>
     <xsl:for-each select="$dumbMergedRunProperties">
       <xsl:sort data-type="number" order="ascending">
-        <xsl:apply-templates select="." mode="letex:propsortkey"/>
+        <xsl:apply-templates select="." mode="tr:propsortkey"/>
       </xsl:sort>
       <xsl:choose>
         <!-- DEMO for a toggling property -->
@@ -186,7 +186,7 @@
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent"  as="element(*)*"/>
           <xsl:with-param name="new_rPrContent" as="element(*)*">
             <xsl:apply-templates select="@role, @css:*, @xml:lang" mode="props"/>
-            <xsl:sequence select="letex:borders(.)"/>
+            <xsl:sequence select="tr:borders(.)"/>
             <xsl:if test="not(@role) and self::emphasis">
               <!-- idEmphasisWithoutRoleAttribute -->
               <w:i/>
@@ -239,7 +239,7 @@
   </xsl:template>
 
   <xsl:template match="@css:position[. = 'relative'][../@css:top]" mode="props">
-    <w:position w:val="{letex:length-to-unitless-twip(../@css:top) * -1}"/> 
+    <w:position w:val="{tr:length-to-unitless-twip(../@css:top) * -1}"/> 
   </xsl:template>
 
   <xsl:template match="@css:text-decoration-line[. eq 'underline']" mode="props" as="element(w:u)">
@@ -249,10 +249,10 @@
     </w:u>
   </xsl:template>
   <xsl:template match="@css:text-decoration-color" mode="props-secondary">
-    <xsl:attribute name="w:color" select="substring(letex:convert-css-color(., 'hex'), 2, 6)"/>
+    <xsl:attribute name="w:color" select="substring(tr:convert-css-color(., 'hex'), 2, 6)"/>
   </xsl:template>
   <xsl:template match="@css:text-decoration-style" mode="props-secondary">
-    <xsl:attribute name="w:val" select=" letex:border-style(.)"/>
+    <xsl:attribute name="w:val" select=" tr:border-style(.)"/>
   </xsl:template>
   
   <xsl:template match="@css:text-decoration-color" mode="props"/>
@@ -270,17 +270,17 @@
   </xsl:template>
   
   <xsl:template match="@css:background-color" mode="props">
-    <w:shd w:fill="{substring(letex:convert-css-color(., 'hex'), 2, 6)}" w:val="clear"/>
+    <w:shd w:fill="{substring(tr:convert-css-color(., 'hex'), 2, 6)}" w:val="clear"/>
   </xsl:template>
 
   <xsl:template match="@css:*[starts-with(local-name(), 'border-')]" mode="props"/>
 
   <xsl:template match="@css:font-size" mode="props">
-    <w:sz w:val="{round(letex:length-to-unitless-twip(.) idiv 10)}"/>
+    <w:sz w:val="{round(tr:length-to-unitless-twip(.) idiv 10)}"/>
   </xsl:template>
   
   <xsl:template match="@css:color" mode="props">
-    <w:color w:val="{substring(letex:convert-css-color(., 'hex'), 2, 6)}"/>
+    <w:color w:val="{substring(tr:convert-css-color(., 'hex'), 2, 6)}"/>
   </xsl:template>
   
   <xsl:template match="@css:text-transform[. = 'uppercase']" mode="props">
@@ -297,7 +297,7 @@
   
   <xsl:key name="style-by-name" match="css:rule" use="@name"/>
   
-  <xsl:function name="letex:borders" as="element()*">
+  <xsl:function name="tr:borders" as="element()*">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:variable name="targetName" as="xs:string">
       <xsl:choose>
@@ -324,10 +324,10 @@
       <xsl:element name="{$targetName}">
         <xsl:choose>
           <xsl:when test="$all-same and $targetName = 'w:bdr'">
-            <xsl:attribute name="w:val" select="letex:border-style($styles[1])"/>
-            <xsl:attribute name="w:sz" select="letex:length-to-border-width-type($widths[1])"/>
-            <xsl:attribute name="w:space" select="letex:length-to-unitless-twip(($elt/@css:margin-top, '0pt')[1])"/>
-            <xsl:attribute name="w:color" select="if ($colors) then substring(letex:convert-css-color($colors[1], 'hex'), 2, 6) else 'auto'"/>
+            <xsl:attribute name="w:val" select="tr:border-style($styles[1])"/>
+            <xsl:attribute name="w:sz" select="tr:length-to-border-width-type($widths[1])"/>
+            <xsl:attribute name="w:space" select="tr:length-to-unitless-twip(($elt/@css:margin-top, '0pt')[1])"/>
+            <xsl:attribute name="w:color" select="if ($colors) then substring(tr:convert-css-color($colors[1], 'hex'), 2, 6) else 'auto'"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:for-each select="('top', 'left', 'bottom', 'right')">
@@ -350,21 +350,21 @@
     <xsl:param name="targetName" as="xs:string"/>
     <xsl:if test="$targetName = ('w:tcBorders', 'w:pBdr')">
       <xsl:element name="w:{replace(local-name(), 'border-(.+)-style', '$1')}">
-        <xsl:attribute name="w:val" select="letex:border-style(.)"/>
+        <xsl:attribute name="w:val" select="tr:border-style(.)"/>
         <xsl:apply-templates select="$width, $color" mode="#current"/>
       </xsl:element>
     </xsl:if>
   </xsl:template>
   
   <xsl:template match="@css:border-top-width | @css:border-bottom-width | @css:border-left-width | @css:border-right-width" mode="props-secondary">
-    <xsl:attribute name="w:sz" select="letex:length-to-border-width-type(.)"/>
+    <xsl:attribute name="w:sz" select="tr:length-to-border-width-type(.)"/>
   </xsl:template>
 
   <xsl:template match="@css:border-top-color | @css:border-bottom-color | @css:border-left-color | @css:border-right-color" mode="props-secondary">
-    <xsl:attribute name="w:color" select="substring(letex:convert-css-color(., 'hex'), 2, 6)"/>
+    <xsl:attribute name="w:color" select="substring(tr:convert-css-color(., 'hex'), 2, 6)"/>
   </xsl:template>
   
-  <xsl:function name="letex:border-style" as="xs:string">
+  <xsl:function name="tr:border-style" as="xs:string">
     <xsl:param name="style-val" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$style-val eq 'solid'">
@@ -397,43 +397,43 @@
     </xsl:choose>
   </xsl:function>
 
-  <xsl:template match="w:rStyle" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:rStyle" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="-10"/>
   </xsl:template>
 
-  <xsl:template match="w:rFonts" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:rFonts" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="10"/>
   </xsl:template>
 
-  <xsl:template match="w:b" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:b" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="20"/>
   </xsl:template>
 
-  <xsl:template match="w:i" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:i" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="30"/>
   </xsl:template>
 
-  <xsl:template match="w:caps" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:caps" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="40"/>
   </xsl:template>
   
-  <xsl:template match="w:color" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:color" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="100"/>
   </xsl:template>
 
-  <xsl:template match="w:position" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:position" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="105"/>
   </xsl:template>
 
-  <xsl:template match="w:u" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:u" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="115"/>
   </xsl:template>
   
-  <xsl:template match="w:sz" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:sz" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="110"/>
   </xsl:template>
   
-  <xsl:template match="w:shd" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:shd" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="143"/>
   </xsl:template>
 

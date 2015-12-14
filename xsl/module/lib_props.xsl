@@ -4,7 +4,7 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:dbk		= "http://docbook.org/ns/docbook"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
@@ -18,11 +18,11 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn dbk xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn dbk xlink o w m wp r"
 >
 
 
-  <xsl:function name="letex:merge-props" as="element(*)*">
+  <xsl:function name="tr:merge-props" as="element(*)*">
     <xsl:param name="custom-props"    as="element(*)*" />
     <xsl:param name="default-props"    as="element(*)*" />
     <xsl:variable name="result" as="element(*)*">
@@ -39,14 +39,14 @@
     </xsl:variable>
     <xsl:perform-sort>
       <xsl:sort data-type="number" order="ascending">
-        <xsl:apply-templates select="." mode="letex:propsortkey"/>
+        <xsl:apply-templates select="." mode="tr:propsortkey"/>
       </xsl:sort>
       <xsl:sequence select="$result" />
     </xsl:perform-sort>
   </xsl:function>
 
   <!-- Establish OOXML schema compliant prop sort order (which is, typically, alphabetical) -->
-  <xsl:template match="@* | *" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="@* | *" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="1000 * (string-to-codepoints((prefix-from-QName(node-name(.)), '_')[1]))[1]
       + 10 * (string-to-codepoints(local-name(.)))[1]"/>
   </xsl:template>

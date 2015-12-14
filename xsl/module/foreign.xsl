@@ -4,12 +4,11 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:dbk		= "http://docbook.org/ns/docbook"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
-    xmlns:docx2hub      = "http://www.le-tex.de/namespace/docx2hub"
+    xmlns:docx2hub      = "http://transpect.io/docx2hub"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -19,7 +18,7 @@
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xpath-default-namespace = "http://docbook.org/ns/docbook"
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn dbk xlink o w m r docx2hub"
+    exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn dbk xlink o w m r docx2hub"
 >
 
   <!-- in text-runs.xsl: -->

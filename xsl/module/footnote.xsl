@@ -4,9 +4,9 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -18,7 +18,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn hub xlink o w m wp r"
 >
 
 
@@ -60,8 +60,8 @@
   
   <xsl:template  match="footnote"  mode="hub:default">
     <!-- 200000 arbitrary number to make the bookmark id hopefully unique. Need a better mechanism -->
-    <xsl:variable  name="footnoteId"  select="letex:fn-id(.)"/>
-    <w:bookmarkStart w:id="{letex:fn-bm-id(.)}" w:name="{letex:fn-bookmark(.)}"/>
+    <xsl:variable  name="footnoteId"  select="tr:fn-id(.)"/>
+    <w:bookmarkStart w:id="{tr:fn-bm-id(.)}" w:name="{tr:fn-bookmark(.)}"/>
     <w:r>
       <w:rPr>
         <w:rStyle w:val="{(collection()//w:styles/w:style[w:name/@w:val = 'footnote reference']/@w:styleId, 'FootnoteReference')[1]}"/>
@@ -71,7 +71,7 @@
       </w:rPr>
       <!-- The possible values for this attribute (w:id) are defined by the ST_DecimalNumber simple type
            (§17.18.10). -->
-      <w:footnoteReference w:id="{letex:fn-id(.)}">
+      <w:footnoteReference w:id="{tr:fn-id(.)}">
         <xsl:if test="@label">
           <xsl:attribute name="w:customMarkFollows" select="'1'" />
         </xsl:if>
@@ -82,22 +82,22 @@
         </w:t>
       </xsl:if>
     </w:r>
-    <w:bookmarkEnd w:id="{letex:fn-bm-id(.)}"/>
+    <w:bookmarkEnd w:id="{tr:fn-bm-id(.)}"/>
   </xsl:template>
 
-  <xsl:function name="letex:fn-id" as="xs:integer">
+  <xsl:function name="tr:fn-id" as="xs:integer">
     <xsl:param name="fn" as="element(footnote)" />
     <xsl:sequence select="index-of($originalFootnoteIds, generate-id($fn))" />
   </xsl:function>
 
-  <xsl:function name="letex:fn-bm-id" as="xs:integer">
+  <xsl:function name="tr:fn-bm-id" as="xs:integer">
     <xsl:param name="fn" as="element(footnote)" />
-    <xsl:sequence select="letex:fn-id($fn)" />
+    <xsl:sequence select="tr:fn-id($fn)" />
   </xsl:function>
 
-  <xsl:function name="letex:fn-bookmark" as="xs:string">
+  <xsl:function name="tr:fn-bookmark" as="xs:string">
     <xsl:param name="fn" as="element(footnote)" />
-    <xsl:sequence select="concat('FN_', letex:fn-id($fn))" />
+    <xsl:sequence select="concat('FN_', tr:fn-id($fn))" />
   </xsl:function>
 
   <!-- within the text flow, a footnoteref behaves exactly like the the referenced footnote -->
@@ -112,7 +112,7 @@
       <w:fldChar w:fldCharType="begin"/>
     </w:r>
     <w:r>
-      <w:instrText xml:space="preserve"> NOTEREF <xsl:value-of select="letex:fn-bookmark($root//footnote[ @xml:id eq current()/@linkend ])"/> \f \h</w:instrText>
+      <w:instrText xml:space="preserve"> NOTEREF <xsl:value-of select="tr:fn-bookmark($root//footnote[ @xml:id eq current()/@linkend ])"/> \f \h</w:instrText>
     </w:r>
     <w:r>
       <w:fldChar w:fldCharType="separate"/>
@@ -136,7 +136,7 @@
       </w:pPr>
       <xsl:choose>
         <xsl:when test=". is ../*[1] or (position() eq 1)"><!-- check also for pos=1 b/c it may be part of a sequence of paras, not of a document -->
-          <w:bookmarkStart w:id="{letex:fn-bm-id($fn)}" w:name="{letex:fn-bookmark($fn)}"/>
+          <w:bookmarkStart w:id="{tr:fn-bm-id($fn)}" w:name="{tr:fn-bookmark($fn)}"/>
           <w:r>
             <w:rPr>
               <!-- §§ should be a proper rStyle -->
@@ -144,7 +144,7 @@
             </w:rPr>
             <w:t><xsl:value-of  select="$fn/@label"/></w:t>
           </w:r>
-          <w:bookmarkEnd w:id="{letex:fn-bm-id($fn)}"/>
+          <w:bookmarkEnd w:id="{tr:fn-bm-id($fn)}"/>
         </xsl:when>
         <xsl:otherwise>
           <w:r>
@@ -169,7 +169,7 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template  match="footnote"  mode="footnotes">
-    <w:footnote w:id="{letex:fn-id(.)}">
+    <w:footnote w:id="{tr:fn-id(.)}">
       <xsl:apply-templates select="*[self::para or self::simpara][1]" mode="#current" />
       <xsl:apply-templates select="*[self::para or self::simpara][position() gt 1]" mode="hub:default">
         <xsl:with-param name="pPrContent">

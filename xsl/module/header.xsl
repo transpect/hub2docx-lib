@@ -4,9 +4,9 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:css           = "http://www.w3.org/1996/css"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
@@ -20,7 +20,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn css xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn css xlink o w m wp r"
 >
 
   <!--
@@ -38,15 +38,15 @@
   -->
 
   <xsl:variable name="originalHeaderIds" as="xs:string*"
-    select="for $h in //*[not(parent::css:page)][@css:page][letex:is-header(.)] return generate-id($h)" />
+    select="for $h in //*[not(parent::css:page)][@css:page][tr:is-header(.)] return generate-id($h)" />
 
-  <xsl:function name="letex:header-id" as="xs:integer">
+  <xsl:function name="tr:header-id" as="xs:integer">
     <xsl:param name="header" as="element(sidebar)" />
     <xsl:sequence select="index-of($originalHeaderIds, generate-id($header))" />
   </xsl:function>
 
-  <xsl:template match="*[@css:page][letex:is-header(.)]" mode="header">
-    <w:hdr hub:offset="{letex:header-id(.)}">
+  <xsl:template match="*[@css:page][tr:is-header(.)]" mode="header">
+    <w:hdr hub:offset="{tr:header-id(.)}">
       <xsl:for-each select="tokenize(/*/info/css:rules/css:page[@name eq current()/@css:page]/@pseudo, '&#x20;')">
         <xsl:choose>
           <xsl:when test=". eq 'first'">

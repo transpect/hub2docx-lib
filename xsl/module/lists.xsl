@@ -4,9 +4,9 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
@@ -18,7 +18,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn hub xlink o w m wp r"
 >
 
 
@@ -32,32 +32,32 @@
   <!-- This list is used in order to speed up the index-of(), which would be extremly time consuming if operating on the sequence of lists itself. -->
   <xsl:variable  name="generatedIdOfAllLists">
     <xsl:for-each  select="//*[ local-name() = $hub:list-element-names]">
-      <!-- the letex:-namespace is used here for clarity, because we use 'xpath-default-namespace = "http://docbook.org/ns/docbook"' and the result of that would not be expected -->
-      <letex:list>
-        <letex:id><xsl:value-of select="generate-id()"/></letex:id>
-        <letex:pos><xsl:value-of select="position()"/></letex:pos>
-      </letex:list>
+      <!-- the tr:-namespace is used here for clarity, because we use 'xpath-default-namespace = "http://docbook.org/ns/docbook"' and the result of that would not be expected -->
+      <tr:list>
+        <tr:id><xsl:value-of select="generate-id()"/></tr:id>
+        <tr:pos><xsl:value-of select="position()"/></tr:pos>
+      </tr:list>
     </xsl:for-each>
   </xsl:variable>
 
 
   <!-- The value numId/@val identifies a list unambiguously.
        This function returns an unambiguous numId/@val for the list-node given as argument, which is not already in use in the template numbering.xml document. -->
-  <xsl:function  name="letex:getNumId">
+  <xsl:function  name="tr:getNumId">
     <xsl:param  name="generatedIdOfList"  as="xs:string"/>
     <xsl:choose>
-      <xsl:when  test="$generatedIdOfAllLists//letex:list[ ./letex:id eq $generatedIdOfList ]">
-        <xsl:value-of  select="1001 + $generatedIdOfAllLists//letex:list[ ./letex:id eq $generatedIdOfList ]/letex:pos - 1"/>
+      <xsl:when  test="$generatedIdOfAllLists//tr:list[ ./tr:id eq $generatedIdOfList ]">
+        <xsl:value-of  select="1001 + $generatedIdOfAllLists//tr:list[ ./tr:id eq $generatedIdOfList ]/tr:pos - 1"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:message  terminate="no"   select="$generatedIdOfAllLists"/>
         <xsl:message  terminate="no"   select="$generatedIdOfList"/>
-        <xsl:message  terminate="yes"  select="'ERROR: letex:getNumId() could not find a list-id in the global variable $generatedIdOfAllLists'"/>
+        <xsl:message  terminate="yes"  select="'ERROR: tr:getNumId() could not find a list-id in the global variable $generatedIdOfAllLists'"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
 
-  <xsl:function  name="letex:getAbstractNumId" as="xs:integer">
+  <xsl:function  name="tr:getAbstractNumId" as="xs:integer">
     <xsl:param  name="list"  as="node()"/>
     <!-- §§§ This assignment is source data specific and has to be adapted according to the list types occuring.
              Please note that is very easy to adapt the style-information related to this abstractNumIds by running Microbugs Office 2007 Word. -->
@@ -72,7 +72,7 @@
                            else if ( $list[ self::bibliodiv[ every $bi in .//bibliomisc satisfies $bi/@role = 'numberedRef' ] ] )			then 0
                            else if ( $list[ self::bibliography ] )			then 38
                            else if ( $list[ self::bibliodiv ] )			then 38
-                           else error( (), concat(   'ERROR: list type could not be determined. Please enlighten letex:getAbstractNumId() how to guess it.&#x0A;'
+                           else error( (), concat(   'ERROR: list type could not be determined. Please enlighten tr:getAbstractNumId() how to guess it.&#x0A;'
                                                    , 'list element name: ', $list/local-name(), '&#x0A;'
                                                    , for $attr in $list/@* return concat( 'attribut @', $attr/local-name(), ' = ', $attr, '', '&#x0A;')
                                                  ))
@@ -166,7 +166,7 @@
   <!-- a para within listitem creates a w:p with special pPr-properties -->
   <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem/para"  mode="hub:default hub:default_renderFootnote">
     <xsl:variable name="ilvl"  select="count( ancestor::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
-    <xsl:variable name="numId" select="letex:getNumId( ancestor::*[self::*[ local-name() = $hub:list-element-names]][1]/generate-id() )" />
+    <xsl:variable name="numId" select="tr:getNumId( ancestor::*[self::*[ local-name() = $hub:list-element-names]][1]/generate-id() )" />
     <!-- §§ should we consider scoping? -->
     <xsl:variable name="in-blockquote" select="if (ancestor::blockquote) then 'Bq' else ''" as="xs:string" />
     <xsl:variable name="continuation" select="if (position() eq 1) then '' else 'Cont'" as="xs:string" />
@@ -198,8 +198,8 @@
     <xsl:variable name="ilvl"  select="count( ancestor-or-self::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
     <!-- ~~~~~~~~~~~~~~~~~~~~ w:num ~~~~~~~~~~~~~~~~~~~~ -->
     <w:num>
-      <xsl:attribute  name="w:numId"  select="letex:getNumId( generate-id())"/>
-      <w:abstractNumId w:val="{letex:getAbstractNumId( .)}"/>
+      <xsl:attribute  name="w:numId"  select="tr:getNumId( generate-id())"/>
+      <w:abstractNumId w:val="{tr:getAbstractNumId( .)}"/>
       <w:lvlOverride w:ilvl="{if(starts-with(local-name(), 'biblio')) then 0 else $ilvl}">
         <w:startOverride w:val="1" />
       </w:lvlOverride> 
@@ -210,7 +210,7 @@
          Instead we reference the existing w:abstractNum from the template-numbering.xml-file and adapt the visual appearance using Microbugs Office Word 2007.
          -->
 <!--     <w:abstractNum> -->
-<!--       <xsl:attribute  name="w:abstractNumId"  select="letex:getAbstractNumId( .)"/> -->
+<!--       <xsl:attribute  name="w:abstractNumId"  select="tr:getAbstractNumId( .)"/> -->
 <!--       <\!-\- because we apply a separate w:num/w:abstractNum to each *[ local-name() = $hub:list-element-names] regardless of numbering level, we do need only one <w:lvl> with @w:ilvl="0" -\-> -->
 <!--       <w:lvl w:ilvl="0"> -->
 <!--         <w:start w:val="1"/> -->

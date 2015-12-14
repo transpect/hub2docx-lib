@@ -4,9 +4,9 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     
@@ -18,14 +18,14 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn hub xlink o w m wp r"
 >
 
   <!-- should pass it as a tunneled parameter in the comments and hub:default modes -->
   <xsl:variable name="originalCommentIds" as="xs:string*"
     select="for $c in //annotation return generate-id($c)" />
 
-  <xsl:function name="letex:comment-id" as="xs:integer">
+  <xsl:function name="tr:comment-id" as="xs:integer">
     <xsl:param name="comment" as="element(annotation)" />
     <xsl:sequence select="index-of($originalCommentIds, generate-id($comment)) - 1" />
   </xsl:function>
@@ -36,8 +36,8 @@
 
   <xsl:template match="annotation" mode="hub:default">
     <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/><!-- w:… property elements -->
-    <w:commentRangeStart w:id="{letex:comment-id(.)}"/>
-    <w:commentRangeEnd w:id="{letex:comment-id(.)}"/>
+    <w:commentRangeStart w:id="{tr:comment-id(.)}"/>
+    <w:commentRangeEnd w:id="{tr:comment-id(.)}"/>
     <w:r>
       <w:rPr>
         <xsl:call-template  name="mergeRunProperties">
@@ -49,7 +49,7 @@
           </xsl:with-param>
         </xsl:call-template>
       </w:rPr>
-      <w:commentReference w:id="{letex:comment-id(.)}"/>
+      <w:commentReference w:id="{tr:comment-id(.)}"/>
     </w:r>
   </xsl:template>
 
@@ -59,7 +59,7 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template match="annotation" mode="comments">
-    <w:comment w:id="{letex:comment-id(.)}" 
+    <w:comment w:id="{tr:comment-id(.)}" 
       w:author="{(info/author/personname/othername[@role = 'display-name'], 'le-tex hub2docx')[1]}"
       w:date="{(info/date, current-dateTime())[1] (: 2013-08-30T10:47:00Z :)}"
       w:initials="{(info/author/personname/othername[@role = 'initials'], 'h2d')[1]}">

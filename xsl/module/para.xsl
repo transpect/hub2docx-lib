@@ -4,12 +4,12 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
     xmlns:css           = "http://www.w3.org/1996/css"
-    xmlns:docx2hub      = "http://www.le-tex.de/namespace/docx2hub"
+    xmlns:docx2hub      = "http://transpect.io/docx2hub"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -20,7 +20,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink css o w m wp r docx2hub"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn hub xlink css o w m wp r docx2hub"
 >
 
   <xsl:key name="styleId" match="w:style" use="@w:styleId"/>
@@ -50,12 +50,12 @@
                                    @css:line-height,
                                    @css:text-align" mode="props" />
       <xsl:call-template name="w:ind"/>      
-      <xsl:sequence select="letex:borders(.)"/>
+      <xsl:sequence select="tr:borders(.)"/>
     </xsl:variable>
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:perform-sort>
         <xsl:sort data-type="number" order="ascending">
-          <xsl:apply-templates select="." mode="letex:propsortkey"/>
+          <xsl:apply-templates select="." mode="tr:propsortkey"/>
         </xsl:sort>
         <xsl:sequence select="$unsorted"/>
         <xsl:sequence select="$default-pPrs[not(name() = $unsorted/name())]"/>
@@ -199,25 +199,25 @@
   </xsl:template>
   
   <xsl:template match="@css:margin-bottom" mode="props">
-    <w:spacing w:after="{letex:length-to-unitless-twip(.)}"/>
+    <w:spacing w:after="{tr:length-to-unitless-twip(.)}"/>
   </xsl:template>
   
   <xsl:template match="@css:margin-top" mode="props">
-    <w:spacing w:before="{letex:length-to-unitless-twip(.)}"/>
+    <w:spacing w:before="{tr:length-to-unitless-twip(.)}"/>
   </xsl:template>
   
   <xsl:template match="@css:line-height" mode="props">
     <w:spacing>
       <xsl:choose>
         <xsl:when test="matches(.,'pt$')">
-          <xsl:attribute name="w:line" select="letex:length-to-unitless-twip(.)"/>
+          <xsl:attribute name="w:line" select="tr:length-to-unitless-twip(.)"/>
           <xsl:attribute name="w:lineRule" select="'atLeast'"/>
         </xsl:when>
         <xsl:when test="matches(.,'^[0-9\.]+$')">
           <xsl:attribute name="w:line" select="number(.) * 240"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:attribute name="w:line" select="letex:length-to-unitless-twip(.)"/>
+          <xsl:attribute name="w:line" select="tr:length-to-unitless-twip(.)"/>
         </xsl:otherwise>
       </xsl:choose>
     </w:spacing>
@@ -239,7 +239,7 @@
   </xsl:template>
 
   <xsl:template match="@css:text-indent" mode="props">
-    <xsl:variable name="indent" as="xs:integer" select="xs:integer(round(letex:length-to-unitless-twip(.)))"/>  
+    <xsl:variable name="indent" as="xs:integer" select="xs:integer(round(tr:length-to-unitless-twip(.)))"/>  
     <xsl:choose>
       <xsl:when test="$indent lt 0">
         <xsl:attribute name="w:hanging" select="-1 * $indent"/>
@@ -252,7 +252,7 @@
 
   <xsl:template match="@css:margin-left | @css:margin-right" mode="props">
     <xsl:attribute name="w:{replace(local-name(), 'margin-', '')}" 
-      select="xs:integer(round(letex:length-to-unitless-twip(.)))"></xsl:attribute>
+      select="xs:integer(round(tr:length-to-unitless-twip(.)))"></xsl:attribute>
   </xsl:template>
   
   <xsl:template match="@css:page-break-before" mode="props">
@@ -279,35 +279,35 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="w:pStyle" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:pStyle" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="0"/>
   </xsl:template>
   
-  <xsl:template match="w:keepNext" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:keepNext" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="5"/>
   </xsl:template>
   
-  <xsl:template match="w:keepLines" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:keepLines" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="10"/>
   </xsl:template>
   
-  <xsl:template match="w:pageBreakBefore" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:pageBreakBefore" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="15"/>
   </xsl:template>
   
-  <xsl:template match="w:widowControl" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:widowControl" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="20"/>
   </xsl:template>
   
-  <xsl:template match="w:spacing" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:spacing" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="25"/>
   </xsl:template>
   
-  <xsl:template match="w:ind" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:ind" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="30"/>
   </xsl:template>
 
-  <xsl:template match="w:jc" mode="letex:propsortkey" as="xs:integer">
+  <xsl:template match="w:jc" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="35"/>
   </xsl:template>
   

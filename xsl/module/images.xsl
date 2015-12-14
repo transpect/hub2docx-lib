@@ -4,12 +4,12 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
     xmlns:css           = "http://www.w3.org/1996/css"
-    xmlns:docx2hub      = "http://www.le-tex.de/namespace/docx2hub"
+    xmlns:docx2hub      = "http://transpect.io/docx2hub"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -23,7 +23,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m rel wp r css docx2hub w10 hub"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn hub xlink o w m rel wp r css docx2hub w10 hub"
 >
 
 
@@ -133,7 +133,7 @@
             path="m,l,21600r21600,l21600,xe">
             <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
             <xsl:if test="@css:background-color ne ''">
-              <xsl:attribute name="fillcolor" select="concat('#', letex:convert-css-color(@css:background-color, 'hex'))"/>
+              <xsl:attribute name="fillcolor" select="concat('#', tr:convert-css-color(@css:background-color, 'hex'))"/>
             </xsl:if>
             <xsl:if test="@css:border-style = 'none'">
               <xsl:attribute name="stroked" select="'false'"/>
@@ -163,7 +163,7 @@
           <xsl:attribute name="o:spt" select="'100'"/>
           <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
           <xsl:if test="@css:background-color ne ''">
-            <xsl:attribute name="fillcolor" select="letex:convert-css-color(@css:background-color, 'hex')"/>
+            <xsl:attribute name="fillcolor" select="tr:convert-css-color(@css:background-color, 'hex')"/>
           </xsl:if>
         </xsl:element>
       </w:pict>

@@ -4,9 +4,9 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:css           = "http://www.w3.org/1996/css"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
 
@@ -20,7 +20,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn css xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn css xlink o w m wp r"
 >
 
   <!--
@@ -38,15 +38,15 @@
   -->
 
   <xsl:variable name="originalFooterIds" as="xs:string*"
-    select="for $h in //*[not(parent::css:page)][@css:page][letex:is-footer(.)] return generate-id($h)" />
+    select="for $h in //*[not(parent::css:page)][@css:page][tr:is-footer(.)] return generate-id($h)" />
 
-  <xsl:function name="letex:footer-id" as="xs:integer">
+  <xsl:function name="tr:footer-id" as="xs:integer">
     <xsl:param name="footer" as="element(sidebar)" />
     <xsl:sequence select="index-of($originalFooterIds, generate-id($footer))" />
   </xsl:function>
 
-  <xsl:template match="*[@css:page][letex:is-footer(.)]" mode="footer">
-    <w:ftr hub:offset="{letex:footer-id(.)}">
+  <xsl:template match="*[@css:page][tr:is-footer(.)]" mode="footer">
+    <w:ftr hub:offset="{tr:footer-id(.)}">
       <xsl:for-each select="tokenize(/*/info/css:rules/css:page[@name eq current()/@css:page]/@pseudo, '&#x20;')">
         <xsl:choose>
           <xsl:when test=". eq 'first'">

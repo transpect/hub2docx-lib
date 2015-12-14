@@ -6,18 +6,15 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:s="http://purl.oclc.org/dsdl/schematron"
-  xmlns:bc="http://transpect.le-tex.de/book-conversion"
-  xmlns:transpect="http://www.le-tex.de/namespace/transpect"
-  xmlns:hub2htm="http://www.le-tex.de/namespace/hub2htm" 
-  xmlns:hub2docx = "http://www.le-tex.de/namespace/hub2docx"
-  xmlns:din="http://din.de/namespace"
-  xmlns:letex="http://www.le-tex.de/namespace" 
+  xmlns:hub2htm="http://transpect.io/hub2htm" 
+  xmlns:hub2docx = "http://transpect.io/hub2docx"
+  xmlns:tr="http://transpect.io" 
   version="1.0"
   name="hub2docx"
   type="hub2docx:modify"
   >
   
-  <p:documentation>This is meant to be fed into the xpl port of http://transpect.le-tex.de/docx_modify/xpl/docx_modify.xpl</p:documentation>
+  <p:documentation>This is meant to be fed into the xpl port of http://transpect.io/docx_modify/xpl/docx_modify.xpl</p:documentation>
   
   <p:option name="file" required="true">
     <p:documentation>A docx template file. Parts of it will be replaced with the transformed
@@ -40,13 +37,13 @@
   <p:output port="result" primary="true" />
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
-  <p:import href="http://transpect.le-tex.de/xproc-util/xslt-mode/xslt-mode.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
 
   <p:split-sequence name="split" test="position() = 1" initial-only="true"/>
 
   <p:sink/>
 
-  <letex:xslt-mode name="transformed-hub" msg="yes" mode="hub:default" prefix="hub2docx/10">
+  <tr:xslt-mode name="transformed-hub" msg="yes" mode="hub:default" prefix="hub2docx/10">
     <p:input port="models"><p:empty/></p:input>
     <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
     <p:input port="source">
@@ -55,9 +52,9 @@
     </p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </letex:xslt-mode>
+  </tr:xslt-mode>
 
-  <letex:xslt-mode name="clean-hub" msg="yes" mode="hub:clean" prefix="hub2docx/15">
+  <tr:xslt-mode name="clean-hub" msg="yes" mode="hub:clean" prefix="hub2docx/15">
     <p:input port="models"><p:empty/></p:input>
     <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
     <p:input port="source">
@@ -65,9 +62,9 @@
     </p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </letex:xslt-mode>
+  </tr:xslt-mode>
 
-  <letex:xslt-mode name="merge" msg="yes" mode="hub:merge" prefix="hub2docx/50">
+  <tr:xslt-mode name="merge" msg="yes" mode="hub:merge" prefix="hub2docx/50">
     <p:input port="models"><p:empty/></p:input>
     <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
     <p:input port="source">
@@ -76,6 +73,6 @@
     </p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </letex:xslt-mode>
+  </tr:xslt-mode>
   
 </p:declare-step>

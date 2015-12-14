@@ -6,10 +6,10 @@
   xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships"
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
   xmlns:ct="http://schemas.openxmlformats.org/package/2006/content-types"
-  xmlns:docx2hub = "http://www.le-tex.de/namespace/docx2hub"
-  xmlns:hub = "http://www.le-tex.de/namespace/hub"
-  xmlns:hub2docx = "http://www.le-tex.de/namespace/hub2docx"
-  xmlns:letex = "http://www.le-tex.de/namespace"
+  xmlns:docx2hub = "http://transpect.io/docx2hub"
+  xmlns:hub = "http://transpect.io/hub"
+  xmlns:hub2docx = "http://transpect.io/hub2docx"
+  xmlns:tr = "http://transpect.io"
   xmlns:dbk = "http://docbook.org/ns/docbook"
   xmlns:v             = "urn:schemas-microsoft-com:vml"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -21,7 +21,7 @@
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
   
   xpath-default-namespace = "http://docbook.org/ns/docbook"
-  exclude-result-prefixes="xs docx2hub hub hub2docx letex dbk"
+  exclude-result-prefixes="xs docx2hub hub hub2docx tr dbk"
   version="2.0">
 
   <!-- mode merge:
@@ -335,7 +335,7 @@
           <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
             <xsl:attribute name="xml:base" 
               select="replace(
-                        letex:get-new-xml-base(., $offset, $document-xml-base-modified), 
+                        tr:get-new-xml-base(., $offset, $document-xml-base-modified), 
                         concat('/(', $ref-name-long, '\d+\.xml)'), 
                         '/_rels/$1.rels'
                       )"/>
@@ -378,7 +378,7 @@
     <xsl:apply-templates select="collection()/w:root_converted/w:footer/w:ftr" mode="#current" />
   </xsl:template>
 
-  <xsl:function name="letex:get-new-xml-base" as="xs:string">
+  <xsl:function name="tr:get-new-xml-base" as="xs:string">
     <xsl:param name="current-node" as="element()"/>
     <xsl:param name="typeIdOffset" as="xs:double"/>
     <xsl:param name="document-xml-base-modified" as="xs:string"/>
@@ -391,7 +391,7 @@
           <xsl:value-of select="'footer'"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:message select="'Warning, function letex:get-new-xml-base: unkown element name: ', local-name($current-node)"/>
+          <xsl:message select="'Warning, function tr:get-new-xml-base: unkown element name: ', local-name($current-node)"/>
           <xsl:value-of select="local-name($current-node)"/>
         </xsl:otherwise>
       </xsl:choose>
@@ -408,7 +408,7 @@
     <xsl:param name="document-xml-base-modified" tunnel="yes"/>
     <xsl:copy>
       <xsl:attribute name="xml:base" 
-        select="letex:get-new-xml-base(., $headerIdOffset, $document-xml-base-modified)"/>
+        select="tr:get-new-xml-base(., $headerIdOffset, $document-xml-base-modified)"/>
       <xsl:apply-templates mode="#current"/>
     </xsl:copy>
   </xsl:template>
@@ -418,7 +418,7 @@
     <xsl:param name="document-xml-base-modified" tunnel="yes"/>
     <xsl:copy>
       <xsl:attribute name="xml:base" 
-        select="letex:get-new-xml-base(., $footerIdOffset, $document-xml-base-modified)"/>
+        select="tr:get-new-xml-base(., $footerIdOffset, $document-xml-base-modified)"/>
       <xsl:apply-templates mode="#current"/>
     </xsl:copy>
   </xsl:template>

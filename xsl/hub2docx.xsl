@@ -4,11 +4,11 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships"
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  xmlns:docx2hub = "http://www.le-tex.de/namespace/docx2hub"
-  xmlns:hub = "http://www.le-tex.de/namespace/hub"
+  xmlns:docx2hub = "http://transpect.io/docx2hub"
+  xmlns:hub = "http://transpect.io/hub"
+  xmlns:tr = "http://transpect.io"
   xmlns:dbk = "http://docbook.org/ns/docbook"
   xmlns:css = "http://www.w3.org/1996/css"
-  xmlns:letex = "http://www.le-tex.de/namespace"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
   xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
@@ -17,12 +17,12 @@
   exclude-result-prefixes="xs docx2hub hub"
   version="2.0">
   
-  <xsl:import href="http://transpect.le-tex.de/docx_modify/xsl/identity.xsl"/>
-  <xsl:import href="http://transpect.le-tex.de/docx_modify/xsl/props.xsl"/>
-  <xsl:import href="http://transpect.le-tex.de/xslt-util/lengths/lengths.xsl"/>
+  <xsl:import href="http://transpect.io/docx_modify/xsl/identity.xsl"/>
+  <xsl:import href="http://transpect.io/docx_modify/xsl/props.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/lengths/xsl/lengths.xsl"/>
   
   <xsl:import href="module/lib_catch-all.xsl"/>
-  <xsl:import href="http://transpect.le-tex.de/xslt-util/colors/colors.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
   <xsl:import href="module/lib_query.xsl"/>
   <xsl:import href="module/lib_scope.xsl"/>
   <xsl:import href="module/lib_props.xsl"/>
@@ -53,8 +53,8 @@
   <xsl:param  name="landscape" select="'no'"/>				<!-- page orientation landscape -->
 
   <!-- remove header and footer from inner word document: see modules header.xsl and footer.xsl -->
-  <xsl:template match="*[@css:page][not(parent::css:page)][letex:is-header(.)]" mode="hub:default" priority="2000"/>
-  <xsl:template match="*[@css:page][not(parent::css:page)][letex:is-footer(.)]" mode="hub:default" priority="2000"/>  
+  <xsl:template match="*[@css:page][not(parent::css:page)][tr:is-header(.)]" mode="hub:default" priority="2000"/>
+  <xsl:template match="*[@css:page][not(parent::css:page)][tr:is-footer(.)]" mode="hub:default" priority="2000"/>  
 
   <!-- remove elements with css:display="none" -->
   <xsl:template  match="*[@css:display eq 'none']"  mode="hub:default" priority="2000">
@@ -73,9 +73,9 @@
   </xsl:template>
 
   <!-- docx2hub error messages such as 
-    <letex:comment xmlns:letex="http://www.le-tex.de/namespace" srcpath="">W2D_601: "Zeichen aus Font 'Wingdings 2 (0xF0BD)' kann nicht richtig dargestellt werden."</letex:comment>
+    <tr:comment xmlns:tr="http://transpect.io" srcpath="">W2D_601: "Zeichen aus Font 'Wingdings 2 (0xF0BD)' kann nicht richtig dargestellt werden."</tr:comment>
     -->
-  <xsl:template match="letex:comment" mode="hub:default"/>
+  <xsl:template match="tr:comment" mode="hub:default"/>
 
   <xsl:template match="@xml:base" mode="hub:merge">
     <xsl:apply-templates select="." mode="docx2hub:modify"/>

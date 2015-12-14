@@ -4,9 +4,9 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:css           = "http://www.w3.org/1996/css"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
     xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"
@@ -18,7 +18,7 @@
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xmlns:rel		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xpath-default-namespace = "http://docbook.org/ns/docbook"
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn css xlink o w m wp r">
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn css xlink o w m wp r">
 
   <!-- ================================================================================ -->
   <!-- VARIABLES -->
@@ -95,12 +95,12 @@
         </rel:Relationships>
       </w:docRels>
       <w:header>
-        <xsl:for-each select="//*[not(parent::css:page)][@css:page][letex:is-header(.)]">
+        <xsl:for-each select="//*[not(parent::css:page)][@css:page][tr:is-header(.)]">
           <xsl:apply-templates select="." mode="header"/>
         </xsl:for-each>
       </w:header>
       <w:footer>
-        <xsl:for-each select="//*[not(parent::css:page)][@css:page][letex:is-footer(.)]">
+        <xsl:for-each select="//*[not(parent::css:page)][@css:page][tr:is-footer(.)]">
           <xsl:apply-templates select="." mode="footer"/>
         </xsl:for-each>
       </w:footer>
@@ -170,7 +170,7 @@
     <xsl:apply-templates  select="* except attribution, attribution"  mode="#current" />
   </xsl:template>
 
-  <xsl:function name="letex:headinglevel" as="xs:integer">
+  <xsl:function name="tr:headinglevel" as="xs:integer">
     <xsl:param name="context" as="element(*)?" />
     <xsl:variable  name="origLevel" select="replace( $context/../@role, '(^| )head([0-9]*).*$', '$2')" as="xs:string?"/>
     <xsl:value-of select="if ( $origLevel castable as xs:integer) then number($origLevel) + 1 
@@ -209,7 +209,7 @@
                               starts-with(local-name(), 'sect') or 
                               local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')
                             ]">
-              <xsl:value-of select="concat( $heading-prefix, string(letex:headinglevel(.)))"/>
+              <xsl:value-of select="concat( $heading-prefix, string(tr:headinglevel(.)))"/>
             </xsl:when>
             <!-- 'blockquote', 'example', 'formalpara', etc. -->
             <xsl:otherwise>

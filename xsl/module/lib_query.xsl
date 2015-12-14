@@ -4,7 +4,7 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
+    xmlns:tr		= "http://transpect.io"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:dbk		= "http://docbook.org/ns/docbook"
     xmlns:css           = "http://www.w3.org/1996/css"
@@ -19,10 +19,10 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn dbk xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn dbk xlink o w m wp r"
 >
 
-  <xsl:function name="letex:is-header" as="xs:boolean">
+  <xsl:function name="tr:is-header" as="xs:boolean">
     <xsl:param name="node" as="element()" />
     <xsl:sequence select="boolean(
                             root($node)/*/info/css:rules[
@@ -39,7 +39,7 @@
                           )"/>
   </xsl:function>
 
-  <xsl:function name="letex:is-footer" as="xs:boolean">
+  <xsl:function name="tr:is-footer" as="xs:boolean">
     <xsl:param name="node" as="element()" />
     <xsl:sequence select="boolean(
                             root($node)/*/info/css:rules[
@@ -56,7 +56,7 @@
                           )"/>
   </xsl:function>
 
-  <xsl:function name="letex:text" as="xs:string?">
+  <xsl:function name="tr:text" as="xs:string?">
     <xsl:param name="node" as="element(*)?" />
     <xsl:variable name="out">
       <xsl:apply-templates select="$node" mode="extract-text" />

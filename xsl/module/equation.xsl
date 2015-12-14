@@ -4,9 +4,8 @@
     xmlns:xs		= "http://www.w3.org/2001/XMLSchema"
     xmlns:xsldoc	= "http://www.bacman.net/XSLdoc"
     xmlns:saxon		= "http://saxon.sf.net/"
-    xmlns:letex		= "http://www.le-tex.de/namespace"
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
-    xmlns:hub		= "http://www.le-tex.de/namespace/hub"
+    xmlns:hub		= "http://transpect.io/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
     
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -20,7 +19,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon letex saxExtFn hub xlink o w m omml wp r mml"
+    exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn hub xlink o w m omml wp r mml"
 >
 
   <xsl:import href="../omml/mml2omml.xsl"/>
