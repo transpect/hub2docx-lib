@@ -114,7 +114,7 @@
         <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
       </xsl:apply-templates>
       <!-- the remainder should be tr or row elements: -->
-      <xsl:apply-templates select="* except (caption | info | colspec | colgroup | col | thead | tbody | tfoot)" mode="#current">
+      <xsl:apply-templates select="* except (title | caption | info | colspec | colgroup | col | thead | tbody | tfoot)" mode="#current">
         <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
       </xsl:apply-templates>
     </w:tbl>

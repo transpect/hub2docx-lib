@@ -34,7 +34,9 @@
   <xsl:template match="informalfigure | figure" mode="hub:default">
     <xsl:apply-templates  mode="#current"/>
   </xsl:template>
-
+  
+  <xsl:template match="alternatives" mode="hub:default"/>
+ 
   <xsl:variable name="MediaIds" as="xs:string*"
     select="for $f 
             in //*[local-name() = ('mediaobject', 'inlinemediaobject')] 

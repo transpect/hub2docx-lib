@@ -72,6 +72,12 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
+  <xsl:template  match="bibliomixed/collab | bibliomixed/citetitle | bibliomixed/pubdate | bibliomixed/orgname | bibliomixed/collab/orgname | 
+                        lineage | honorific | personname | surname | firstname | seriesvolnums | issuenum | date | edition | citebiblioid | person" mode="hub:default">
+    <xsl:apply-templates mode="#current" />
+  </xsl:template>
+  
+  
   <xsl:template  match="biblioentry" mode="hub:default">
     <xsl:apply-templates mode="#current" />
   </xsl:template>

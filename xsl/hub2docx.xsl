@@ -14,7 +14,7 @@
   xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
   
   xpath-default-namespace = "http://docbook.org/ns/docbook"
-  exclude-result-prefixes="xs docx2hub hub"
+  exclude-result-prefixes="xs docx2hub hub tr"
   version="2.0">
   
   <xsl:import href="http://transpect.io/docx_modify/xsl/identity.xsl"/>

@@ -56,10 +56,11 @@
     <xsl:apply-templates mode="#current" />
   </xsl:template>
 
-  <xsl:template  match="info"  mode="hub:default"/>
+  <xsl:template  match="info[parent::book]"  mode="hub:default" priority="3"/>
 
   <!-- need this for subsequent key() operations (they are in disguise sometimes!) -->
-  <xsl:variable name="root" select="/" as="document-node(element(*))" />
+  <xsl:variable name="root" select="/" />
+<!--  <xsl:variable name="root" select="/" as="document-node(element(*))" />-->
 
   <xsl:template  match="/*"  mode="hub:default">
     <!-- speed up the index-of() a little bit -->
@@ -149,12 +150,12 @@
   </xsl:template>
   
   <xsl:template  match="chapter"  mode="hub:default">
-    <xsl:message select="'...Chapter: ', string-join((title, para[1])[1]//text()[not(ancestor::indexterm)], '')"/>
-    <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
+    <xsl:message select="'...Chapter: ', string-join((title, info/title, para[1])[1]//text()[not(ancestor::indexterm)], '')"/>
+    <xsl:apply-templates select="node()[not(. instance of text())]"  mode="#current" />
   </xsl:template>
 
   <xsl:variable name="structure-elements" as="xs:string*"
-    select="('appendix', 'bibliography', 'blockquote', 'book', 'bookinfo', 
+    select="('appendix', 'bibliography', 'blockquote', 'dedication', 'book', 'bookinfo', 
     'caution', 'chapter', 'epigraph', 'example', 'formalpara', 'glossary', 'note', 'part', 
     'partintro', 'preface', 'section', 'sect1', 'sect2', 'sect3', 'sect4', 
     'sect5', 'sect6', 'sidebar', 'simplesect', 'tip', 'warning')"/>
@@ -165,6 +166,8 @@
   
   <xsl:template  match="titleabbrev"  mode="hub:default" />
 
+  <xsl:template  match="toc"  mode="hub:default" />
+  
   <!-- render attribution after blockquote content-->
   <xsl:template  match="*[local-name() = ('blockquote', 'epigraph')][attribution]"  mode="hub:default">
     <xsl:apply-templates  select="* except attribution, attribution"  mode="#current" />
@@ -172,22 +175,29 @@
 
   <xsl:function name="tr:headinglevel" as="xs:integer">
     <xsl:param name="context" as="element(*)?" />
-    <xsl:variable  name="origLevel" select="replace( $context/../@role, '(^| )head([0-9]*).*$', '$2')" as="xs:string?"/>
+    <xsl:variable  name="origLevel" select="replace( $context/../@role, '(^| )(head|berschrift)([0-9]*).*$', '$2')" as="xs:string?"/>
     <xsl:value-of select="if ( $origLevel castable as xs:integer) then number($origLevel) + 1 
                           else count( $context/(ancestor::part | ancestor::chapter | ancestor::*[starts-with(local-name(), 'sect')]) ) + 1"/>
   </xsl:function>
-
+  
+  <xsl:template  match="info"  mode="hub:default">
+    <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
+  </xsl:template>
+  
   <xsl:template  match="  *[local-name() = $structure-elements]/title 
+                        | *[local-name() = $structure-elements]/info/title 
                         | book/subtitle 
-                        | part/subtitle 
-                        | bridgehead"  mode="hub:default">
+                        | book/info/subtitle 
+                        | part/subtitle
+                        | book/info/subtitle
+                        | bridgehead"  mode="hub:default" priority="3">
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
       <w:pStyle>
         <xsl:attribute name="w:val">
           <xsl:choose>
             <!-- book/title, book/subtitle -->
-            <xsl:when test="parent::book">
+            <xsl:when test="parent::book or parent::info[parent::book]">
               <xsl:value-of select="concat(
                                       upper-case(
                                         substring(name(.),1,1)
@@ -196,7 +206,7 @@
                                     )"/>
             </xsl:when>
             <!-- part/title, part/subtitle -->
-            <xsl:when test="parent::part">
+            <xsl:when test="parent::part or parent::info[parent::part]">
               <xsl:value-of select="concat(
                                       'Part',
                                       upper-case(
@@ -207,13 +217,14 @@
             </xsl:when>
             <xsl:when test="parent::*[
                               starts-with(local-name(), 'sect') or 
+                              self::info and parent::*[local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')] or 
                               local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')
                             ]">
               <xsl:value-of select="concat( $heading-prefix, string(tr:headinglevel(.)))"/>
             </xsl:when>
             <!-- 'blockquote', 'example', 'formalpara', etc. -->
             <xsl:otherwise>
-              <xsl:value-of select="concat(local-name(parent::*), 'title')"/>
+              <xsl:value-of select="if (parent::info) then concat(local-name(../parent::*), 'title') else concat(local-name(parent::*), 'title')"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:attribute>
