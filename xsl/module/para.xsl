@@ -176,7 +176,7 @@
         <w:rStyle w:val="{.}" hub:inline-role-in-template="yes"/>
       </xsl:when>
       <xsl:otherwise>
-<!--        <xsl:message select="'para.xsl, match=@role: no style for role ', string(.)"/>-->
+        <xsl:message select="'para.xsl, match=@role: no style for role ', string(.)"/>
         <xsl:variable name="elt-name">
           <xsl:choose>
             <xsl:when test="$parent-is-para">
