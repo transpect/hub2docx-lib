@@ -123,7 +123,7 @@
     <xsl:variable name="root" as="document-node()?" select="root(.)[. instance of document-node()]"/>
     <xsl:variable name="rule-in-source" as="element(css:rule)?">
       <xsl:if test="count($root/*) = 1">
-        <xsl:sequence select="key('style-by-name', .)"></xsl:sequence>
+        <xsl:sequence select="key('style-by-name', .)[1]"></xsl:sequence>
       </xsl:if>
     </xsl:variable>
     <xsl:variable name="role-in-template" select="key('styleId', ., $docx-template)" as="element(w:style)?"/>
