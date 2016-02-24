@@ -375,4 +375,13 @@
     </xsl:choose>
   </xsl:template>
   
+<!-- KW 2016-02-24: subsup, weil sonst Indizes bei Primes im Gegensatz zum MathType in OMML zusätzlichen Abstand erhalten  -->
+  <xsl:template match="*:msub[*[1][self::*:msup[*[2][self::*:mo[.='&#x2032;']]]]]" mode="fix-mml">
+    <mml:msubsup>
+      <xsl:apply-templates select="*[1]/*[1]" mode="#current"/>
+      <xsl:apply-templates select="*[2]" mode="#current"/>
+      <xsl:apply-templates select="*[1]/*[2]" mode="#current"/>
+    </mml:msubsup>
+  </xsl:template>
+  
 </xsl:stylesheet>
