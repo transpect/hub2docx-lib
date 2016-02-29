@@ -32,20 +32,15 @@
 
 
   <xsl:template  match="bibliography/title"  mode="hub:default" >
-    <xsl:variable name="pPr" as="element(*)*">
-      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <w:pStyle w:val="Heading{tr:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 1}"/>
-    </xsl:variable>
     <w:p>
-      <xsl:if  test="$pPr">
-        <w:pPr>
-          <xsl:sequence  select="$pPr" />
-        </w:pPr>
-      </xsl:if>
+      <xsl:call-template name="hub:pPr">
+        <xsl:with-param name="default-pPrs" tunnel="yes" as="element(w:pStyle)">
+          <w:pStyle w:val="Heading{tr:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 1}"/>
+        </xsl:with-param>
+      </xsl:call-template>
       <xsl:apply-templates  select="node()"  mode="#current" />
     </w:p>
   </xsl:template>
-
 
   <xsl:template  match="bibliodiv"  mode="hub:default" >
     <xsl:apply-templates  mode="#current" />
@@ -53,20 +48,15 @@
 
 
   <xsl:template  match="bibliodiv/title"  mode="hub:default" >
-    <xsl:variable name="pPr" as="element(*)*">
-      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <w:pStyle w:val="Heading{tr:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 2}"/>
-    </xsl:variable>
     <w:p>
-      <xsl:if  test="$pPr">
-        <w:pPr>
-          <xsl:sequence  select="$pPr" />
-        </w:pPr>
-      </xsl:if>
+      <xsl:call-template name="hub:pPr">
+        <xsl:with-param name="default-pPrs" as="element(w:pStyle)" tunnel="yes">
+          <w:pStyle w:val="Heading{tr:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 2}"/>
+        </xsl:with-param>
+      </xsl:call-template>
       <xsl:apply-templates  select="node()"  mode="#current" />
     </w:p>
   </xsl:template>
-
 
   <xsl:template  match="bibliolist"     mode="hub:default">
     <xsl:apply-templates mode="#current" />
@@ -94,23 +84,24 @@
     <w:bookmarkEnd w:id="{$bibliomixedId}"/>
   </xsl:template>
 
-  <xsl:template  match="bibliomisc"    mode="hub:default">
+  <xsl:template match="bibliomisc/@role[. = 'numberedRef']" mode="props">
+    <w:pStyle w:val="bibnum"/>
+    <w:numPr>
+      <w:ilvl w:val="0"/>
+      <w:numId w:val="{tr:getNumId( ancestor::*[local-name() = ( 'itemizedlist' , 'orderedlist', 'bibliography', 'bibliodiv' )][1]/generate-id() )}" />
+    </w:numPr>
+  </xsl:template>
+
+  <xsl:template  match="bibliomisc" mode="hub:default">
     <w:p>
-      <w:pPr>
-        <xsl:choose>
-          <xsl:when  test="@role eq 'numberedRef'">
-            <w:pStyle w:val="bibnum"/>
-            <w:numPr>
-              <w:ilvl w:val="0"/>
-              <w:numId w:val="{tr:getNumId( ancestor::*[self::*[ local-name() = ( 'itemizedlist' , 'orderedlist', 'bibliography', 'bibliodiv' )]][1]/generate-id() )}" />
-            </w:numPr>
-          </xsl:when>
-          <xsl:otherwise>
+      <xsl:call-template name="hub:pPr">
+        <xsl:with-param name="default-pPrs" as="element(w:pStyle)?" tunnel="yes">
+          <xsl:if test="not(@role = 'numberedRef')">
             <w:pStyle w:val="bib"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </w:pPr>
-      <xsl:apply-templates  select="node()"  mode="#current" />
+          </xsl:if>
+        </xsl:with-param>
+      </xsl:call-template>
+      <xsl:apply-templates mode="#current" />
     </w:p>
   </xsl:template>
 

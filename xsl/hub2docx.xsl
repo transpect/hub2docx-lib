@@ -20,6 +20,7 @@
   <xsl:import href="http://transpect.io/docx_modify/xsl/identity.xsl"/>
   <xsl:import href="http://transpect.io/docx_modify/xsl/props.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/lengths/xsl/lengths.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/mime-type/xsl/mime-type.xsl"/>
   
   <xsl:import href="module/lib_catch-all.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
@@ -80,5 +81,7 @@
   <xsl:template match="@xml:base" mode="hub:merge">
     <xsl:apply-templates select="." mode="docx2hub:modify"/>
   </xsl:template>
+  
+  <xsl:template match="@srcpath" mode="hub:merge"/>
 
 </xsl:stylesheet>

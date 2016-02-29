@@ -20,8 +20,25 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn hub dbk xlink o w m wp r css"
+    exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn hub dbk xlink o w m wp r css tr"
 >
+
+  <!-- GI 2016-02-29 This function has been created only very recently. It might needs to be extended -->
+  <xsl:function name="hub:whitespace-is-ignorable" as="xs:boolean">
+    <xsl:param name="elt" as="element(*)"/>
+    <xsl:choose>
+      <xsl:when test="local-name($elt) = ('row', 'tbody', 'part', 'chapter', 'section', 'appendix', 'preface',
+                                          'listitem', 'itemizedlist', 'orderedlist', 'variablelist')">
+        <xsl:sequence select="true()"/>
+      </xsl:when>
+      <xsl:when test="$elt/self::entry[para | simpara | itemizedlist | orderedlist | variablelist]">
+        <xsl:sequence select="true()"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="false()"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
 
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -113,6 +130,7 @@
                   <xsl:apply-templates mode="hub:foreign"/>      
                 </xsl:when>
                 <xsl:otherwise>
+                  <xsl:variable name="context" as="element(*)" select="ancestor-or-self::*[1]"/>
                   <xsl:analyze-string select="." regex="&#xad;">
                     <xsl:matching-substring>
                       <w:softHyphen/>
@@ -122,7 +140,9 @@
                         <xsl:if  test="matches( . , '^\s|\s$')">
                           <xsl:attribute  name="xml:space"  select="'preserve'"/>
                         </xsl:if>
-                        <xsl:value-of select="."/>
+                        <xsl:value-of select="if ($context/@xml:space = 'preserve')
+                                              then .
+                                              else replace(., '\s+', ' ')"/>
                       </w:t>    
                     </xsl:non-matching-substring>
                   </xsl:analyze-string>
@@ -135,7 +155,9 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template  match="text()[matches( . , '^\s+$')][not(ancestor::para or ancestor::title)]" />
+  <xsl:template  match="text()[matches( . , '^\s+$')]
+                              [not(../@xml:space = 'preserve')]
+                              [hub:whitespace-is-ignorable(..)]" mode="hub:default" />
 
   <xsl:template  match="text()"  mode="hub:default" priority="-10000">
     <xsl:param  name="rPrContent"  as="element(*)*" tunnel="yes"/>
@@ -167,7 +189,7 @@
 
   <xsl:template  match="br"  mode="hub:default" priority="2">
     <xsl:choose>
-      <xsl:when test="parent::para or parent::emphasis or parent::phrase or parent::title">
+      <xsl:when test="not(hub:whitespace-is-ignorable(..))">
         <w:r>
           <w:br/>
         </w:r>

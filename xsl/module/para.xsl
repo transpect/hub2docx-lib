@@ -41,7 +41,6 @@
     <xsl:variable name="unsorted" as="element(*)*">
       <xsl:apply-templates select="@css:page-break-after, 
                                    @css:page-break-inside, 
-                                   @role, 
                                    @css:page-break-before, 
                                    (@css:widows, @css:orphans)[1], 
                                    @css:background-color,
@@ -49,7 +48,9 @@
                                    @css:margin-top, 
                                    @css:line-height,
                                    @css:text-align" mode="props" />
-      <xsl:call-template name="w:ind"/>      
+      <xsl:call-template name="w:ind"/>
+      <!-- will typically handle @role (or create a style if no @role is present / depending on context) -->
+      <xsl:apply-templates select="." mode="hub:style-name"/>
       <xsl:sequence select="tr:borders(.)"/>
     </xsl:variable>
     <xsl:variable name="pPr" as="element(*)*">
@@ -66,6 +67,11 @@
         <xsl:sequence  select="$pPr" />
       </w:pPr>
     </xsl:if>
+  </xsl:template>
+
+  <!-- overwrite me -->
+  <xsl:template match="*" mode="hub:style-name">
+    <xsl:apply-templates select="@role" mode="props"/>
   </xsl:template>
 
   <xsl:template  match="para[ not( parent::listitem) ] | simpara[not(parent::footnote)] | attribution"  mode="hub:default">
@@ -86,33 +92,10 @@
     </w:p>
   </xsl:template>
 
-  <xsl:template  match="para[ parent::blockquote ]"  mode="hub:default" priority="2">
-    <xsl:variable name="pPr" as="element(*)*">
-      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <xsl:variable name="pstyle" as="element(w:pStyle)?">
-        <xsl:apply-templates  select="@role" mode="props"/>
-      </xsl:variable>
-      <xsl:sequence select="$pstyle[self::w:pStyle]"/>
-      <xsl:if test="not($pstyle[self::w:pStyle])">
-        <w:pStyle w:val="BlockText"/>
-      </xsl:if>
-    </xsl:variable>
-    <w:p origin="default_p_parentblockq">
-      <xsl:if  test="$pPr">
-        <w:pPr>
-          <xsl:sequence  select="$pPr" />
-        </w:pPr>
-      </xsl:if>
-      <xsl:if test="@xml:id">
-        <w:bookmarkStart w:id="{generate-id()}"  w:name="bm_{generate-id(.)}_"/>
-      </xsl:if>
-      <xsl:apply-templates  select="node()"  mode="#current"/>
-      <xsl:if test="@xml:id">
-        <w:bookmarkEnd w:id="{generate-id()}"/>
-      </xsl:if>
-    </w:p>
+  <xsl:template match="para[parent::blockquote][not(@role)]" mode="hub:style-name">
+    <w:pStyle w:val="BlockText"/>
   </xsl:template>
-  
+
   <xsl:template  match="caption"  mode="hub:default" priority="-1">
     <xsl:apply-templates  select="*"  mode="#current"/>
   </xsl:template>

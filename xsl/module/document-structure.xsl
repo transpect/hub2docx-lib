@@ -18,7 +18,7 @@
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xmlns:rel		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xpath-default-namespace = "http://docbook.org/ns/docbook"
-    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn css xlink o w m wp r">
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn css xlink o w m wp r vt hub">
 
   <!-- ================================================================================ -->
   <!-- VARIABLES -->
@@ -184,76 +184,81 @@
     <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
   </xsl:template>
   
-  <xsl:template  match="  *[local-name() = $structure-elements]/title 
-                        | *[local-name() = $structure-elements]/info/title 
-                        | book/subtitle 
-                        | book/info/subtitle 
-                        | part/subtitle
-                        | book/info/subtitle
-                        | bridgehead"  mode="hub:default" priority="3">
-    <xsl:variable name="pPr" as="element(*)*">
-      <xsl:apply-templates  select="@css:page-break-after, @css:page-break-inside, @css:page-break-before, @css:text-indent, (@css:widows, @css:orphans)[1], @css:margin-bottom, @css:margin-top, @css:line-height, @css:text-align"  mode="props" />
-      <w:pStyle>
-        <xsl:attribute name="w:val">
-          <xsl:choose>
-            <!-- book/title, book/subtitle -->
-            <xsl:when test="parent::book or parent::info[parent::book]">
-              <xsl:value-of select="concat(
-                                      upper-case(
-                                        substring(name(.),1,1)
-                                      ),
-                                      substring(name(.),2)
-                                    )"/>
-            </xsl:when>
-            <!-- part/title, part/subtitle -->
-            <xsl:when test="parent::part or parent::info[parent::part]">
-              <xsl:value-of select="concat(
-                                      'Part',
-                                      upper-case(
-                                        substring(name(.),1,1)
-                                      ),
-                                      substring(name(.),2)
-                                    )"/>
-            </xsl:when>
-            <xsl:when test="parent::*[
-                              starts-with(local-name(), 'sect') or 
-                              self::info and parent::*[local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')] or 
-                              local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')
-                            ]">
-              <xsl:value-of select="concat( $heading-prefix, string(tr:headinglevel(.)))"/>
-            </xsl:when>
-            <!-- 'blockquote', 'example', 'formalpara', etc. -->
-            <xsl:otherwise>
-              <xsl:value-of select="if (parent::info) then concat(local-name(../parent::*), 'title') else concat(local-name(parent::*), 'title')"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:attribute>
-      </w:pStyle>
-    </xsl:variable>
-    
+  <xsl:template match="*[local-name() = $structure-elements]/title
+      | *[local-name() = $structure-elements]/info/title
+      | book/subtitle
+      | book/info/subtitle
+      | part/subtitle
+      | book/info/subtitle
+      | bridgehead"
+    mode="hub:style-name">
+    <w:pStyle>
+      <xsl:attribute name="w:val">
+        <xsl:choose>
+          <!-- book/title, book/subtitle -->
+          <xsl:when test="parent::book or parent::info[parent::book]">
+            <xsl:value-of select="concat(
+                                    upper-case(
+                                      substring(name(.),1,1)
+                                    ),
+                                    substring(name(.),2)
+                                  )"/>
+          </xsl:when>
+          <!-- part/title, part/subtitle -->
+          <xsl:when test="parent::part or parent::info[parent::part]">
+            <xsl:value-of select="concat(
+                                    'Part',
+                                    upper-case(
+                                      substring(name(.),1,1)
+                                    ),
+                                    substring(name(.),2)
+                                  )"/>
+          </xsl:when>
+          <xsl:when test="parent::*[
+                            starts-with(local-name(), 'sect') or 
+                            self::info and parent::*[local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')] or 
+                            local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')
+                          ]">
+            <xsl:value-of select="concat( $heading-prefix, string(tr:headinglevel(.)))"/>
+          </xsl:when>
+          <!-- 'blockquote', 'example', 'formalpara', etc. -->
+          <xsl:otherwise>
+            <xsl:value-of select="if (parent::info) then concat(local-name(../parent::*), 'title') else concat(local-name(parent::*), 'title')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+    </w:pStyle>
+  </xsl:template>
+  
+  <xsl:template
+    match="
+      *[local-name() = $structure-elements]/title
+      | *[local-name() = $structure-elements]/info/title
+      | book/subtitle
+      | book/info/subtitle
+      | part/subtitle
+      | book/info/subtitle
+      | bridgehead"
+    mode="hub:default" priority="3">
     <w:p origin="default_docstruct_title">
-      <xsl:if  test="$pPr">
-        <w:pPr>
-          <xsl:sequence  select="$pPr" />
-        </w:pPr>
-      </xsl:if>
+      <xsl:call-template name="hub:pPr"/>
       <xsl:variable name="rPrContent" as="element(w:color)?">
         <!-- formatting deviations applying to text-runs, i.e. text color -->
       </xsl:variable>
       <xsl:if test="../@xml:id">
-        <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
+        <w:bookmarkStart w:id="{generate-id(..)}" w:name="bm_{generate-id(..)}_"/>
       </xsl:if>
-      
-      <xsl:apply-templates  select="node()"  mode="#current">
+
+      <xsl:apply-templates mode="#current">
         <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
       </xsl:apply-templates>
-      
+
       <xsl:if test="../@xml:id">
-        <w:bookmarkEnd    w:id="{generate-id(..)}"/>
+        <w:bookmarkEnd w:id="{generate-id(..)}"/>
       </xsl:if>
     </w:p>
   </xsl:template>
-
+  
   <xsl:template match="w:bookmarkStart/@w:id | w:bookmarkEnd/@w:id" mode="hub:clean">
     <xsl:param name="bookmark-ids" as="xs:string+" tunnel="yes"/>
     <xsl:attribute name="{name()}" select="index-of($bookmark-ids, .)"/>

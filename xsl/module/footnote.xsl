@@ -178,6 +178,8 @@
       </xsl:apply-templates>
     </w:footnote>
   </xsl:template>
+  
+  <xsl:template match="@srcpath" mode="footnotes"/>
 
   <xsl:template match="footnote/para | footnote/simpara" mode="footnotes">
     <w:p>

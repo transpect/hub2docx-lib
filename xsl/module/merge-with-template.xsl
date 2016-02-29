@@ -103,6 +103,17 @@
     <xsl:copy>
       <xsl:apply-templates  mode="#current"
         select="@*, *[not(@ContentType = 'application/vnd.openxmlformats-officedocument.custom-properties+xml')]"/>
+
+      <xsl:variable name="ct" select="." as="element(ct:Types)"/>
+      <xsl:for-each-group group-by="replace(@Target, '^.+\.', '')" 
+        select="collection()/w:root_converted/w:docRels/rel:Relationships
+                             /rel:Relationship[@Type = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image']">
+        <xsl:if test="not($ct/ct:Default[@Extension = current-grouping-key()])">
+          <Default xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
+            Extension="{current-grouping-key()}" ContentType="{tr:fileext-to-mime-type(.)}"/>
+        </xsl:if>
+      </xsl:for-each-group>
+
       <xsl:if test="not(ct:Override[@PartName eq '/word/comments.xml'])  and  
                     collection()/w:root_converted/w:comments/node()">
         <Override PartName="/word/comments.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
