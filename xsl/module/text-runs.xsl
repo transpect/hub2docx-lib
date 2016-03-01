@@ -23,7 +23,10 @@
     exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn hub dbk xlink o w m wp r css tr"
 >
 
-  <!-- GI 2016-02-29 This function has been created only very recently. It might needs to be extended -->
+  <!-- GI 2016-02-29 This function has been created only very recently. 
+       It needs to be extended. Unfortunately, we don’t have a schema-aware
+       XSLT processor, so we’ll have to manually enter the contexts in which 
+       WS may be ignored. -->
   <xsl:function name="hub:whitespace-is-ignorable" as="xs:boolean">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
