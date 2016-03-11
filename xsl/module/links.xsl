@@ -40,19 +40,27 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
 
+<!--  <xsl:template  match="anchor"  mode="hub:default">
+    <xsl:if  test="node()">
+      <xsl:message  terminate="yes" select="'ERROR: element &quot;anchor&quot; must not have any content!'"/>
+    </xsl:if>
+    <!-\- § has to be located within w:p ? -\->
+    <w:bookmarkStart  w:id="{generate-id()}"  w:name="{@xml:id}"/>
+    <!-\- there must be some content in a bookmark -\->
+    <w:r>
+      <w:t>&#xfeff;</w:t>
+    </w:r>
+    <w:bookmarkEnd w:id="{generate-id()}"/>
+  </xsl:template>-->
+
   <xsl:template  match="anchor"  mode="hub:default">
     <xsl:if  test="node()">
       <xsl:message  terminate="yes" select="'ERROR: element &quot;anchor&quot; must not have any content!'"/>
     </xsl:if>
     <!-- § has to be located within w:p ? -->
     <w:bookmarkStart  w:id="{generate-id()}"  w:name="{@xml:id}"/>
-    <!-- there must be some content in a bookmark -->
-    <w:r>
-      <w:t>&#xfeff;</w:t>
-    </w:r>
-    <w:bookmarkEnd w:id="{generate-id()}"/>
   </xsl:template>
-
+  
   <xsl:key name="by-id" match="*[@xml:id]" use="@xml:id" />
 
 
