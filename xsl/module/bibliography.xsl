@@ -63,7 +63,7 @@
   </xsl:template>
 
   <xsl:template  match="bibliomixed/collab | bibliomixed/citetitle | bibliomixed/pubdate | bibliomixed/orgname | bibliomixed/collab/orgname | 
-                        lineage | honorific | personname | surname | firstname | seriesvolnums | issuenum | date | edition | citebiblioid | person" mode="hub:default">
+    lineage | honorific | personname | surname | firstname | seriesvolnums | issuenum | date | edition | citebiblioid | person | bibliomixed/publishername |  bibliomixed/address" mode="hub:default">
     <xsl:apply-templates mode="#current" />
   </xsl:template>
   
