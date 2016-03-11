@@ -27,7 +27,7 @@
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ §§§ still to implement §§§ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-  <xsl:template  match="glossary"  mode="hub:default">
+  <xsl:template  match="glossary[glossentry]"  mode="hub:default">
     <xsl:message  select="'...Glossary: ', string-join(title//text()[not(ancestor::indexterm)], '')"/>
     <xsl:apply-templates  select="title"  mode="#current" />
     <xsl:variable name="glossary-table">
@@ -44,6 +44,11 @@
     </xsl:apply-templates>
   </xsl:template>
 
+  <xsl:template  match="glossary[not(glossentry)]"  mode="hub:default">
+    <xsl:message  select="'...no real Glossary: ', string-join(title//text()[not(ancestor::indexterm)], '')"/>
+    <xsl:apply-templates  select="node()"  mode="#current" />
+  </xsl:template>
+  
   <xsl:template match="glossary" mode="glossary2table">
     <informaltable xmlns="http://docbook.org/ns/docbook">
       <tbody xmlns="http://docbook.org/ns/docbook">
