@@ -173,7 +173,7 @@
     <w:p>
       <w:pPr>
         <!-- §§ ListParagraph okay? -->
-        <w:pStyle w:val="ListParagraph{$in-blockquote}{$continuation}"/>
+        <w:pStyle w:val="{if ($template-lang = 'de') then 'Listenabsatz' else 'ListParagraph'}{$in-blockquote}{$continuation}"/>
         <xsl:if test="$continuation eq ''">
           <w:numPr>
             <w:ilvl w:val="{$ilvl}"/>
