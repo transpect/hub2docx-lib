@@ -52,6 +52,7 @@
        default: 'berschrift' - will be translated to 'Heading' for non-german normal.dot templates -->
   <xsl:param  name="heading-prefix" select="'berschrift'" as="xs:string"/>
   <xsl:param  name="landscape" select="'no'"/>				<!-- page orientation landscape -->
+  <xsl:param  name="template-lang" select="'en'"/>				<!-- language of the docx template. Important for default Style names -->
 
   <!-- remove header and footer from inner word document: see modules header.xsl and footer.xsl -->
   <xsl:template match="*[@css:page][not(parent::css:page)][tr:is-header(.)]" mode="hub:default" priority="2000"/>
