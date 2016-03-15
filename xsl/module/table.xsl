@@ -16,6 +16,8 @@
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
+    xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+    xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
     
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
@@ -70,6 +72,48 @@
       </w:r>
       <w:bookmarkEnd    w:id="{generate-id(..)}"/>
     </w:p>
+  </xsl:template>
+  
+  <xsl:template  match="w:tbl"  mode="hub:clean">
+    <xsl:variable name="ps" as="element(w:sectPr)" select="$page-settings"/>
+    <xsl:choose>
+      <xsl:when test="w:tblPr/w:tblW[number(@w:w) gt (number($ps//w:pgSz/@w:w) - number($ps//w:pgMar/@w:right) - number($ps//w:pgMar/@w:left))]">
+        <w:p w:rsidR="00C604D0" w:rsidRDefault="00C604D0">
+          <w:pPr>
+            <w:sectPr w:rsidR="00C604D0">
+              <w:pgSz w:w="{$ps//w:pgSz/@w:w}" w:h="{$ps//w:pgSz/@w:h}"/>
+              <w:pgMar w:top="{$ps//w:pgMar/@w:top}" w:right="{$ps//w:pgMar/@w:right}" w:bottom="{$ps//w:pgMar/@w:bottom}" w:left="{$ps//w:pgMar/@w:left}" w:header="{$ps//w:pgMar/@w:header}" w:footer="{$ps//w:pgMar/@w:footer}" w:gutter="0"/>
+              <w:cols w:space="708"/>
+              <w:docGrid w:linePitch="360"/>
+            </w:sectPr>
+          </w:pPr>
+        </w:p>
+        <xsl:message select="'#############', w:tblPr/w:tblW[number(@w:w) gt (number($ps//w:pgSz/@w:w) - number($ps//w:pgMar/@w:right) - number($ps//w:pgMar/@w:left))]"/>
+        <xsl:next-match/>
+        <w:p w:rsidR="00C604D0" w:rsidRDefault="00C604D0">
+          <w:pPr>
+            <w:sectPr w:rsidR="00C604D0" w:rsidSect="00C604D0">
+              <w:pgSz w:w="{$ps//w:pgSz/@w:w}" w:h="{$ps//w:pgSz/@w:h}"  w:orient="landscape"/>
+              <w:pgMar w:top="{$ps//w:pgMar/@w:top}" w:right="{$ps//w:pgMar/@w:right}" w:bottom="{$ps//w:pgMar/@w:bottom}" w:left="{$ps//w:pgMar/@w:left}" w:header="{$ps//w:pgMar/@w:header}" w:footer="{$ps//w:pgMar/@w:footer}" w:gutter="0"/>
+              <w:cols w:space="708"/>
+              <w:docGrid w:linePitch="360"/>
+            </w:sectPr>
+          </w:pPr>
+        </w:p>
+        <w:p w:rsidR="00C604D0" w:rsidRDefault="00C604D0"/>
+        <w:sectPr w:rsidR="00C604D0">
+          <w:pgSz w:w="{$ps//w:pgSz/@w:w}" w:h="{$ps//w:pgSz/@w:h}"/>
+          <w:pgMar w:top="{$ps//w:pgMar/@w:top}" w:right="{$ps//w:pgMar/@w:right}" w:bottom="{$ps//w:pgMar/@w:bottom}" w:left="{$ps//w:pgMar/@w:left}" w:header="{$ps//w:pgMar/@w:header}" w:footer="{$ps//w:pgMar/@w:footer}" w:gutter="0"/>
+          <w:cols w:space="708"/>
+          <w:docGrid w:linePitch="360"/>
+        </w:sectPr>
+        
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
+
   </xsl:template>
   
   <xsl:template name="create-table" as="element(*)+">
@@ -685,7 +729,14 @@
   <xsl:template  match="caption/para"  mode="hub:default">
     <w:p>
       <w:pPr>
-        <w:pStyle  w:val="{if(@role) then @role else 'Caption'}"/>
+        <w:pStyle>
+          <xsl:attribute name="w:val" select="if (@role) 
+                                              then @role 
+                                              else
+                                                  if ($template-lang = 'en') 
+                                                  then 'Caption' 
+                                                  else 'Legende'"/>
+        </w:pStyle>
       </w:pPr>
       <xsl:apply-templates  select="node()"  mode="#current"/>
     </w:p>
@@ -694,7 +745,14 @@
   <xsl:template  match="*[self::table or self::informaltable]/title"  mode="hub:default">
     <w:p origin="default_p_title">
       <w:pPr>
-        <w:pStyle  w:val="{if(@role) then @role else 'Tabletitle'}"/>
+        <w:pStyle>
+          <xsl:attribute name="w:val" select="if (@role) 
+                                              then @role 
+                                              else
+                                                 if ($template-lang = 'en') 
+                                                 then 'Tabletitle' 
+                                                 else 'Tabellenlegende'"/>
+        </w:pStyle>
       </w:pPr>
       <xsl:apply-templates  select="node()"  mode="#current"/>
     </w:p>
