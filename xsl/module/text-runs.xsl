@@ -31,7 +31,7 @@
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
       <xsl:when test="local-name($elt) = ('row', 'tbody', 'part', 'chapter', 'section', 'appendix', 'preface',
-                                          'listitem', 'itemizedlist', 'orderedlist', 'variablelist')">
+                                          'listitem', 'itemizedlist', 'orderedlist', 'variablelist', 'varlistentry')">
         <xsl:sequence select="true()"/>
       </xsl:when>
       <xsl:when test="$elt/self::entry[para | simpara | itemizedlist | orderedlist | variablelist]">
