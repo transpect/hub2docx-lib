@@ -42,30 +42,30 @@
   </xsl:template>
 
   <xsl:template match="m:math" mode="hub:default">
-    <oMath xmlns="http://schemas.openxmlformats.org/officeDocument/2006/math">
+    <m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
       <xsl:variable name="mml" as="node()*">
         <xsl:apply-templates select="." mode="m-to-mml"/>
       </xsl:variable>
       <xsl:apply-templates select="$mml" mode="mml" />
-    </oMath>
+    </m:oMath>
   </xsl:template>
   
   <xsl:template match="m:*" mode="m-to-mml">
-    <xsl:element name="mml:{local-name(.)}">
+    <xsl:element name="{local-name(.)}" namespace="http://www.w3.org/1998/Math/MathML">
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:apply-templates mode="#current"/>
     </xsl:element>
   </xsl:template>
 
   <xsl:template match="node()[not(self::m:*)] | @*" mode="m-to-mml">
-    <xsl:copy-of select="."/>
+    <xsl:sequence select="."/>
   </xsl:template>
 
   <xsl:template  match="informalequation"  mode="hub:default">
     <w:p>
-      <oMathPara xmlns="http://schemas.openxmlformats.org/officeDocument/2006/math">
+      <m:oMathPara xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
         <xsl:apply-templates mode="#current" />
-      </oMathPara>
+      </m:oMathPara>
     </w:p>
   </xsl:template>
 
