@@ -100,7 +100,7 @@
         <xsl:with-param name="bookmark-ids" select="descendant::w:bookmarkStart/@w:id" tunnel="yes"/>
       </xsl:apply-templates>
       <xsl:variable name="no-match-elements" as="element(*)*"
-        select=".//*[@hub:default-no-match eq 'true']"/>
+        select=".//*[@hub:default-no-match eq 'true'][not(name() = ('css:rule', 'css:rules', 'keyword', 'keywordset'))]"/>
       <xsl:for-each select="distinct-values(for $i in $no-match-elements return name($i))">
         <xsl:message  select="concat(
                                 '&#x0A;&#x09;&#x09;WARNING: The element &quot;', current(),
