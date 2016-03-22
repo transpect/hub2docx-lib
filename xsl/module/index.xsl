@@ -27,37 +27,6 @@
 
   <!-- ISO 29500-1, 17.16.5.72, S. 1400 -->
 
-  <!-- mark the startofrange/endofrange-range with a bookmark and then reference that bookmark by use of the \r-switch of the XE field -->
-  <xsl:template  match="indexterm[ @class eq 'startofrange' ]"  mode="hub:default">
-    <xsl:if  test="see">
-      <xsl:message  terminate="yes"  select="'ERROR: see-elements within indexterm with @class=&quot;startofrange&quot; are not supported. Use @class=&quot;singular&quot; instead.'"/>
-    </xsl:if>
-    <w:bookmarkStart  w:id="{generate-id()}"  w:name="bm_{generate-id()}_"/>
-    <w:r>
-      <w:fldChar w:fldCharType="begin"/>
-    </w:r>
-    <w:r>
-      <w:instrText xml:space="preserve"><xsl:value-of 
-        select="concat('XE &quot;'
-                       , hub:get-index-content(primary)
-                       , if ( secondary ) 
-                           then concat( ':', hub:get-index-content(secondary)) 
-                           else ''
-                       , if ( tertiary )  
-                           then concat( ':', hub:get-index-content(tertiary)) 
-                           else '&quot;'
-                       , if ( @type )
-                         then concat(' \f ', @type ) 
-                         else ''		(: the \f-switch determines an index type :)
-                       , concat(' \r bm_', generate-id(), '_' )				(: the \r-switch determines that in an index the page-range of the bookmark will be rendered :)
-                     )"/></w:instrText>
-    </w:r>
-    <w:r>
-      <w:fldChar w:fldCharType="end"/>
-    </w:r>
-  </xsl:template>
-
-
   <!-- use a key to speed up the lookup -->
   <xsl:key name="startofrangeIndexterms"  match="//indexterm[ @class eq 'startofrange' ]"  use="@xml:id"/>
     
@@ -66,61 +35,76 @@
     <w:bookmarkEnd  w:id="{$correspondingStartofrangeIndexterm/generate-id()}"/>
   </xsl:template>
 
-
-  <xsl:template  match="indexterm[ @class eq 'singular' or not(@class) ]"  mode="hub:default">
+  <xsl:template  match="indexterm[ @class ne 'endofrange' ]"  mode="hub:default">
     <xsl:if  test="see/*">
       <xsl:message  terminate="yes"  select="'ERROR: children of see-elements are not supported yet.'"/>
     </xsl:if>
     <xsl:if test=".//seealso">
       <xsl:message  terminate="no"   select="'WARNING: indexterm with seealso element(s). Not supported yet.'"/>
     </xsl:if>
+    
     <w:r>
       <w:fldChar w:fldCharType="begin"/>
     </w:r>
+    
+    <!-- mark the startofrange/endofrange-range with a bookmark and then reference that bookmark by use of the \r-switch of the XE field -->
+    <xsl:if test="@class eq 'startofrange'">
+      <w:bookmarkStart  w:id="{generate-id()}"  w:name="bm_{generate-id()}_"/>
+    </xsl:if>
+    
     <w:r>
-      <w:instrText xml:space="preserve"><xsl:value-of 
-        select="concat('XE &quot;'
-                       , hub:get-index-content(primary)
-                       , if ( secondary ) 
-                         then concat( ':', hub:get-index-content(secondary))
-                         else ''
-                       , if ( tertiary ) 
-                         then concat( ':', hub:get-index-content(tertiary))
-                         else '&quot;'
-                       , if ( @type )
-                         then concat(' \f ', @type )
-                         else ''		(: the \f-switch determines an index type :)
-                       , if ( see )
-                         then concat(' \t &#x22;See ', hub:get-index-content(see), '&#x22;' )
-                         else ''	(: the \t-switch determines the text rendered in an index for this indexentry :)
-                     )"/></w:instrText>
+      <w:t>XE &quot;</w:t>
     </w:r>
+    <xsl:apply-templates select="primary" mode="#current"/>
+    <xsl:if test="secondary">
+      <w:r>
+        <w:t>:</w:t>
+      </w:r>
+      <xsl:apply-templates select="secondary" mode="#current"/>
+    </xsl:if>
+    <xsl:if test="tertiary">
+      <w:r>
+        <w:t>:</w:t>
+      </w:r>
+      <xsl:apply-templates select="tertiary" mode="#current"/>
+    </xsl:if>
+    <w:r>
+      <w:t>&quot;</w:t>
+    </w:r>
+    
+    <!-- the \f-switch determines an index type -->
+    <xsl:if test="@type">
+      <w:r>
+        <w:t xml:space="preserve"> \f <xsl:value-of select="@type"/></w:t>
+      </w:r>
+    </xsl:if>
+    
+    <!-- the \t-switch determines the text rendered in an index for this indexentry -->
+    <xsl:if test="see">
+      <w:r>
+        <w:t xml:space="preserve"> \t &#x22;See <xsl:value-of select="see"/>&#x22;</w:t>
+      </w:r>
+    </xsl:if>
+    
+    <!-- the \r-switch determines that in an index the page-range of the bookmark will be rendered -->
+    <xsl:if test="@class eq 'startofrange'">
+      <xsl:value-of select="concat(' \r bm_', generate-id(), '_' )"/>
+    </xsl:if>
+    
     <w:r>
       <w:fldChar w:fldCharType="end"/>
     </w:r>
   </xsl:template>
-
-  <xsl:function name="hub:get-index-content" as="xs:string">
-    <xsl:param name="indexterm-child" as="element()"/>
-    <xsl:variable name="child-content" as="xs:string*">
-      <xsl:apply-templates select="$indexterm-child" mode="hub:default-indexterm-childs"/>
-    </xsl:variable>
-    <xsl:sequence select="string-join($child-content, '')"/>
-  </xsl:function>
   
-  <xsl:template match="primary | secondary | tertiary | see | seealso" mode="hub:default-indexterm-childs">
+  <xsl:template match="primary | secondary | tertiary | see | seealso" mode="hub:default">
     <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="*" mode="hub:default-indexterm-childs">
-    <xsl:message select="'hub2docx, unmapped element ', name(), ' in mode hub:default-indexterm-childs'"/>
+  <xsl:template match="indexterm//*[not(local-name() = ('subscript', 'superscript'))]" mode="hub:default" priority="-1">
+    <xsl:message select="'hub2docx, unmapped children ', name(), ' in indexterm element.'"/>
     <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="text()" mode="hub:default-indexterm-childs">
-    <xsl:value-of select="replace(., '\s+$', '')"/>
-  </xsl:template>
-
   <xsl:template  match="index"  mode="hub:default">
     <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
