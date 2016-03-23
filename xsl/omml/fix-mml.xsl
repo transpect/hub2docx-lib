@@ -220,7 +220,7 @@
                                              [self::*[descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]]">
                 <xsl:choose>
                   <xsl:when test="current-group()[1][self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]">
-                    <mml:mfenced open="{current-group()[1]}" close="">
+                    <mml:mfenced open="{current-group()[1]}" close="" separators="">
                       <xsl:apply-templates select="current-group()[position() gt 1]" mode="fix-mml">
                         <xsl:with-param name="processed" select="true()"/>
                       </xsl:apply-templates>
@@ -228,7 +228,7 @@
                   </xsl:when>
                   <xsl:when test="current-group()[last()]
                     [self::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]">
-                    <mml:mfenced open="" close="{current-group()[last()]}">
+                    <mml:mfenced open="" close="{current-group()[last()]}" separators="">
                       <xsl:apply-templates select="current-group()[position() lt last()]" mode="fix-mml">
                         <xsl:with-param name="processed" select="true()"/>
                       </xsl:apply-templates>
@@ -300,7 +300,7 @@
                         [matches(.,concat('^',$opening-parenthesis,'$'))]
                         ] and current-group()[last()][self::*:mo[not(@stretchy='false')]
                         [matches(.,concat('^',$closing-parenthesis,'$'))]]">
-                        <mml:mfenced open="{current-group()[1]}" close="{current-group()[last()]}">
+                        <mml:mfenced open="{current-group()[1]}" close="{current-group()[last()]}" separators="">
                           <xsl:copy-of select="current-group()[position() gt 1][position() lt last()]"/>
                         </mml:mfenced>
                       </xsl:when>
