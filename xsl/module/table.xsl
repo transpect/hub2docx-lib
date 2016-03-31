@@ -406,6 +406,11 @@
         <xsl:apply-templates select="@css:padding-top, @css:padding-left, @css:padding-bottom, @css:padding-right" mode="tcPr"/>
       </w:tcMar>
     </xsl:if>
+    <xsl:apply-templates select="." mode="tcPr"/><!-- is hook, see below -->
+  </xsl:template>
+  
+  <xsl:template match="*" mode="tcPr">
+    <!-- hook for creating additional formatting for table cells (dbk:entry) --> 
   </xsl:template>
 
   <xsl:template match="@css:*[starts-with(local-name(), 'padding-')][matches(., '(mm|pt)$')]" mode="tcPr">
