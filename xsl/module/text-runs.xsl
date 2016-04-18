@@ -134,19 +134,26 @@
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:variable name="context" as="element(*)" select="ancestor-or-self::*[1]"/>
-                  <xsl:analyze-string select="." regex="&#xad;">
+                  <xsl:analyze-string select="." regex="&#x2011;">
                     <xsl:matching-substring>
-                      <w:softHyphen/>
+                      <w:noBreakHyphen/>
                     </xsl:matching-substring>
                     <xsl:non-matching-substring>
-                      <w:t>
-                        <xsl:if  test="matches( . , '^\s|\s$')">
-                          <xsl:attribute  name="xml:space"  select="'preserve'"/>
-                        </xsl:if>
-                        <xsl:value-of select="if ($context/@xml:space = 'preserve')
-                                              then .
-                                              else replace(., '\s+', ' ')"/>
-                      </w:t>    
+                      <xsl:analyze-string select="." regex="&#xad;">
+                        <xsl:matching-substring>
+                          <w:softHyphen/>
+                        </xsl:matching-substring>
+                        <xsl:non-matching-substring>
+                          <w:t>
+                            <xsl:if  test="matches( . , '^\s|\s$')">
+                              <xsl:attribute  name="xml:space"  select="'preserve'"/>
+                            </xsl:if>
+                            <xsl:value-of select="if ($context/@xml:space = 'preserve')
+                                                  then .
+                                                  else replace(., '\s+', ' ')"/>
+                          </w:t>    
+                        </xsl:non-matching-substring>
+                      </xsl:analyze-string>    
                     </xsl:non-matching-substring>
                   </xsl:analyze-string>
                 </xsl:otherwise>
