@@ -274,7 +274,7 @@
                 </xsl:apply-templates>
               </w:tc>
               <xsl:if test="exists(@namest) or exists(@colspan)">
-                <xsl:for-each select="1 to (xs:integer((@colspan,1)[1]), xs:integer(tr:cals-colspan($name-to-int-map, @namest, @nameend)))[1]-1">
+                <xsl:for-each select="1 to xs:integer((@colspan, tr:cals-colspan($name-to-int-map, @namest, @nameend))[1])-1">
                   <w:tc>
                     <w:tcPr>
                       <xsl:perform-sort>
@@ -464,9 +464,7 @@
             <xsl:sequence select="($built-entries/w:p/w:pPr)[1]"/>
           </w:p>
         </w:tc>
-<!--        <w:tc schnarz="c"/>-->
         <xsl:sequence select="tr:position-tcs($built-entries[position() gt 1], $cals-entries, $name-to-int-map, $rels)"/>
-<!--        <w:tc schnarz="/c"/>-->
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="tcPr" as="element(*)*">
@@ -524,46 +522,10 @@
             </w:tc>
           </xsl:for-each>
         </xsl:if>
-<!--        <w:tc schnarz="b"/>-->
-        <!--<w:tc hotz="blu">
-          <be>
-            <xsl:sequence select="$built-entries[position() gt 1]"></xsl:sequence>
-          </be>
-          <ce>
-            <xsl:sequence select="$cals-entries[position() gt 1]"></xsl:sequence>
-          </ce>
-        </w:tc>-->
         <xsl:sequence select="tr:position-tcs($built-entries[position() gt 1], $cals-entries[position() gt 1], $name-to-int-map, $rels)"/>
-<!--        <w:tc schnarz="/b"/>-->
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
-
-  <!--<xsl:template  match="tr | row"  mode="hub:default">
-    <w:tr>
-      <xsl:variable name="tblPrEx" as="element(*)*">
-        <xsl:apply-templates select="@css:background-color" mode="trPr"/>
-      </xsl:variable>
-      <xsl:message select="'FOO ', $tblPrEx"/>
-      <xsl:if test="$tblPrEx">
-        <w:tblPrEx>
-          <xsl:sequence select="$tblPrEx"/>
-        </w:tblPrEx>
-      </xsl:if>
-      <xsl:variable name="trPr">
-        <xsl:apply-templates  select="@class | @css:height | @css:page-break-inside"  mode="trPr" />
-        <xsl:if test="ancestor::thead">
-          <w:tblHeader/>
-        </xsl:if>
-      </xsl:variable>
-      <xsl:if test="$trPr">
-        <w:trPr>
-          <xsl:sequence  select="$trPr" />
-        </w:trPr>
-      </xsl:if>
-      <xsl:apply-templates  mode="#current"/>
-    </w:tr>
-  </xsl:template>-->
 
   <xsl:key name="map" match="map/item" use="@key" />
 
@@ -670,16 +632,25 @@
 
   <xsl:template match="@frame" mode="tblPr">
     <xsl:variable name="frame" as="xs:string *">
-      <xsl:value-of select="if (.=('all','top','topbot','above','hsides','box','border')) then 'top:single' else 'top:none'"/>
-      <xsl:value-of select="if (.=('all','sides','lhs','vsides','box','border')) then 'left:single' else 'left:none'"/>
-      <xsl:value-of select="if (.=('all','bottom','topbot','below','hsides','box','border')) then 'bottom:single' else 'bottom:none'"/>
-      <xsl:value-of select="if (.=('all','sides','rhs','vsides','box','border')) then 'right:single' else 'right:none'"/>
+      <xsl:value-of select="if (parent::*/@css:border-top-style) then '' else if (.=('all','top','topbot','above','hsides','box','border')) then 'top:single' else 'top:none'"/>
+      <xsl:value-of select="if (parent::*/@css:border-left-style) then '' else if (.=('all','sides','lhs','vsides','box','border')) then 'left:single' else 'left:none'"/>
+      <xsl:value-of select="if (parent::*/@css:border-bottom-style) then '' else if (.=('all','bottom','topbot','below','hsides','box','border')) then 'bottom:single' else 'bottom:none'"/>
+      <xsl:value-of select="if (parent::*/@css:border-right-style) then '' else if (.=('all','sides','rhs','vsides','box','border')) then 'right:single' else 'right:none'"/>
     </xsl:variable>
+    <xsl:variable name="parent" select="parent::*"/>
     <w:tblBorders>
-      <xsl:for-each select="$frame">
+      <xsl:for-each select="$frame[not(.='')]">
         <xsl:element name="w:{tokenize(.,':')[1]}">
           <xsl:attribute name="w:val" select="tokenize(.,':')[last()]" />
         </xsl:element>
+      </xsl:for-each>
+    <xsl:for-each select="('top', 'left', 'bottom', 'right')">
+        <xsl:apply-templates select="$parent/@*[matches(local-name(),concat('border\-',current(),'\-style'))]"
+          mode="props-secondary">
+          <xsl:with-param name="width" select="$parent/@*[matches(local-name(),concat('border\-',current(),'\-width'))]"/>
+          <xsl:with-param name="color" select="$parent/@*[matches(local-name(),concat('border\-',current(),'\-color'))]"/>
+          <xsl:with-param name="targetName" select="'w:tblBorders'"/>
+        </xsl:apply-templates>
       </xsl:for-each>
     </w:tblBorders>
   </xsl:template>

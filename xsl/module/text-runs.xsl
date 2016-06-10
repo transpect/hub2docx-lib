@@ -380,7 +380,7 @@
     <xsl:param name="width" as="attribute()?"/>
     <xsl:param name="color" as="attribute()?"/>
     <xsl:param name="targetName" as="xs:string"/>
-    <xsl:if test="$targetName = ('w:tcBorders', 'w:pBdr')">
+    <xsl:if test="$targetName = ('w:tcBorders', 'w:pBdr', 'w:tblBorders')">
       <xsl:element name="w:{replace(local-name(), 'border-(.+)-style', '$1')}">
         <xsl:attribute name="w:val" select="tr:border-style(.)"/>
         <xsl:apply-templates select="$width, $color" mode="#current"/>
@@ -389,7 +389,9 @@
   </xsl:template>
   
   <xsl:template match="@css:border-top-width | @css:border-bottom-width | @css:border-left-width | @css:border-right-width" mode="props-secondary">
-    <xsl:attribute name="w:sz" select="tr:length-to-border-width-type(.)"/>
+    <xsl:if test="not(parent::*/@*[local-name()=concat('border-',replace(current()/local-name(),'border-(top|bottom|left|right|inside[VH])-width','$1'),'-style')]=('none','nil'))">
+      <xsl:attribute name="w:sz" select="tr:length-to-border-width-type(.)"/>
+  </xsl:if>
   </xsl:template>
 
   <xsl:template match="@css:border-top-color | @css:border-bottom-color | @css:border-left-color | @css:border-right-color" mode="props-secondary">
