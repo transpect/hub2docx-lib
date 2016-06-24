@@ -109,7 +109,7 @@
     <xsl:apply-templates select="$dissolve" mode="#current" />
   </xsl:template>
 
-  <xsl:template  match="para[ *[ local-name() = $hub:list-element-names] ]"  mode="hub:default hub:default_renderFootnote" priority="10">
+  <xsl:template  match="para[ *[ local-name() = $hub:list-element-names] ]"   mode="hub:default hub:default_renderFootnote" priority="10">
     <xsl:param name="fn" as="element(footnote)?" tunnel="yes"/>
     <xsl:variable name="dissolve" as="element(*)+">
       <xsl:for-each-group select="node()" group-adjacent="exists(self::*[ local-name() = $hub:list-element-names])">
@@ -131,7 +131,12 @@
 
 
   <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="hub:default hub:default_renderFootnote">
-    <xsl:apply-templates  mode="hub:default"/>
+    <xsl:apply-templates  mode="hub:default">
+      <xsl:with-param name="continued-list" as="element(*)?" tunnel="yes" 
+                      select="if (listitem[1][@override][not(matches(@override, '^[\(]?[aA1iI][\.\)]?'))])
+                              then (preceding-sibling::*[ local-name() = $hub:list-element-names][listitem[1][@override][matches(@override, '^[\(]?[aA1iI][\.\)]?')]])[1] 
+                              else ()"/>
+    </xsl:apply-templates>
   </xsl:template>
 
 
@@ -165,16 +170,20 @@
 
   <!-- a para within listitem creates a w:p with special pPr-properties -->
   <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem/para"  mode="hub:default hub:default_renderFootnote">
+    <xsl:param name="continued-list" as="element(*)?" tunnel="yes"/>
     <xsl:variable name="ilvl"  select="count( ancestor::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
-    <xsl:variable name="numId" select="tr:getNumId( ancestor::*[self::*[ local-name() = $hub:list-element-names]][1]/generate-id() )" />
+    <!-- if list doesn't start here but somewhere else before-->
+    <xsl:variable name="numId" select="if ($continued-list) 
+                                       then tr:getNumId( $continued-list/generate-id() )
+                                       else tr:getNumId( ancestor::*[self::*[ local-name() = $hub:list-element-names]][1]/generate-id() )" />
     <!-- §§ should we consider scoping? -->
     <xsl:variable name="in-blockquote" select="if (ancestor::blockquote) then 'Bq' else ''" as="xs:string" />
-    <xsl:variable name="continuation" select="if (position() eq 1) then '' else 'Cont'" as="xs:string" />
+    <xsl:variable name="continued-list-para" select="if (position() eq 1) then '' else 'Cont'" as="xs:string" />
     <w:p>
       <w:pPr>
         <!-- §§ ListParagraph okay? -->
-        <w:pStyle w:val="{if ($template-lang = 'de') then 'Listenabsatz' else 'ListParagraph'}{$in-blockquote}{$continuation}"/>
-        <xsl:if test="$continuation eq ''">
+        <w:pStyle w:val="{if ($template-lang = 'de') then 'Listenabsatz' else 'ListParagraph'}{$in-blockquote}{$continued-list-para}"/>
+        <xsl:if test="$continued-list-para eq ''">
           <w:numPr>
             <w:ilvl w:val="{$ilvl}"/>
             <w:numId w:val="{$numId}"/>
