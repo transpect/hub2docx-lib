@@ -253,6 +253,7 @@
               </xsl:variable>
               <xsl:variable name="pPr" as="element(*)*">
                 <xsl:apply-templates select="para/@css:page-break-after" mode="props"/>
+                <xsl:apply-templates select="@char" mode="props"/>
               </xsl:variable>
               <w:tc>
                 <w:tcPr>
@@ -564,6 +565,7 @@
 					<w:p>
 					  <xsl:variable name="pPr" as="element(*)*">
 					    <xsl:apply-templates  select="para/@css:page-break-after" mode="props" />
+					    <xsl:apply-templates select="@char" mode="props"/>
 					  </xsl:variable>
 					  <xsl:if test="$pPr">
 					    <w:pPr>
@@ -582,6 +584,14 @@
 				</xsl:otherwise>
 			</xsl:choose>
     </w:tc>
+  </xsl:template>
+
+  <xsl:template match="@char" mode="props">
+    <xsl:if test="parent::*/@align and parent::*/@align = 'char' and parent::*/@charoff and not(parent::*/@charoff = '')">
+      <w:tabs>
+        <w:tab w:val="decimal" w:pos="{tr:length-to-unitless-twip(concat(parent::*/@charoff * number((ancestor::*[@css:font-size][1]/@css:font-size, ancestor::*[@css:line-height][1]/@css:line-height, 11.5)[1]), 'pt'))}"/>
+      </w:tabs>  
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="@colspan" mode="tcPr">
