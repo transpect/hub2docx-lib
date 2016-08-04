@@ -196,10 +196,10 @@
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable  name="targetNode"  select="//*[ @xml:id eq current()/@xlink:href]"/>
+        <xsl:variable  name="targetNode"  select="//*[ @xml:id eq current()/(@xlink:href, @linkend)]"/>
         <xsl:choose>
           <xsl:when  test="count( $targetNode) ne 1">
-            <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous.'"/>
+            <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous. Target:', (@xlink:href, @linkend)"/>
             <xsl:message  terminate="no" select="."/>
 
             <xsl:apply-templates  select="node()"  mode="#current" >
@@ -248,7 +248,7 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="link" mode="hub:default" priority="3">
+  <xsl:template match="link[not(@role = ( 'internal', 'bibref' ))]" mode="hub:default">
     <xsl:param name="rPrContent" as="element(*)*" tunnel="yes"/>
     <xsl:variable name="targetNode" select="key('by-id', @linkend)"/>
     <xsl:choose>
