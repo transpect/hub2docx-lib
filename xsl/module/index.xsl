@@ -28,14 +28,14 @@
   <!-- ISO 29500-1, 17.16.5.72, S. 1400 -->
 
   <!-- use a key to speed up the lookup -->
-  <xsl:key name="startofrangeIndexterms"  match="//indexterm[ @class eq 'startofrange' ]"  use="@xml:id"/>
+  <xsl:key name="startofrangeIndexterms"  match="//indexterm[ @class = ( 'startofrange', 'singular' ) ]"  use="@xml:id"/>
     
   <xsl:template  match="indexterm[ @class eq 'endofrange' ]"  mode="hub:default">
     <xsl:variable  name="correspondingStartofrangeIndexterm"  select="key(  'startofrangeIndexterms', @startref)"/>
     <w:bookmarkEnd  w:id="{$correspondingStartofrangeIndexterm/generate-id()}"/>
   </xsl:template>
 
-  <xsl:template  match="indexterm[ @class ne 'endofrange' ]"  mode="hub:default">
+  <xsl:template  match="indexterm[ not(@class) or @class ne 'endofrange' ]"  mode="hub:default">
     <xsl:if  test="see/*">
       <xsl:message  terminate="yes"  select="'ERROR: children of see-elements are not supported yet.'"/>
     </xsl:if>
