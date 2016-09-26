@@ -93,6 +93,7 @@
     <!-- Replace &#xa0; (non-breaking space) with ' ' -->
     <xsl:variable name="sCharReplaceFinal" select="translate($sCharReplace, '&#xa0;', ' ')" />
 
+    <xsl:attribute name="xml:space" select="'preserve'"/>
     <!-- Finally, return the last value -->
     <xsl:value-of select="$sCharReplaceFinal" />
   </xsl:template>
@@ -2634,7 +2635,10 @@
       <xsl:apply-templates select="$ndScripts[(position() mod 2) = 1]" mode="#current"/>
       <xsl:if test="local-name($ndScripts[(position() mod 2) = 1])='none'">
         <m:r>
-          <m:t xml:space="preserve"> </m:t>
+          <m:t>
+            <xsl:attribute name="xml:space" select="'preserve'"/>
+            <xsl:text xml:space="preserve"> </xsl:text>
+          </m:t>
         </m:r>
       </xsl:if>
     </m:sub>
@@ -2643,7 +2647,10 @@
       <xsl:apply-templates select="$ndScripts[(position() mod 2) = 0]" mode="#current"/>
       <xsl:if test="local-name($ndScripts[(position() mod 2) = 0])='none'">
         <m:r>
-          <m:t xml:space="preserve"> </m:t>
+          <m:t>
+            <xsl:attribute name="xml:space" select="'preserve'"/>
+            <xsl:text xml:space="preserve"> </xsl:text>
+          </m:t>
         </m:r>
       </xsl:if>
     </m:sup>

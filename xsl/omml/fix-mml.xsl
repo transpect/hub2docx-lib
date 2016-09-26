@@ -18,6 +18,7 @@
       <xsl:choose>
         <xsl:when test="*[1][preceding-sibling::text()[not(matches(.,'^\s*$'))]]">
           <mml:mtext>
+            <xsl:attribute name="xml:space" select="'preserve'"/>
             <xsl:value-of select="normalize-space(*[1]/preceding-sibling::text()[not(matches(.,'^\s*$'))])"/>
           </mml:mtext>
           <xsl:apply-templates select="*[1] | *[1]/following-sibling::node()" mode="#current"/>
@@ -25,13 +26,21 @@
         <xsl:when test="*[1][following-sibling::text()[not(matches(.,'^\s*$'))]]">
           <xsl:apply-templates select="*[1] | *[1]/preceding-sibling::node()" mode="#current"/>
           <mml:mtext>
-            <xsl:value-of select="normalize-space(*[1]/following-sibling::text()[not(matches(.,'^\s*$'))])"/>
+            <xsl:attribute name="xml:space" select="'preserve'"/>
+            <xsl:value-of select="normalize-space(*[1]/following-sibling::text()[not(matches(., '^\s*$'))])"/>
           </mml:mtext>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates mode="#current"/>
         </xsl:otherwise>
       </xsl:choose>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="*:mtext[not(@xml:space)]" mode="fix-mml" priority="0">
+    <xsl:copy>
+      <xsl:attribute name="xml:space" select="'preserve'"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
   
