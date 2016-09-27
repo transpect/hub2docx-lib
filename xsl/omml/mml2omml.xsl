@@ -771,10 +771,13 @@
             <xsl:call-template name="OutputText">
               <xsl:with-param name="sInput">
                 <xsl:choose>
-                  <xsl:when test="namespace-uri($ndTokenFirst) = 'http://www.w3.org/1998/Math/MathML' and local-name($ndTokenFirst) = 'ms'">
+                  <xsl:when test="$ndTokenFirst/self::mml:ms">
                     <xsl:call-template name="OutputMs">
                       <xsl:with-param name="msCur" select="$ndTokenFirst" />
                     </xsl:call-template>
+                  </xsl:when>
+                  <xsl:when test="$ndTokenFirst/self::mml:mtext">
+                    <xsl:value-of select="string($ndTokenFirst)" />
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:value-of select="normalize-space($ndTokenFirst)" />
@@ -782,11 +785,13 @@
                 </xsl:choose>
                 <xsl:for-each select="$ndTokenFirst/following-sibling::*[position() &lt; $cndRun]">
                   <xsl:choose>
-                    <xsl:when test="namespace-uri(.) = 'http://www.w3.org/1998/Math/MathML' and 
-													local-name(.) = 'ms'">
+                    <xsl:when test="self::mml:ms">
                       <xsl:call-template name="OutputMs">
                         <xsl:with-param name="msCur" select="." />
                       </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="self::mml:mtext">
+                      <xsl:value-of select="."/>
                     </xsl:when>
                     <xsl:otherwise>
                       <xsl:value-of select="normalize-space(.)" />
@@ -829,11 +834,13 @@
             <xsl:call-template name="OutputText">
               <xsl:with-param name="sInput">
                 <xsl:choose>
-                  <xsl:when test="namespace-uri($ndTokenFirst) = 'http://www.w3.org/1998/Math/MathML' and 
-													local-name($ndTokenFirst) = 'ms'">
+                  <xsl:when test="$ndTokenFirst/self::mml:ms">
                     <xsl:call-template name="OutputMs">
                       <xsl:with-param name="msCur" select="$ndTokenFirst" />
                     </xsl:call-template>
+                  </xsl:when>
+                  <xsl:when test="$ndTokenFirst/self::mml:mtext">
+                    <xsl:value-of select="string($ndTokenFirst)" />
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:value-of select="normalize-space($ndTokenFirst)" />
@@ -841,11 +848,13 @@
                 </xsl:choose>
                 <xsl:for-each select="$ndTokenFirst/following-sibling::*[self::mml:mi or self::mml:mn or self::mml:mo or self::mml:ms or self::mml:mtext]">
                   <xsl:choose>
-                    <xsl:when test="namespace-uri(.) = 'http://www.w3.org/1998/Math/MathML' and 
-													local-name(.) = 'ms'">
+                    <xsl:when test="self::mml:ms">
                       <xsl:call-template name="OutputMs">
                         <xsl:with-param name="msCur" select="." />
                       </xsl:call-template>
+                    </xsl:when>
+                    <xsl:when test="self::mml:mtext">
+                      <xsl:value-of select="."/>
                     </xsl:when>
                     <xsl:otherwise>
                       <xsl:value-of select="normalize-space(.)" />
