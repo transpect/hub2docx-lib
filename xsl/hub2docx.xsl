@@ -39,8 +39,8 @@
 
   <xsl:import href="module/comments.xsl"/>
   <xsl:import href="module/text-runs.xsl"/>
-  <xsl:import href="module/document-structure.xsl"/>
   <xsl:import href="module/para.xsl"/>
+  <xsl:import href="module/document-structure.xsl"/>
   <xsl:import href="module/bibliography.xsl"/>
   <xsl:import href="module/equation.xsl"/>
   <xsl:import href="module/footnote.xsl"/>
