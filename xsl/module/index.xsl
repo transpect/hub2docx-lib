@@ -88,7 +88,11 @@
     
     <!-- the \r-switch determines that in an index the page-range of the bookmark will be rendered -->
     <xsl:if test="@class eq 'startofrange'">
-      <xsl:value-of select="concat(' \r bm_', generate-id(), '_' )"/>
+      <w:r>
+        <w:t>
+          <xsl:value-of select="concat(' \r bm_', generate-id(), '_' )"/>
+        </w:t>
+      </w:r>
     </xsl:if>
     
     <w:r>
