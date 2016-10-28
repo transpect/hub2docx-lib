@@ -76,9 +76,11 @@
     <xsl:variable  name="bibliomixedId"  select="generate-id()"/>
     <w:bookmarkStart w:id="{$bibliomixedId}" w:name="bm_{$bibliomixedId}_"/>
     <w:p>
-      <w:pPr>
-        <w:pStyle w:val="bib"/>
-      </w:pPr>
+      <xsl:call-template name="hub:pPr">
+        <xsl:with-param name="default-pPrs" as="element(w:pStyle)" tunnel="yes">
+          <w:pStyle w:val="bib"/>
+        </xsl:with-param>
+      </xsl:call-template>
       <xsl:apply-templates  select="node()"  mode="#current" />
     </w:p>
     <w:bookmarkEnd w:id="{$bibliomixedId}"/>
