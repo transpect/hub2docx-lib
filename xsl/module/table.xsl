@@ -334,8 +334,10 @@
   <!-- empty, invalid cell -->
   <xsl:template match="w:tc[not(*[name() = $EG_BlockLevelElts])]" mode="hub:clean">
     <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-      <w:p/>
+      <xsl:apply-templates select="@*, w:tcPr" mode="#current"/>
+      <w:p>
+        <xsl:apply-templates select="node() except w:tcPr" mode="#current"/>
+      </w:p>
     </xsl:copy>
   </xsl:template>
   
