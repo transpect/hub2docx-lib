@@ -339,6 +339,8 @@
     </xsl:copy>
   </xsl:template>
   
+  <xsl:template match="w:tblGrid/w:gridCol/@w:w[. = '']" mode="hub:clean"/>
+  
   <xsl:template match="w:tcW" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="0"/>
   </xsl:template>
