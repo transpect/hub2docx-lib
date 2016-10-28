@@ -501,7 +501,7 @@
     mode="hub:merge"
     match="//w:root_converted//w:pStyle[@hub:val]">
     <xsl:choose>
-      <xsl:when test="@hub:val = collection()//w:styles/w:style[@w:type eq 'paragraph']/@w:styleId or @hub:val = $word-builtin-pStyles">
+      <xsl:when test="@hub:val = collection()//w:styles/w:style[@w:type eq 'paragraph']/w:name/@w:val or @hub:val = $word-builtin-pStyles">
         <w:pStyle w:val="{@hub:val}"/>
       </xsl:when>
       <xsl:otherwise>
@@ -513,7 +513,7 @@
 
   <!-- character changes/additions -->
 
-  <xsl:template match="w:rStyle/@hub:val[. = collection()//w:styles/w:style[@w:type eq 'character']/@w:styleId]">
+  <xsl:template match="w:rStyle/@hub:val[. = collection()//w:styles/w:style[@w:type eq 'character']/w:name/@w:val]">
     <xsl:attribute name="w:val" select="."/>
   </xsl:template>
 
