@@ -34,7 +34,8 @@
                                           'listitem', 'itemizedlist', 'orderedlist', 'variablelist', 'varlistentry')">
         <xsl:sequence select="true()"/>
       </xsl:when>
-      <xsl:when test="$elt/self::entry[para | simpara | itemizedlist | orderedlist | variablelist]">
+      <xsl:when test="$elt/self::*[local-name() = ('entry', 'td', 'th')]
+                                  [para | simpara | itemizedlist | orderedlist | variablelist]">
         <xsl:sequence select="true()"/>
       </xsl:when>
       <xsl:otherwise>
