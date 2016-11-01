@@ -178,7 +178,7 @@
                                        else tr:getNumId( ancestor::*[self::*[ local-name() = $hub:list-element-names]][1]/generate-id() )" />
     <!-- §§ should we consider scoping? -->
     <xsl:variable name="in-blockquote" select="if (ancestor::blockquote) then 'Bq' else ''" as="xs:string" />
-    <xsl:variable name="continued-list-para" select="if (position() eq 1) then '' else 'Cont'" as="xs:string" />
+    <xsl:variable name="continued-list-para" select="if (count(preceding-sibling::para) eq 0) then '' else 'Cont'" as="xs:string" />
     <w:p>
       <w:pPr>
         <!-- §§ ListParagraph okay? -->
