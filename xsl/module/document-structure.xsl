@@ -155,7 +155,7 @@
   </xsl:template>
 
   <xsl:variable name="structure-elements" as="xs:string*"
-    select="('appendix', 'bibliography', 'blockquote', 'dedication', 'book', 'bookinfo', 
+    select="('appendix', 'bibliodiv', 'bibliography', 'blockquote', 'dedication', 'book', 'bookinfo', 
     'caution', 'chapter', 'epigraph', 'example', 'formalpara', 'glossary', 'note', 'part', 
     'partintro', 'preface', 'section', 'sect1', 'sect2', 'sect3', 'sect4', 
     'sect5', 'sect6', 'sidebar', 'simplesect', 'tip', 'warning')"/>
@@ -243,7 +243,7 @@
     <w:p origin="default_docstruct_title">
       <xsl:call-template name="hub:pPr"/>
       <xsl:variable name="rPrContent" as="element(w:color)?">
-        <!-- formatting deviations applying to text-runs, i.e. text color -->
+        <xsl:apply-templates select="@css:color" mode="props"/>
       </xsl:variable>
       <xsl:if test="../@xml:id">
         <w:bookmarkStart w:id="{generate-id(..)}" w:name="bm_{generate-id(..)}_"/>
