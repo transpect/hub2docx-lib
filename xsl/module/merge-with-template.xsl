@@ -289,7 +289,7 @@
     
   <xsl:template match="customProps:property" mode="hub:merge">
     <xsl:copy>
-      <xsl:copy-of select="@*"/>
+      <xsl:sequence select="@*"/>
       <xsl:attribute name="pid" select="position() + 1"/><!-- has to start with 2, for whatever reason -->
       <xsl:apply-templates select="*" mode="#current"/>
     </xsl:copy>

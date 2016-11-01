@@ -74,7 +74,7 @@
           <xsl:if test=". is ($dumbMergedRunProperties//*[name() eq current()/name()])[1]">
             <!-- toggling means to purge the property, if it is given twice -->
             <xsl:if test="count( $dumbMergedRunProperties//*[name() eq current()/name()]) eq 1">
-              <xsl:copy-of select="."/>
+              <xsl:sequence select="."/>
             </xsl:if>
           </xsl:if>
         </xsl:when>
@@ -85,7 +85,7 @@
         </xsl:when>
         <!-- all other properties, which we do not deal with here -->
         <xsl:otherwise>
-          <xsl:copy-of select="."/>
+          <xsl:sequence select="."/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:for-each>
@@ -188,7 +188,7 @@
   </xsl:template>
 
   <xsl:template match="w:r[not(parent::w:p)]" mode="remove-misplaced-runs" priority="3000">
-    <xsl:message>removed misplaced text run <xsl:copy-of select="."/>
+    <xsl:message>removed misplaced text run <xsl:sequence select="."/>
     </xsl:message>
   </xsl:template>
 

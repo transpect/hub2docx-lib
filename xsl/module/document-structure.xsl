@@ -48,7 +48,7 @@
 
   <xsl:template  match="*[@role eq 'web']"  mode="hub:default" priority="2000">
     <xsl:message>Ignoring role=web content: 
-    <xsl:copy-of select="." />
+    <xsl:sequence select="." />
     </xsl:message>
   </xsl:template>
 

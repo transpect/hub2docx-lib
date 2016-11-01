@@ -45,7 +45,7 @@
                 mode="hub:default"
                 priority="-1000">
     <xsl:copy>
-      <xsl:copy-of          select="@*"/>
+      <xsl:sequence          select="@*"/>
       <xsl:attribute        name="hub:default-no-match"  select="'true'"/>
       <xsl:apply-templates  select="node()"  mode="#current"/>
     </xsl:copy>

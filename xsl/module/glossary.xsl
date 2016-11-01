@@ -68,14 +68,14 @@
   <xsl:template match="glossterm" mode="glossary2table">
     <th xmlns="http://docbook.org/ns/docbook">
       <para>
-        <xsl:copy-of select="node()" />
+        <xsl:sequence select="node()" />
       </para>
     </th>
   </xsl:template>
 
   <xsl:template match="glossdef" mode="glossary2table">
     <td xmlns="http://docbook.org/ns/docbook">
-      <xsl:copy-of select="node()" />
+      <xsl:sequence select="node()" />
     </td>
   </xsl:template>
 

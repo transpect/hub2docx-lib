@@ -247,7 +247,7 @@
                     <xsl:choose>
                       <xsl:when test="current-group()[1][self::*[descendant::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]]">
                         <xsl:element name="{current-group()[1]/name()}">
-                          <xsl:copy-of select="current-group()[1]/@*"/>
+                          <xsl:sequence select="current-group()[1]/@*"/>
                           <xsl:call-template name="repair-parenthesis">
                             <xsl:with-param name="context" select="current-group()[1]/node()"/>
                           </xsl:call-template>
@@ -262,7 +262,7 @@
                           <xsl:with-param name="processed" select="true()"/>
                         </xsl:apply-templates>
                         <xsl:element name="{current-group()[last()]/name()}">
-                          <xsl:copy-of select="current-group()[last()]/@*"/>
+                          <xsl:sequence select="current-group()[last()]/@*"/>
                           <xsl:call-template name="repair-parenthesis">
                             <xsl:with-param name="context" select="current-group()[last()]/node()"/>
                           </xsl:call-template>
@@ -299,7 +299,7 @@
                     <xsl:choose>
                       <xsl:when test="count(current-group())=1">
                         <xsl:element name="{current-group()/name()}">
-                          <xsl:copy-of select="current-group()/@*"/>
+                          <xsl:sequence select="current-group()/@*"/>
                           <xsl:call-template name="repair-parenthesis">
                             <xsl:with-param name="context" select="current-group()/node()"/>
                           </xsl:call-template>
@@ -310,60 +310,60 @@
                         ] and current-group()[last()][self::*:mo[not(@stretchy='false')]
                         [matches(.,concat('^',$closing-parenthesis,'$'))]]">
                         <mml:mfenced open="{current-group()[1]}" close="{current-group()[last()]}" separators="">
-                          <xsl:copy-of select="current-group()[position() gt 1][position() lt last()]"/>
+                          <xsl:sequence select="current-group()[position() gt 1][position() lt last()]"/>
                         </mml:mfenced>
                       </xsl:when>
                       <xsl:when test="current-group()[self::*][1][self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]] and count(current-group()[self::*])=2">
                         <xsl:element name="{current-group()[self::*][2]/name()}">
-                          <xsl:copy-of select="current-group()[self::*][1]"/>
-                          <xsl:copy-of select="current-group()[position() gt 1]/node()"/>
+                          <xsl:sequence select="current-group()[self::*][1]"/>
+                          <xsl:sequence select="current-group()[position() gt 1]/node()"/>
                         </xsl:element>
                       </xsl:when>
                       <xsl:when test="current-group()[self::*][last()][self::*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]] and count(current-group()[self::*])=2">
                         <xsl:element name="{current-group()[self::*][1]/name()}">
-                          <xsl:copy-of select="current-group()[self::*][position() lt last()]/node()"/>
-                          <xsl:copy-of select="current-group()[self::*][last()]"/>
+                          <xsl:sequence select="current-group()[self::*][position() lt last()]/node()"/>
+                          <xsl:sequence select="current-group()[self::*][last()]"/>
                         </xsl:element>
                       </xsl:when>
                       <xsl:when test="current-group()[1][self::*:mrow[*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]] or current-group()[last()][self::*:mrow[*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]]">
                         <xsl:choose>
                           <xsl:when test="current-group()[1][self::*:mrow[*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]]">
-                            <xsl:copy-of select="current-group()[1]/node()"/>
+                            <xsl:sequence select="current-group()[1]/node()"/>
                           </xsl:when>
                           <xsl:otherwise>
-                            <xsl:copy-of select="current-group()[1]"/>
+                            <xsl:sequence select="current-group()[1]"/>
                           </xsl:otherwise>
                         </xsl:choose>
-                        <xsl:copy-of select="current-group()[position() gt 1][position() lt last()]"/>
+                        <xsl:sequence select="current-group()[position() gt 1][position() lt last()]"/>
                         <xsl:choose>
                           <xsl:when test="current-group()[last()][self::*:mrow[*:mo[not(@stretchy='false')][matches(.,concat('^',$closing-parenthesis,'$'))]]]">
-                            <xsl:copy-of select="current-group()[last()]/node()"/>
+                            <xsl:sequence select="current-group()[last()]/node()"/>
                           </xsl:when>
                           <xsl:otherwise>
-                            <xsl:copy-of select="current-group()[last()]"/>
+                            <xsl:sequence select="current-group()[last()]"/>
                           </xsl:otherwise>
                         </xsl:choose>
                       </xsl:when>
                       <xsl:otherwise>
                         <xsl:message>
                           TO_DO: Parentheses in different levels. Implementation required!
-                          <xsl:copy-of select="current-group()"/>
+                          <xsl:sequence select="current-group()"/>
                           NAMES: <xsl:for-each select="current-group()">
                             <xsl:value-of select="name(), ' '"/>
                           </xsl:for-each>
                         </xsl:message>
-                        <xsl:copy-of select="current-group()"/>
+                        <xsl:sequence select="current-group()"/>
                       </xsl:otherwise>
                     </xsl:choose>
                   </xsl:when>
                   <xsl:otherwise>
-                    <xsl:copy-of select="current-group()"/>
+                    <xsl:sequence select="current-group()"/>
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:for-each-group>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:copy-of select="current-group()"/>
+              <xsl:sequence select="current-group()"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:for-each-group>
