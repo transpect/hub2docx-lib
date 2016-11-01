@@ -30,32 +30,8 @@
     <xsl:apply-templates  select="node()"  mode="#current" />
   </xsl:template>
 
-
-  <xsl:template  match="bibliography/title"  mode="hub:default" >
-    <w:p>
-      <xsl:call-template name="hub:pPr">
-        <xsl:with-param name="default-pPrs" tunnel="yes" as="element(w:pStyle)">
-          <w:pStyle w:val="Heading{tr:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 1}"/>
-        </xsl:with-param>
-      </xsl:call-template>
-      <xsl:apply-templates  select="node()"  mode="#current" />
-    </w:p>
-  </xsl:template>
-
   <xsl:template  match="bibliodiv"  mode="hub:default" >
     <xsl:apply-templates  mode="#current" />
-  </xsl:template>
-
-
-  <xsl:template  match="bibliodiv/title"  mode="hub:default" >
-    <w:p>
-      <xsl:call-template name="hub:pPr">
-        <xsl:with-param name="default-pPrs" as="element(w:pStyle)" tunnel="yes">
-          <w:pStyle w:val="Heading{tr:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 2}"/>
-        </xsl:with-param>
-      </xsl:call-template>
-      <xsl:apply-templates  select="node()"  mode="#current" />
-    </w:p>
   </xsl:template>
 
   <xsl:template  match="bibliolist"     mode="hub:default">

@@ -214,10 +214,16 @@
                                     substring(name(.),2)
                                   )"/>
           </xsl:when>
+          <xsl:when test="parent::*[local-name() = ('bibliography')]">
+            <xsl:value-of select="concat($heading-prefix, tr:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 1)"/>
+          </xsl:when>
+          <xsl:when test="parent::*[local-name() = ('bibliodiv')]">
+            <xsl:value-of select="concat($heading-prefix, tr:headinglevel(ancestor::*[self::section or self::chapter][1]/title) + 2)"/>
+          </xsl:when>
           <xsl:when test="parent::*[
                             starts-with(local-name(), 'sect') or 
-                            self::info and parent::*[local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')] or 
-                            local-name() = ('appendix', 'chapter', 'bibliography', 'glossary', 'preface', 'simplesect')
+                            self::info and parent::*[local-name() = ('appendix', 'chapter', 'glossary', 'preface', 'simplesect')] or 
+                            local-name() = ('appendix', 'chapter', 'glossary', 'preface', 'simplesect')
                           ]">
             <xsl:value-of select="concat( $heading-prefix, string(tr:headinglevel(.)))"/>
           </xsl:when>
