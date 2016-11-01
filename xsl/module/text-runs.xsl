@@ -236,7 +236,8 @@
       <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
         <xsl:call-template  name="mergeRunProperties">
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-          <xsl:with-param  name="new_rPrContent" as="element(w:vertAlign)">
+          <xsl:with-param  name="new_rPrContent" as="element(*)+">
+            <xsl:apply-templates select="@css:*" mode="props"/>
             <w:vertAlign w:val="{ if ( self::subscript )
                                   then 'subscript'
                                   else if ( self::superscript )
