@@ -26,41 +26,11 @@
 <!-- mode="hub:default" -->
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-  <!-- ~~~~~~~~~~~~~~~~~~~~ rendering of the markers ~~~~~~~~~~~~~~~~~~~~ -->
-
-  <!-- Please note, that using the footnote concept of Office Open XML does not suit our needs in case of the Hogrefe CHPD-data, because we need to control the placement of the footnotetexts.
-       Within the text flow, a footnote generates the marker, which is linked to the textfield the footnotetext starts with (the marker).
-       The footnote-marker heading the footnotetext has to be coded as textfield in order to be able to reference the footnotetext. See, e.g., mode="hub:default_renderFootnote".
-       -->
-  <!-- DISABLED -->
-  <xsl:template  match="footnote[ancestor::tr or ancestor::row]"  mode="hub:default_">
-    <w:r>
-      <w:fldChar w:fldCharType="begin"/>
-    </w:r>
-    <w:r>
-      <w:instrText xml:space="preserve"> HYPERLINK \l bm_<xsl:value-of  select="generate-id()"/>_  \o "Table footnote <xsl:value-of  select="@label"/>"</w:instrText>
-    </w:r>
-    <w:r>
-      <w:fldChar w:fldCharType="separate"/>
-    </w:r>
-    <w:r>
-      <w:rPr>
-        <!-- §§ should be a proper rStyle -->
-        <w:vertAlign w:val="superscript"/>
-      </w:rPr>
-      <w:t><xsl:value-of  select="@label"/></w:t>
-    </w:r>
-    <w:r>
-      <w:fldChar w:fldCharType="end"/>
-    </w:r>
-  </xsl:template>
-
   <xsl:variable name="originalFootnoteIds" as="xs:string*"
-    select="for $f in //footnote return generate-id($f)" />
+    select="for $f in $root//footnote return $f/@xml:id" />
   
   <xsl:template  match="footnote"  mode="hub:default">
-    <!-- 200000 arbitrary number to make the bookmark id hopefully unique. Need a better mechanism -->
-    <xsl:variable  name="footnoteId"  select="tr:fn-id(.)"/>
+    <xsl:variable  name="footnoteId"  select="tr:fn-id(.)" as="xs:integer"/>
     <w:bookmarkStart w:id="{tr:fn-bm-id(.)}" w:name="{tr:fn-bookmark(.)}"/>
     <w:r>
       <w:rPr>
@@ -87,7 +57,9 @@
 
   <xsl:function name="tr:fn-id" as="xs:integer">
     <xsl:param name="fn" as="element(footnote)" />
-    <xsl:sequence select="index-of($originalFootnoteIds, generate-id($fn))" />
+    <!-- use footnote/@xml:id instead of generate-id (footnotes in tables are temporary written in a variable 
+         and so the generate-id returns another values than those in $originalFootnoteIds) -->
+    <xsl:sequence select="index-of($originalFootnoteIds, $fn/@xml:id)" />
   </xsl:function>
 
   <xsl:function name="tr:fn-bm-id" as="xs:integer">
@@ -124,45 +96,7 @@
       <w:fldChar w:fldCharType="end"/>
     </w:r>
   </xsl:template>
-
-
-  <!-- ~~~~~~~~~~~~~~~~~~~~ rendering of tablenotes ~~~~~~~~~~~~~~~~~~~~ -->
-
-  <xsl:template  match="para"  mode="hub:default_renderFootnote">
-    <xsl:param name="fn" as="element(footnote)" tunnel="yes"/>
-    <w:p>
-      <w:pPr>
-        <w:pStyle w:val="TableFootnote" />
-      </w:pPr>
-      <xsl:choose>
-        <xsl:when test=". is ../*[1] or (position() eq 1)"><!-- check also for pos=1 b/c it may be part of a sequence of paras, not of a document -->
-          <w:bookmarkStart w:id="{tr:fn-bm-id($fn)}" w:name="{tr:fn-bookmark($fn)}"/>
-          <w:r>
-            <w:rPr>
-              <!-- §§ should be a proper rStyle -->
-              <w:vertAlign w:val="superscript"/>
-            </w:rPr>
-            <w:t><xsl:value-of  select="$fn/@label"/></w:t>
-          </w:r>
-          <w:bookmarkEnd w:id="{tr:fn-bm-id($fn)}"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <w:r>
-            <w:tab/>
-          </w:r>
-        </xsl:otherwise>
-      </xsl:choose>
-      <!-- render the footnotetext -->
-      <xsl:apply-templates mode="hub:default"/>
-    </w:p>
-  </xsl:template>
-
-  <xsl:template  match="footnote[ancestor::tr or ancestor::row]"  mode="hub:default_renderFootnote">
-    <xsl:apply-templates mode="#current">
-      <xsl:with-param name="fn" select="." tunnel="yes"/>
-    </xsl:apply-templates>
-  </xsl:template>
-
+  
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <!-- mode="footnotes" -->

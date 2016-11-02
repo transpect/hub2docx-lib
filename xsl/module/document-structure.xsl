@@ -78,7 +78,7 @@
         <xsl:apply-templates mode="numbering"/>
       </w:numbering>
       <w:footnotes>
-        <xsl:apply-templates mode="footnotes"/>
+        <xsl:apply-templates select="//footnote" mode="footnotes"/>
       </w:footnotes>
       <w:endnotes />
       <w:settings >

@@ -166,11 +166,6 @@
         <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
       </xsl:apply-templates>
     </w:tbl>
-    <!-- DISABLED -->
-    <!--<xsl:apply-templates  select=".//footnote"  mode="hub:default_renderFootnote">
-      <xsl:sort select="@label"/>
-      <xsl:sort select="generate-id(.)"/>
-    </xsl:apply-templates>-->
   </xsl:template>
 
   <xsl:template match="colgroup" mode="hub:default" />

@@ -109,7 +109,7 @@
     <xsl:apply-templates select="$dissolve" mode="#current" />
   </xsl:template>
 
-  <xsl:template  match="para[ *[ local-name() = $hub:list-element-names] ]"   mode="hub:default hub:default_renderFootnote" priority="10">
+  <xsl:template  match="para[ *[ local-name() = $hub:list-element-names] ]"   mode="hub:default" priority="10">
     <xsl:param name="fn" as="element(footnote)?" tunnel="yes"/>
     <xsl:variable name="dissolve" as="element(*)+">
       <xsl:for-each-group select="node()" group-adjacent="exists(self::*[ local-name() = $hub:list-element-names])">
@@ -130,7 +130,7 @@
   </xsl:template>
 
 
-  <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="hub:default hub:default_renderFootnote">
+  <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="hub:default">
     <xsl:apply-templates  mode="hub:default">
       <xsl:with-param name="continued-list" as="element(*)?" tunnel="yes" 
                       select="if (listitem[1][@override][not(matches(@override, '^[\(]?[aA1iI][\.\)]?'))])
@@ -140,7 +140,7 @@
   </xsl:template>
 
 
-  <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem"  mode="hub:default hub:default_renderFootnote">
+  <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem"  mode="hub:default">
     <xsl:apply-templates  mode="hub:default"/>
   </xsl:template>
 
@@ -148,7 +148,7 @@
     <xsl:apply-templates  mode="hub:default"/>
   </xsl:template>
 
-  <xsl:template  match="varlistentry/term | varlistentry/listitem/para | varlistentry/listitem/simpara"  mode="hub:default hub:default_renderFootnote" priority="2">
+  <xsl:template  match="varlistentry/term | varlistentry/listitem/para | varlistentry/listitem/simpara"  mode="hub:default" priority="2">
     <w:p>
       <w:pPr>
         <w:pStyle w:val="{if (self::term) then 'deflistterm' else 'deflistdef'}"/>
@@ -169,7 +169,7 @@
 
 
   <!-- a para within listitem creates a w:p with special pPr-properties -->
-  <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem/para"  mode="hub:default hub:default_renderFootnote">
+  <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem/para"  mode="hub:default">
     <xsl:param name="continued-list" as="element(*)?" tunnel="yes"/>
     <xsl:variable name="ilvl"  select="count( ancestor::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
     <!-- if list doesn't start here but somewhere else before-->
