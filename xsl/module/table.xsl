@@ -32,7 +32,7 @@
   <xsl:variable  name="table-scale"  select="20.0"  as="xs:double" />
 
   <xsl:template  match="table | informaltable"  mode="hub:default">
-    <xsl:apply-templates  select="self::informaltable/@xml:id | caption | info | title"  mode="#current" />
+    <xsl:apply-templates  select="caption | info | title"  mode="#current" />
     <xsl:variable name="tblPrContent" as="element(*)*">
       <xsl:apply-templates select="@css:width, @css:text-align, @role, @css:margin-left, @css:margin-right, @css:background-color, @frame" mode="tblPr"/>
     </xsl:variable>
@@ -64,16 +64,6 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template  match="informaltable/@xml:id"  mode="hub:default">
-    <w:p>
-      <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
-      <w:r>
-        <w:t>&#xa0;</w:t>
-      </w:r>
-      <w:bookmarkEnd    w:id="{generate-id(..)}"/>
-    </w:p>
-  </xsl:template>
-  
   <xsl:template  match="w:tbl"  mode="hub:clean" priority="3">
     <!-- turn page if table is too wide -->
     <xsl:variable name="ps" as="element(w:sectPr)" select="$page-settings"/>
@@ -123,6 +113,10 @@
   <xsl:template name="create-table" as="element(*)+">
     <xsl:param name="tblPrContent" as="element(*)*" tunnel="yes" />
     <w:tbl>
+      <xsl:if test="self::tgroup/parent::*/@xml:id">
+        <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
+        <w:bookmarkEnd    w:id="{generate-id(..)}"/>
+      </xsl:if>
       <xsl:variable name="default-tblPrContent" as="element(*)+">
         <w:tblW w:w="0" w:type="auto"/>
         <!--<w:tblBorders>
