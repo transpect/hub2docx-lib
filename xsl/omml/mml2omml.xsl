@@ -3275,6 +3275,14 @@
     </xsl:element>
   </xsl:template>
 
+  <xsl:template match="mml:mspace" mode="mml">
+    <xsl:element name="m:r">
+      <xsl:element name="m:t">
+        <xsl:text xml:space="preserve"> </xsl:text>
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
   <!-- Omml doesn't really support mglyph, so just output the alt text -->
   <xsl:template match="mml:mi[child::mml:mglyph] | 
 	                     mml:mn[child::mml:mglyph] | 
