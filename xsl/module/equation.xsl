@@ -69,4 +69,14 @@
     </w:p>
   </xsl:template>
 
+  <xsl:template match="omml:r[not(w:rPr)]" mode="hub:clean">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <w:rPr>
+        <w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/>
+      </w:rPr>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
 </xsl:stylesheet>
