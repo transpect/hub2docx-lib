@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:mml="http://www.w3.org/1998/Math/MathML"
+<xsl:stylesheet version="2.0" 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+  xmlns:mml="http://www.w3.org/1998/Math/MathML"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
   
   <xsl:include href="fix-mml.xsl"/>
@@ -3275,7 +3278,17 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="mml:mspace" mode="mml">
+  <xsl:template match="mml:mspace[matches(@width, '^[1-9]\d*(.\d+)?em$')]" mode="mml">
+    <xsl:element name="m:r">
+      <xsl:element name="m:t">
+        <xsl:for-each select="1 to xs:integer(replace(@width, '^([1-9]\d*)(\.\d+)?em$', '$1')) * 4">
+          <xsl:text xml:space="preserve"> </xsl:text>
+        </xsl:for-each>
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="mml:mspace[not(matches(@width, '^[1-9]\d*(.\d+)?em$'))]" mode="mml">
     <xsl:element name="m:r">
       <xsl:element name="m:t">
         <xsl:text xml:space="preserve"> </xsl:text>
