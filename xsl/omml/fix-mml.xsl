@@ -44,7 +44,7 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="*:mtext[*:mover[not(count(*)=2)]]" mode="fix-mml">
+  <xsl:template match="*:mtext[*:mover[not(count(*)=2)]]" mode="fix-mml" xmlns="http://www.w3.org/1998/Math/MathML">
     <xsl:variable name="current" select="."/>
     <mml:mrow>
       <xsl:for-each select="node()">
@@ -64,7 +64,7 @@
     </mml:mrow>
   </xsl:template>
   
-  <xsl:template match="*[*[self::*:msub or self::*:msup][child::*[1][self::*:mrow[not(child::node())]]][preceding-sibling::*]]" mode="fix-mml">
+  <xsl:template match="*[*[self::*:msub or self::*:msup][child::*[1][self::*:mrow[not(child::node())]]][preceding-sibling::*]]" mode="fix-mml" xmlns="http://www.w3.org/1998/Math/MathML">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:for-each-group select="node()" group-ending-with="*[self::*:msub or self::*:msup][child::*[1][self::*:mrow[not(child::node())]]]">
@@ -156,7 +156,7 @@
     </xsl:if>
   </xsl:template>
   
-  <xsl:template name="replace-empty-mrow">
+  <xsl:template name="replace-empty-mrow" xmlns="http://www.w3.org/1998/Math/MathML">
     <xsl:param name="context" as="node()"/>
     <xsl:param name="content" as="node()"/>
     
@@ -203,7 +203,7 @@
     </xsl:choose>
   </xsl:template>
   
-  <xsl:template name="repair-parenthesis">
+  <xsl:template name="repair-parenthesis" xmlns="http://www.w3.org/1998/Math/MathML">
     <xsl:param name="context" as="node()*"/>
     <xsl:choose>
       <xsl:when test="not($context/descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^(',$opening-parenthesis,'|',$closing-parenthesis,')$'))])">
@@ -218,7 +218,6 @@
       </xsl:when>
       <xsl:when test="count($context/descendant-or-self::*:mo[not(@stretchy='false')]
                                                              [matches(.,concat('^(',$opening-parenthesis,'|',$closing-parenthesis,')$'))]) = 1">
-        
         <xsl:for-each-group select="$context" 
                             group-starting-with="*[descendant-or-self::*:mo[not(@stretchy='false')][matches(.,concat('^',$opening-parenthesis,'$'))]]">
           <xsl:for-each-group select="current-group()"
