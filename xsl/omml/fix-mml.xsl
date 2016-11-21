@@ -392,4 +392,10 @@
     </mml:msubsup>
   </xsl:template>
   
+  <xsl:template match="mml:mover/child::*[2][self::mml:mo][. = '&#x203e;']" mode="fix-mml">
+    <xsl:copy>
+      <xsl:value-of select="'&#x305;'"/>
+    </xsl:copy>
+  </xsl:template>
+  
 </xsl:stylesheet>
