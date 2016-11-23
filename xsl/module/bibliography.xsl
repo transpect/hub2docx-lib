@@ -52,14 +52,14 @@
     <xsl:variable  name="bibliomixedId"  select="generate-id()"/>
     <w:bookmarkStart w:id="{$bibliomixedId}" w:name="bm_{$bibliomixedId}_"/>
     <w:p>
-      <xsl:call-template name="hub:pPr">
-        <xsl:with-param name="default-pPrs" as="element(w:pStyle)" tunnel="yes">
-          <w:pStyle w:val="bib"/>
-        </xsl:with-param>
-      </xsl:call-template>
+      <xsl:call-template name="hub:pPr"/>
       <xsl:apply-templates  select="node()"  mode="#current" />
     </w:p>
     <w:bookmarkEnd w:id="{$bibliomixedId}"/>
+  </xsl:template>
+  
+  <xsl:template  match="bibliomixed"  mode="hub:style-name">
+    <w:pStyle w:val="{(@role, 'bib')[1]}"/>
   </xsl:template>
 
   <xsl:template match="bibliomisc/@role[. = 'numberedRef']" mode="props">
