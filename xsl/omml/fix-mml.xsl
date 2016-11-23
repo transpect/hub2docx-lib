@@ -93,7 +93,7 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="*[not(self::*:mrow)][preceding-sibling::*[1][self::*:munderover]]" mode="fix-mml">
+  <xsl:template match="*[not(self::*:mrow)][preceding-sibling::*[1][self::*:munderover or self::*:munder]]" mode="fix-mml">
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="preceding-sibling::*[1]/child::*[1]" />
