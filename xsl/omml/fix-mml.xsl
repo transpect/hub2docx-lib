@@ -280,6 +280,74 @@
           </xsl:for-each-group>
         </xsl:for-each-group>
       </xsl:when>
+      <!-- example for the following xsl:when case:
+        <mrow><mi mathvariant="normal">a</mi><mo>(</mo><msub><mi mathvariant="normal">p</mi><mi mathvariant="normal">i</mi></msub><mo>÷</mo><mover accent="true"><mi mathvariant="normal">p</mi><mo>‾</mo></mover><msup><mo>)</mo><mi mathvariant="normal">b</mi></msup></mrow> -->
+      <xsl:when test="$context/self::*:mo[not(@stretchy='false')]
+                                         [matches(., concat('^(', $opening-parenthesis, ')$'))]
+                      and (
+                        every $open in $context/self::*:mo[not(@stretchy='false')]
+                                                          [matches(., concat('^(', $opening-parenthesis, ')$'))]
+                        satisfies $open[
+                          following-sibling::*[
+                            self::*:mo[not(@stretchy='false')]
+                                      [matches(., concat('^(', $opening-parenthesis, '|', $closing-parenthesis, ')$'))] or 
+                            self::*[local-name() = ('msub', 'msup')]
+                                   [*[1][self::*:mo[not(@stretchy='false')]][matches(., concat('^(', $closing-parenthesis, '|', $closing-parenthesis, ')$'))]]
+                          ][1][
+                           self::*:mo[not(@stretchy='false')][matches(., concat('^(', $closing-parenthesis, ')$'))]
+                           or
+                           self::*[local-name() = ('msub', 'msup')]
+                             /*[1][self::*:mo[not(@stretchy='false')]][matches(., concat('^(', $closing-parenthesis, ')$'))]
+                          ]
+                        ]
+                      )">
+        <xsl:for-each-group select="$context"
+          group-starting-with="*:mo[not(@stretchy='false')]
+                                   [matches(., concat('^(', $opening-parenthesis, ')$'))]">
+          <xsl:for-each-group select="current-group()"
+            group-ending-with="*[
+                                  (
+                                    local-name() = ('msub', 'msup') and
+                                    *[1][self::*:mo[not(@stretchy='false')]][matches(., concat('^(', $closing-parenthesis, ')$'))]
+                                  ) or
+                                  (
+                                    self::*:mo[not(@stretchy='false')][matches(., concat('^(', $closing-parenthesis, ')$'))]
+                                  )
+                                ]">
+            <xsl:choose>
+              <xsl:when test="current-group()[last()][self::*[local-name() = ('msub', 'msup')]
+                                                             [*[1][self::*:mo[not(@stretchy='false')]][matches(., concat('^(', $closing-parenthesis, ')$'))]]]">
+                <mml:mfenced open="{current-group()[1]}" close="{current-group()[last()]/self::*[local-name() = ('msub', 'msup')]/*[1]}" separators="">
+                  <xsl:element name="{local-name(current-group()[last()]/self::*[local-name() = ('msub', 'msup')])}">
+                    <mml:mrow>
+                      <xsl:apply-templates select="current-group()[position() != 1 and position() != last()]" mode="fix-mml">
+                        <xsl:with-param name="processed" select="true()"/>
+                      </xsl:apply-templates>
+                    </mml:mrow>
+                    <xsl:apply-templates select="current-group()[last()]/*[position() != 1]" mode="fix-mml">
+                      <xsl:with-param name="processed" select="true()"/>
+                    </xsl:apply-templates>
+                  </xsl:element>
+                </mml:mfenced>
+              </xsl:when>
+              <xsl:when test="current-group()[last()]/self::*:mo[not(@stretchy='false')][matches(., concat('^(', $closing-parenthesis, ')$'))]">
+                <mml:mfenced open="{current-group()[1]}" close="{current-group()[last()]}" separators="">
+                  <mml:mrow>
+                    <xsl:apply-templates select="current-group()[position() != 1 and position() != last()]" mode="fix-mml">
+                      <xsl:with-param name="processed" select="true()"/>
+                    </xsl:apply-templates>
+                  </mml:mrow>
+                </mml:mfenced>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates select="current-group()" mode="fix-mml">
+                  <xsl:with-param name="processed" select="true()"/>
+                </xsl:apply-templates>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each-group>
+        </xsl:for-each-group>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="temp" as="node()*">
         <xsl:for-each-group select="$context" group-starting-with="*[descendant-or-self::*:mo[not(@stretchy='false')]
