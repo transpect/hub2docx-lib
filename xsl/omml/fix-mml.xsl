@@ -333,13 +333,15 @@
                 </xsl:element>
               </xsl:when>
               <xsl:when test="current-group()[last()]/self::*:mo[not(@stretchy='false')][matches(., concat('^(', $closing-parenthesis, ')$'))]">
-                <mml:mfenced open="{current-group()[1]}" close="{current-group()[last()]}" separators="">
-                  <mml:mrow>
-                    <xsl:apply-templates select="current-group()[position() != 1 and position() != last()]" mode="fix-mml">
-                      <xsl:with-param name="processed" select="true()"/>
-                    </xsl:apply-templates>
-                  </mml:mrow>
-                </mml:mfenced>
+                <mml:mrow>
+                  <mml:mfenced open="{current-group()[1]}" close="{current-group()[last()]}" separators="">
+                    <mml:mrow>
+                      <xsl:apply-templates select="current-group()[position() != 1 and position() != last()]" mode="fix-mml">
+                        <xsl:with-param name="processed" select="true()"/>
+                      </xsl:apply-templates>
+                    </mml:mrow>
+                  </mml:mfenced>
+                </mml:mrow>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:apply-templates select="current-group()" mode="fix-mml">
