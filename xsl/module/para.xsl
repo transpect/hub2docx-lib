@@ -80,7 +80,11 @@
       <xsl:if test="@xml:id">
         <w:bookmarkStart w:id="{generate-id()}"  w:name="bm_{generate-id(.)}_"/>
       </xsl:if>
-      <xsl:apply-templates  select="node()"  mode="#current"/>
+      <xsl:apply-templates  select="node()"  mode="#current">
+        <xsl:with-param name="rPrContent" as="element(*)*" tunnel="yes">
+           <xsl:apply-templates  select="@css:color, @css:font-size, @css:font-weight, @css:font-style, @css:font-family, @css:font-style, @css:text-transform"  mode="props"/>
+        </xsl:with-param>
+      </xsl:apply-templates>
       <xsl:if test="@xml:id">
         <w:bookmarkEnd w:id="{generate-id()}"/>
       </xsl:if>
@@ -292,6 +296,46 @@
 
   <xsl:template match="w:jc" mode="tr:propsortkey" as="xs:integer">
     <xsl:sequence select="35"/>
+  </xsl:template>
+  
+    <xsl:template match="w:rStyle" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="-10"/>
+  </xsl:template>
+
+  <xsl:template match="w:rFonts" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="10"/>
+  </xsl:template>
+
+  <xsl:template match="w:b" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="20"/>
+  </xsl:template>
+
+  <xsl:template match="w:i" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="30"/>
+  </xsl:template>
+
+  <xsl:template match="w:caps" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="40"/>
+  </xsl:template>
+  
+  <xsl:template match="w:color" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="100"/>
+  </xsl:template>
+
+  <xsl:template match="w:position" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="105"/>
+  </xsl:template>
+
+  <xsl:template match="w:u" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="115"/>
+  </xsl:template>
+  
+  <xsl:template match="w:sz" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="110"/>
+  </xsl:template>
+  
+  <xsl:template match="w:shd" mode="tr:propsortkey" as="xs:integer">
+    <xsl:sequence select="143"/>
   </xsl:template>
   
 </xsl:stylesheet>
