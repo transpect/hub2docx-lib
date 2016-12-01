@@ -155,7 +155,7 @@
   </xsl:template>
 
   <xsl:variable name="structure-elements" as="xs:string*"
-    select="('appendix', 'bibliodiv', 'bibliography', 'blockquote', 'dedication', 'book', 'bookinfo', 
+    select="('acknowledgements', 'appendix', 'bibliodiv', 'bibliography', 'blockquote', 'dedication', 'book', 'bookinfo', 
     'caution', 'chapter', 'epigraph', 'example', 'formalpara', 'glossary', 'note', 'part', 
     'partintro', 'preface', 'section', 'sect1', 'sect2', 'sect3', 'sect4', 
     'sect5', 'sect6', 'sidebar', 'simplesect', 'tip', 'warning')"/>
