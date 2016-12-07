@@ -134,7 +134,7 @@
                   <xsl:apply-templates mode="hub:foreign"/>      
                 </xsl:when>
                 <xsl:otherwise>
-                  <xsl:variable name="context" as="element(*)" select="ancestor-or-self::*[1]"/>
+                  <xsl:variable name="context" as="element(*)?" select="ancestor-or-self::*[1]"/>
                   <xsl:analyze-string select="." regex="&#x2011;">
                     <xsl:matching-substring>
                       <w:noBreakHyphen/>

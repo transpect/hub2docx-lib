@@ -595,7 +595,6 @@
     <xsl:choose>
       <xsl:when test="matches(., 'Border')">
         <w:tcBorders>
-          <xsl:variable name="context" select="." as="attribute(class)"/>
           <xsl:for-each select="(tokenize(., '\s+'))[matches(., 'Border$')]">
             <xsl:element name="w:{replace(., 'Border', '')}">
               <xsl:attribute name="w:val"    select="'single'" />
