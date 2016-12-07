@@ -302,7 +302,14 @@
     mode="hub:merge"
     match="//w:root_converted//w:hyperlink/@r:id | //w:root_converted//v:imagedata/@r:id">
     <xsl:param name="relationIdOffset" tunnel="yes" />
-    <xsl:attribute name="r:id" select="concat('rId', $relationIdOffset + .)"/>
+    <xsl:if test="not(matches(., '^\d+$'))">
+      <xsl:message 
+        select="'Unexpected non-numeric r:id in merge-with-templates.xsl. 
+        Your resulting docx file will be broken because of wrong r:id values. 
+        This can happen if the source Hub XML contains images in hub:foreign phrases.',
+        .."/>
+    </xsl:if>
+    <xsl:attribute name="r:id" select="concat('rId', $relationIdOffset + number(replace(., '\D', '')))"/>
   </xsl:template>
 
   <xsl:template 
