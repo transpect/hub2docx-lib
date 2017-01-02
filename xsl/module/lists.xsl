@@ -133,7 +133,7 @@
   <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="hub:default">
     <xsl:apply-templates  mode="hub:default">
       <xsl:with-param name="continued-list" as="element(*)?" tunnel="yes" 
-                      select="if (listitem[1][@override][not(matches(@override, '^[\(]?[aA1iI][\.\)]?'))])
+                      select="if (listitem[1][@override][not(matches(@override, '^[\( ]?[aA1iI][\.\)]?'))])
                               then (preceding-sibling::*[ local-name() = $hub:list-element-names][listitem[1][@override][matches(@override, '^[\(]?[aA1iI][\.\)]?')]])[1] 
                               else ()"/>
     </xsl:apply-templates>
@@ -174,8 +174,8 @@
     <xsl:variable name="ilvl"  select="count( ancestor::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
     <!-- if list doesn't start here but somewhere else before-->
     <xsl:variable name="numId" select="if ($continued-list) 
-                                       then tr:getNumId( $continued-list/generate-id() )
-                                       else tr:getNumId( ancestor::*[self::*[ local-name() = $hub:list-element-names]][1]/generate-id() )" />
+                                       then tr:getNumId( $continued-list/ancestor-or-self::*[self::*[ local-name() = $hub:list-element-names]][last()]/generate-id() )
+                                       else tr:getNumId( ancestor::*[self::*[ local-name() = $hub:list-element-names]][last()]/generate-id() )" />
     <!-- §§ should we consider scoping? -->
     <xsl:variable name="in-blockquote" select="if (ancestor::blockquote) then 'Bq' else ''" as="xs:string" />
     <xsl:variable name="continued-list-para" select="if (count(preceding-sibling::para) eq 0) then '' else 'Cont'" as="xs:string" />
