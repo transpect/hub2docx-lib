@@ -63,52 +63,6 @@
       </w:p>
     </xsl:if>
   </xsl:template>
-
-  <xsl:template  match="w:tbl"  mode="hub:clean" priority="3">
-    <!-- turn page if table is too wide -->
-    <xsl:variable name="ps" as="element(w:sectPr)" select="$page-settings"/>
-    <xsl:choose>
-      <xsl:when test="w:tblPr/w:tblW[number(@w:w) gt (number($ps//w:pgSz/@w:w) - number($ps//w:pgMar/@w:right) - number($ps//w:pgMar/@w:left))]">
-       <!-- <w:p w:rsidR="00C604D0" w:rsidRDefault="00C604D0">
-          <w:pPr>
-            <w:sectPr w:rsidR="00C604D0">
-              <w:pgSz w:w="{$ps//w:pgSz/@w:w}" w:h="{$ps//w:pgSz/@w:h}"/>
-              <w:pgMar w:top="{$ps//w:pgMar/@w:top}" w:right="{$ps//w:pgMar/@w:right}" w:bottom="{$ps//w:pgMar/@w:bottom}" w:left="{$ps//w:pgMar/@w:left}" w:header="{$ps//w:pgMar/@w:header}" w:footer="{$ps//w:pgMar/@w:footer}" w:gutter="0"/>
-              <w:cols w:space="708"/>
-              <w:docGrid w:linePitch="360"/>
-            </w:sectPr>
-          </w:pPr>
-        </w:p>-->
-<!--        <xsl:message select="'#############', w:tblPr/w:tblW[number(@w:w) gt (number($ps//w:pgSz/@w:w) - number($ps//w:pgMar/@w:right) - number($ps//w:pgMar/@w:left))]"/>-->
-       
-        <w:p w:rsidR="00C604D0" w:rsidRDefault="00C604D0">
-          <w:pPr>
-            <w:sectPr w:rsidR="00C604D0" w:rsidSect="00C604D0">
-              <w:pgSz w:w="{$ps//w:pgSz/@w:w}" w:h="{$ps//w:pgSz/@w:h}"  w:orient="landscape"/>
-              <w:pgMar w:top="{$ps//w:pgMar/@w:top}" w:right="{$ps//w:pgMar/@w:right}" w:bottom="{$ps//w:pgMar/@w:bottom}" w:left="{$ps//w:pgMar/@w:left}" w:header="{$ps//w:pgMar/@w:header}" w:footer="{$ps//w:pgMar/@w:footer}" w:gutter="0"/>
-              <w:cols w:space="708"/>
-              <w:docGrid w:linePitch="360"/>
-            </w:sectPr>
-          </w:pPr>
-        </w:p>
-        <xsl:next-match/>
-        <w:p w:rsidR="00C604D0" w:rsidRDefault="00C604D0">
-          <w:pPr>
-            <w:sectPr w:rsidR="00C604D0">
-              <w:pgSz w:w="{$ps//w:pgSz/@w:w}" w:h="{$ps//w:pgSz/@w:h}"/>
-              <w:pgMar w:top="{$ps//w:pgMar/@w:top}" w:right="{$ps//w:pgMar/@w:right}" w:bottom="{$ps//w:pgMar/@w:bottom}" w:left="{$ps//w:pgMar/@w:left}" w:header="{$ps//w:pgMar/@w:header}" w:footer="{$ps//w:pgMar/@w:footer}" w:gutter="0"/>
-              <w:cols w:space="708"/>
-              <w:docGrid w:linePitch="360"/>
-            </w:sectPr>
-          </w:pPr>
-        </w:p>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:next-match/>
-      </xsl:otherwise>
-    </xsl:choose>
-
-  </xsl:template>
   
   <xsl:template name="create-table" as="element(*)+">
     <xsl:param name="tblPrContent" as="element(*)*" tunnel="yes" />
