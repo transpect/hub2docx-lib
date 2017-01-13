@@ -156,7 +156,7 @@
 
   <xsl:variable name="structure-elements" as="xs:string*"
     select="('acknowledgements', 'appendix', 'bibliodiv', 'bibliography', 'blockquote', 'dedication', 'book', 'bookinfo', 
-    'caution', 'chapter', 'epigraph', 'example', 'formalpara', 'glossary', 'note', 'part', 
+    'caution', 'chapter', 'epigraph', 'example', 'formalpara', 'glossary', 'glossdiv', 'note', 'part', 
     'partintro', 'preface', 'section', 'sect1', 'sect2', 'sect3', 'sect4', 
     'sect5', 'sect6', 'sidebar', 'simplesect', 'tip', 'warning')"/>
 
@@ -177,7 +177,7 @@
     <xsl:param name="context" as="element(*)?" />
     <xsl:variable  name="origLevel" select="replace( $context/../@role, '(^| )(head|berschrift)([0-9]*).*$', '$2')" as="xs:string?"/>
     <xsl:value-of select="if ( $origLevel castable as xs:integer) then number($origLevel) + 1 
-                          else count( $context/(ancestor::part | ancestor::chapter | ancestor::*[starts-with(local-name(), 'sect')]) ) + 1"/>
+                          else count( $context/(ancestor::part | ancestor::chapter | ancestor::glossdiv | ancestor::*[starts-with(local-name(), 'sect')]) ) + 1"/>
   </xsl:function>
   
   <xsl:template  match="info"  mode="hub:default">
@@ -222,8 +222,8 @@
           </xsl:when>
           <xsl:when test="parent::*[
                             starts-with(local-name(), 'sect') or 
-                            self::info and parent::*[local-name() = ('appendix', 'chapter', 'glossary', 'preface', 'simplesect')] or 
-                            local-name() = ('appendix', 'chapter', 'glossary', 'preface', 'simplesect')
+                            self::info and parent::*[local-name() = ('appendix', 'chapter', 'glossary', 'glossdiv', 'preface', 'simplesect')] or 
+                            local-name() = ('appendix', 'chapter', 'glossary', 'glossdiv', 'preface', 'simplesect')
                           ]">
             <xsl:value-of select="concat( $heading-prefix, string(tr:headinglevel(.)))"/>
           </xsl:when>
