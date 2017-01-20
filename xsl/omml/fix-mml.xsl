@@ -470,4 +470,9 @@
     </xsl:copy>
   </xsl:template>
   
+  <xsl:template match="mml:msubsup[every $r in * satisfies $r/self::mml:mrow[count(*) = 1]]/mml:mrow" mode="fix-mml">
+    
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
 </xsl:stylesheet>
