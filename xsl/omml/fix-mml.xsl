@@ -470,7 +470,7 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="mml:*[local-name() = ('msub', 'msup', 'msubsup')][every $r in * satisfies $r/self::mml:mrow[count(*) = 1]]/mml:mrow" mode="fix-mml">
+  <xsl:template match="mml:mrow[count(*) = 1]" mode="fix-mml" priority="0">
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
