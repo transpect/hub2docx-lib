@@ -63,6 +63,7 @@
 <!--  <xsl:variable name="root" select="/" as="document-node(element(*))" />-->
 
   <xsl:template  match="/*"  mode="hub:default">
+    <xsl:message select="'hub2docx root element:', name()"/>
     <!-- speed up the index-of() a little bit -->
     <xsl:variable  name="rels" select="for $f 
       in (  //*[local-name() = ('mediaobject', 'inlinemediaobject')] 
@@ -268,6 +269,10 @@
   <xsl:template match="w:bookmarkStart/@w:id | w:bookmarkEnd/@w:id" mode="hub:clean">
     <xsl:param name="bookmark-ids" as="xs:string+" tunnel="yes"/>
     <xsl:attribute name="{name()}" select="index-of($bookmark-ids, .)"/>
+  </xsl:template>
+
+  <xsl:template  match="/w:root_converted//w:root_converted"  mode="hub:clean">
+    <xsl:apply-templates select="w:document/w:body/node()" mode="#current"/>
   </xsl:template>
 
   <xsl:template  match="title"  mode="hub:default"  priority="-1">
