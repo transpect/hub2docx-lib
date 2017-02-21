@@ -58,7 +58,7 @@
       <xsl:message  terminate="yes" select="'ERROR: element &quot;anchor&quot; must not have any content!'"/>
     </xsl:if>
     <!-- § has to be located within w:p ? -->
-    <w:bookmarkStart  w:id="{generate-id()}"  w:name="{@xml:id}"/>
+    <w:bookmarkStart  w:id="{generate-id()}"  w:name="{generate-id()}"/>
   </xsl:template>
   
   <xsl:key name="by-id" match="*[@xml:id]" use="@xml:id" />
@@ -272,7 +272,7 @@
         <xsl:variable name="target" select="@linkend | @xlink:href" as="xs:string"/><!-- include some sanitization here -->
         <xsl:variable name="title" select="(@xlink:title, string-join((., if(@role eq 'bibref') then () else ''), ' '))[1]" as="xs:string"/>
         <xsl:if test="@xml:id">
-          <w:bookmarkStart  w:id="{generate-id()}"  w:name="{@xml:id}"/>  
+          <w:bookmarkStart  w:id="{generate-id()}"  w:name="{generate-id()}"/>  
         </xsl:if>
         <w:r>
           <w:fldChar w:fldCharType="begin"/>

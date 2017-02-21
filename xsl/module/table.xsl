@@ -71,6 +71,10 @@
         <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
         <w:bookmarkEnd    w:id="{generate-id(..)}"/>
       </xsl:if>
+      <xsl:if test="(self::informaltable or self::table) and not(tgroup)">
+        <w:bookmarkStart  w:id="{generate-id(.)}"  w:name="bm_{generate-id(.)}_"/>
+        <w:bookmarkEnd    w:id="{generate-id(.)}"/>
+      </xsl:if>
       <xsl:variable name="default-tblPrContent" as="element(*)+">
         <w:tblW w:w="0" w:type="auto"/>
         <!--<w:tblBorders>
