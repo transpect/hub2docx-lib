@@ -63,6 +63,9 @@
   <xsl:param  name="landscape" select="'no'"/>				<!-- page orientation landscape -->
   <xsl:param  name="template-lang" select="'en'"/>				<!-- language of the docx template. Important for default Style names -->
 
+  <xsl:variable name="footnote-bookmark-prefix" as="xs:string"
+    select="'FN_'"/>
+
   <!-- remove header and footer from inner word document: see modules header.xsl and footer.xsl -->
   <xsl:template match="*[@css:page][not(parent::css:page)][tr:is-header(.)]" mode="hub:default" priority="2000"/>
   <xsl:template match="*[@css:page][not(parent::css:page)][tr:is-footer(.)]" mode="hub:default" priority="2000"/>  

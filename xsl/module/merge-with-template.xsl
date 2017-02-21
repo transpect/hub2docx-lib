@@ -225,6 +225,13 @@
     </xsl:copy>
   </xsl:template>
 
+  <xsl:template mode="hub:merge" match="w:root_converted//w:instrText[matches(., concat('\sNOTEREF\s', $footnote-bookmark-prefix, '\d+\s'))]">
+    <xsl:param name="footnoteIdOffset" tunnel="yes" />
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:value-of select="replace(., concat('(\sNOTEREF\s', $footnote-bookmark-prefix, '\d+)\s'), concat('$1_', $footnoteIdOffset, '&#x20;'))"/>
+    </xsl:copy>
+  </xsl:template>
 
   <!-- comment chages/additions -->
 

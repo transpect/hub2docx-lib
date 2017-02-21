@@ -69,7 +69,7 @@
 
   <xsl:function name="tr:fn-bookmark" as="xs:string">
     <xsl:param name="fn" as="element(footnote)" />
-    <xsl:sequence select="concat('FN_', tr:fn-id($fn))" />
+    <xsl:sequence select="concat($footnote-bookmark-prefix, tr:fn-id($fn))" />
   </xsl:function>
 
   <!-- within the text flow, a footnoteref behaves exactly like the the referenced footnote -->
