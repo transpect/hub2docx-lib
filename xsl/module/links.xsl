@@ -75,8 +75,19 @@
   <xsl:template  match="xref[@role eq 'bibref']"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
     <xsl:variable  name="targetNodes"  select="for $le in (@linkend, tokenize(@linkends, '\s+')) return key('by-id', $le)" as="element(*)*"/>
+    <xsl:variable name="bibref-rPr" as="node()*">
+      <w:rPr>
+        <xsl:call-template  name="mergeRunProperties">
+          <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
+          <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
+            <w:rStyle w:val="bibref"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </w:rPr>
+    </xsl:variable>
     <xsl:if test="not(preceding::text()[1][ends-with(., $xref-text-before)])">
       <w:r>
+        <xsl:sequence select="$bibref-rPr"/>
         <w:t>
           <xsl:value-of select="$xref-text-before"/>
         </w:t>
@@ -93,14 +104,7 @@
         <w:fldChar w:fldCharType="separate"/>
       </w:r>
       <w:r>
-        <w:rPr>
-          <xsl:call-template  name="mergeRunProperties">
-            <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-            <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
-              <w:rStyle w:val="bibref"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </w:rPr>
+        <xsl:sequence select="$bibref-rPr"/>
         <w:t>
           <xsl:value-of select="index-of((//biblioentry union //bibliomixed)/@xml:id, @xml:id)"/>
         </w:t>
@@ -110,6 +114,7 @@
       </w:r>
       <xsl:if test="position() != last()">
         <w:r>
+          <xsl:sequence select="$bibref-rPr"/>
           <w:t>
             <xsl:value-of select="','"/>
           </w:t>
@@ -118,6 +123,7 @@
     </xsl:for-each>
     <xsl:if test="not(following::text()[1][starts-with(., $xref-text-after)])">
       <w:r>
+        <xsl:sequence select="$bibref-rPr"/>
         <w:t>
           <xsl:value-of select="$xref-text-after"/>
         </w:t>
@@ -127,8 +133,11 @@
 
   <xsl:template  match="xref[
                           not(@role eq 'bibref') and 
-                          not(@role eq 'internal' and @xrefstyle = ('page', 'pagera', 'pagerb')) and 
-                          @linkend[key('by-id', .)/(@xreflabel[. ne ''] or title[normalize-space()])]
+                          (
+                            not(@role eq 'internal' and @xrefstyle = ('page', 'pagera', 'pagerb')) or 
+                            (@role eq 'internal' and not(@xrefstyle))
+                          ) and 
+                          @linkend[key('by-id', ., $root)/(@xreflabel[. ne ''] or title[normalize-space()])]
                         ]"  mode="hub:default">
     <xsl:variable  name="targetNode"  select="key('by-id', @linkend)[1]"/>
     <xsl:variable  name="linktext" as="xs:string"
@@ -196,7 +205,7 @@
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable  name="targetNode"  select="//*[ @xml:id eq current()/(@xlink:href, @linkend)]"/>
+        <xsl:variable  name="targetNode"  select="$root//*[ @xml:id eq current()/(@xlink:href, @linkend)]"/>
         <xsl:choose>
           <xsl:when  test="count( $targetNode) ne 1">
             <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous. Target:', (@xlink:href, @linkend)"/>
