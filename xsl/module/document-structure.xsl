@@ -249,8 +249,8 @@
     mode="hub:default" priority="3">
     <w:p origin="default_docstruct_title">
       <xsl:call-template name="hub:pPr"/>
-      <xsl:variable name="rPrContent" as="element(w:color)?">
-        <xsl:apply-templates select="@css:color" mode="props"/>
+      <xsl:variable name="rPrContent" as="element(*)*">
+        <xsl:apply-templates select="@css:color, @css:font-size" mode="props"/>
       </xsl:variable>
       <xsl:if test="../@xml:id">
         <w:bookmarkStart w:id="{generate-id(..)}" w:name="bm_{generate-id(..)}_"/>
