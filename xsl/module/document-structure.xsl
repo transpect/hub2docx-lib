@@ -62,7 +62,7 @@
   <xsl:variable name="root" select="/" />
 <!--  <xsl:variable name="root" select="/" as="document-node(element(*))" />-->
 
-  <xsl:template  match="/*"  mode="hub:default">
+  <xsl:template  match="/*[not(self::para)]"  mode="hub:default">
     <xsl:message select="'hub2docx root element:', name()"/>
     <!-- speed up the index-of() a little bit -->
     <xsl:variable  name="rels" select="for $f 
