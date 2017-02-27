@@ -28,7 +28,17 @@
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ §§§ still to implement §§§ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-  <xsl:template  match="glossary[glossentry] | glossary/glossdiv"  mode="hub:default">
+  <xsl:template  match="/glossary"  mode="hub:default" priority="3">
+    <w:root_converted>
+      <w:document>
+        <w:body>
+          <xsl:call-template name="build-glossary"/>
+        </w:body>
+      </w:document>
+    </w:root_converted>
+  </xsl:template>
+
+  <xsl:template  match="glossary[glossentry] | glossary/glossdiv"  name="build-glossary" mode="hub:default">
     <xsl:message  select="if(self::glossdiv) then '...Glossary section:' else '...Glossary:', string-join(title//text()[not(ancestor::indexterm)], '')"/>
     <xsl:apply-templates  select="title"  mode="#current" />
     <xsl:variable name="glossary-table">
