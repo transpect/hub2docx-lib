@@ -74,7 +74,7 @@
        -->
   <xsl:template  match="xref[@role eq 'bibref']"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/>
-    <xsl:variable  name="targetNodes"  select="for $le in (@linkend, tokenize(@linkends, '\s+')) return key('by-id', $le)" as="element(*)*"/>
+    <xsl:variable  name="targetNodes"  select="for $le in (@linkend, tokenize(@linkends, '\s+')) return key('by-id', $le, $root)" as="element(*)*"/>
     <xsl:variable name="bibref-rPr" as="node()*">
       <w:rPr>
         <xsl:call-template  name="mergeRunProperties">
@@ -139,7 +139,7 @@
                           ) and 
                           @linkend[key('by-id', ., $root)/(@xreflabel[. ne ''] or title[normalize-space()])]
                         ]"  mode="hub:default">
-    <xsl:variable  name="targetNode"  select="key('by-id', @linkend)[1]"/>
+    <xsl:variable  name="targetNode"  select="key('by-id', @linkend, $root)[1]"/>
     <xsl:variable  name="linktext" as="xs:string"
       select="if($targetNode/@xreflabel) then $targetNode/@xreflabel
               else string-join(($targetNode/title)[1]//text()[not(ancestor::*[self::footnote or self::indexterm])], '')"/>
@@ -158,7 +158,7 @@
 
   <xsl:template  match="xref[@role eq 'internal' and @xrefstyle = ('page', 'pagera', 'pagerb')]"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="element(*)*" tunnel="yes"/>
-    <xsl:variable  name="targetNode"  select="key('by-id', @xlink:href)"/>
+    <xsl:variable  name="targetNode"  select="key('by-id', @xlink:href, $root)"/>
     <xsl:choose>
       <xsl:when  test="count( $targetNode) ne 1">
         <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous.'"/>
@@ -259,7 +259,7 @@
 
   <xsl:template match="link[not(@role = ( 'internal', 'bibref' ))]" mode="hub:default">
     <xsl:param name="rPrContent" as="element(*)*" tunnel="yes"/>
-    <xsl:variable name="targetNode" select="key('by-id', @linkend)"/>
+    <xsl:variable name="targetNode" select="key('by-id', @linkend, $root)"/>
     <xsl:choose>
       <xsl:when  test="not(@xlink:href) and (count($targetNode) ne 1)">
         <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous (internal @linkend link).'"/>
