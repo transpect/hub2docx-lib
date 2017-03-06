@@ -53,7 +53,7 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </tr:xslt-mode>
-
+<p:sink/>
   <tr:xslt-mode name="clean-hub" msg="yes" mode="hub:clean" prefix="hub2docx/15">
     <p:input port="models"><p:empty/></p:input>
     <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
@@ -63,7 +63,7 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </tr:xslt-mode>
-
+<p:sink/>
   <tr:xslt-mode name="merge" msg="yes" mode="hub:merge" prefix="hub2docx/50">
     <p:input port="models"><p:empty/></p:input>
     <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
