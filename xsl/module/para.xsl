@@ -74,7 +74,12 @@
     <xsl:apply-templates select="@role" mode="props"/>
   </xsl:template>
 
-  <xsl:template  match="para[ not( parent::listitem) ] | simpara[not(parent::footnote)] | attribution"  mode="hub:default">
+  <!-- overwrite me -->
+  <xsl:template match="authorgroup" mode="hub:default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template  match="para[ not( parent::listitem) ] | author[parent::authorgroup] | simpara[not(parent::footnote)] | attribution"  mode="hub:default">
     <w:p origin="{if(self::para) then 'default_p_parentnotlistitem' else if(self::simpara) then 'default_simpara' else 'attribution'}">
       <xsl:call-template name="hub:pPr"/>
       <xsl:if test="@xml:id">
