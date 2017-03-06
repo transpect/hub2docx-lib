@@ -228,6 +228,9 @@
                           ]">
             <xsl:value-of select="concat( $heading-prefix, string(tr:headinglevel(.)))"/>
           </xsl:when>
+          <xsl:when test="parent::*[local-name() = 'acknowledgements']">
+            <xsl:value-of select="concat( $heading-prefix, string(tr:headinglevel(.)))"/>
+           </xsl:when>
           <!-- 'blockquote', 'example', 'formalpara', etc. -->
           <xsl:otherwise>
             <xsl:value-of select="if (parent::info) then concat(local-name(../parent::*), 'title') else concat(local-name(parent::*), 'title')"/>
