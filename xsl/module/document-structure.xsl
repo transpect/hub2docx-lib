@@ -159,7 +159,7 @@
     select="('acknowledgements', 'appendix', 'bibliodiv', 'bibliography', 'blockquote', 'dedication', 'book', 'bookinfo', 
     'caution', 'chapter', 'epigraph', 'example', 'formalpara', 'glossary', 'glossdiv', 'note', 'part', 
     'partintro', 'preface', 'section', 'sect1', 'sect2', 'sect3', 'sect4', 
-    'sect5', 'sect6', 'sidebar', 'simplesect', 'tip', 'warning')"/>
+    'sect5', 'sect6', 'sidebar', 'simplesect', 'tip', 'warning', 'div')"/>
 
   <xsl:template  match="*[name() = $structure-elements]"  mode="hub:default" priority="-1">
     <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
