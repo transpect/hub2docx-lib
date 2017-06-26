@@ -632,7 +632,23 @@
     </xsl:element>
   </xsl:template>
   
-  <xsl:template match="@css:margin-left | @css:margin-right" mode="tblPr">
+  <xsl:template match="@css:margin-left" mode="tblPr">
+    <xsl:choose>
+      <xsl:when test="parent::*[@css:margin-left=('auto','0pt')][@css:margin-right and @css:margin-right=('auto','0pt')]">
+        <xsl:element name="w:jc">
+          <xsl:attribute name="w:val" select="if (parent::*/@css:margin-right='0pt') then 'end' else if (parent::*/@css:margin-left='0pt') then 'start' else 'center'"/>
+        </xsl:element>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:element name="w:tblInd">
+          <xsl:attribute name="w:type" select="'dxa'"/>
+          <xsl:attribute name="w:w" select="if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else ."/>
+        </xsl:element>    
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="*[not(@css:margin-left)]/@css:margin-right" mode="tblPr">
     <xsl:element name="w:tblInd">
       <xsl:attribute name="w:type" select="'dxa'"/>
       <xsl:attribute name="w:w" select="if (matches(.,'pt$')) then number(replace(.,'pt$',''))*20 else ."/>
