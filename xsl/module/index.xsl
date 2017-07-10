@@ -106,7 +106,14 @@
   
   <xsl:template match="indexterm//*[not(local-name() = ('subscript', 'superscript'))]" mode="hub:default" priority="-1">
     <xsl:message select="'hub2docx, unmapped children ', name(), ' in indexterm element.'"/>
-    <xsl:apply-templates select="node()" mode="#current"/>
+    <xsl:choose>
+      <xsl:when test="self::phrase or self::emphasis">
+        <xsl:next-match/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="node()" mode="#current"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template  match="index"  mode="hub:default">
