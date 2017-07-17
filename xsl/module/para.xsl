@@ -47,7 +47,8 @@
                                    @css:margin-bottom, 
                                    @css:margin-top, 
                                    @css:line-height,
-                                   @css:text-align, ancestor-or-self::entry[@char][1]/@char" mode="props" />
+                                   @css:text-align, 
+                                   ancestor-or-self::entry[@char][1]/@char" mode="props" />
       <xsl:call-template name="w:ind"/>
       <!-- will typically handle @role (or create a style if no @role is present / depending on context) -->
       <xsl:apply-templates select="." mode="hub:style-name"/>
@@ -87,7 +88,13 @@
       </xsl:if>
       <xsl:apply-templates  select="node()"  mode="#current">
         <xsl:with-param name="rPrContent" as="element(*)*" tunnel="yes">
-           <xsl:apply-templates  select="@css:color, @css:font-size, @css:font-weight, @css:font-style, @css:font-family, @css:font-style, @css:text-transform"  mode="props"/>
+           <xsl:apply-templates select="@css:color, 
+                                        @css:font-size, 
+                                        @css:font-weight, 
+                                        @css:font-style, 
+                                        @css:font-family, 
+                                        @css:font-style, 
+                                        @css:text-transform"  mode="props"/>
         </xsl:with-param>
       </xsl:apply-templates>
       <xsl:if test="@xml:id">
