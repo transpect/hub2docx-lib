@@ -36,8 +36,16 @@
 
   <xsl:template match="annotation" mode="hub:default">
     <xsl:param  name="rPrContent"  as="element(*)*"  tunnel="yes"/><!-- w:… property elements -->
-    <w:commentRangeStart w:id="{tr:comment-id(.)}"/>
-    <w:commentRangeEnd w:id="{tr:comment-id(.)}"/>
+    <xsl:variable name="comment-id" select="if (preceding-sibling::node()[1][self::anchor[@xml:id and matches(@xml:id,'^comment_.*?_end$')]]) 
+                                            then replace(preceding-sibling::anchor[1]/@xml:id,'^comment_(.*?)_end$','$1') 
+                                            else tr:comment-id(.)"/>
+    <xsl:if test="not(exists(preceding::anchor[not(matches(@xml:id,'_end$'))]
+                                              [@xml:id and matches(@xml:id,concat('^comment_',$comment-id,'$'))]))">
+      <w:commentRangeStart w:id="{$comment-id}"/>
+    </xsl:if>
+    <xsl:if test="not(exists(preceding::anchor[@xml:id and matches(@xml:id,concat('^comment_',$comment-id,'_end$'))]))">
+      <w:commentRangeEnd w:id="{$comment-id}"/>
+    </xsl:if>
     <w:r>
       <w:rPr>
         <xsl:call-template  name="mergeRunProperties">
@@ -49,17 +57,28 @@
           </xsl:with-param>
         </xsl:call-template>
       </w:rPr>
-      <w:commentReference w:id="{tr:comment-id(.)}"/>
+      <w:commentReference w:id="{$comment-id}"/>
     </w:r>
   </xsl:template>
 
+  <xsl:template match="anchor[@xml:id and matches(@xml:id,'^comment_.*?_end$')]" 
+                mode="hub:default">
+    <w:commentRangeEnd w:id="{replace(./@xml:id,'^comment_(.*?)_end$','$1')}"/>
+  </xsl:template>
+  
+  <xsl:template match="anchor[@xml:id and matches(@xml:id,'^comment_.*?$')][not(matches(@xml:id,'_end$'))]" mode="hub:default">
+    <w:commentRangeStart w:id="{replace(./@xml:id,'^comment_(.*?)$','$1')}"/>
+  </xsl:template>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- mode="comments" -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <xsl:template match="annotation" mode="comments">
-    <w:comment w:id="{tr:comment-id(.)}" 
+    <xsl:variable name="comment-id" select="if (preceding-sibling::node()[1][self::anchor[@xml:id and matches(@xml:id,'^comment_.*?_end$')]]) 
+                                            then replace(preceding-sibling::anchor[1]/@xml:id,'^comment_(.*?)_end$','$1') 
+                                            else tr:comment-id(.)"/>
+    <w:comment w:id="{$comment-id}" 
       w:author="{(info/author/personname/othername[@role = 'display-name'], 'le-tex hub2docx')[1]}"
       w:date="{(info/date, current-dateTime())[1] (: 2013-08-30T10:47:00Z :)}"
       w:initials="{(info/author/personname/othername[@role = 'initials'], 'h2d')[1]}">

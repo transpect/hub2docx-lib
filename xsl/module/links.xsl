@@ -53,7 +53,7 @@
     <w:bookmarkEnd w:id="{generate-id()}"/>
   </xsl:template>-->
 
-  <xsl:template  match="anchor"  mode="hub:default">
+  <xsl:template  match="anchor[not(matches(@xml:id,'^comment_'))]"  mode="hub:default">
     <xsl:if  test="node()">
       <xsl:message  terminate="yes" select="'ERROR: element &quot;anchor&quot; must not have any content!'"/>
     </xsl:if>
