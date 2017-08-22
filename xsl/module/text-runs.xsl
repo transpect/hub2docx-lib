@@ -168,6 +168,7 @@
 
   <xsl:template  match="text()[matches( . , '^\s+$')]
                               [not(../@xml:space = 'preserve')]
+                              [not(root(..))]
                               [hub:whitespace-is-ignorable(..)]" mode="hub:default" />
 
   <xsl:template  match="text()"  mode="hub:default" priority="-10000">
