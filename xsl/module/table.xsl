@@ -396,7 +396,12 @@
               </xsl:perform-sort>
             </w:tcPr>
             <w:p>
-              <xsl:sequence select="(w:p/w:pPr)[1]"/>
+              <xsl:variable name="pPr" select="(w:p/w:pPr)[1]/node()[not(self::w:pageBreakBefore)]"/>
+              <xsl:if test="$pPr">
+                <w:pPr>
+                  <xsl:sequence select="$pPr"/>
+                </w:pPr>
+              </xsl:if>
             </w:p>
           </w:tc>
         </xsl:for-each>
@@ -413,7 +418,12 @@
             </xsl:perform-sort>
           </w:tcPr>
           <w:p>
-            <xsl:sequence select="($built-entries/w:p/w:pPr)[1]"/>
+            <xsl:variable name="pPr" select="($built-entries/w:p/w:pPr)[1]/node()[not(self::w:pageBreakBefore)]"/>
+            <xsl:if test="$pPr">
+              <w:pPr>
+                <xsl:sequence select="$pPr"/>
+              </w:pPr>
+            </xsl:if>
           </w:p>
         </w:tc>
         <xsl:sequence select="tr:position-tcs($built-entries[position() gt 1], $cals-entries, $name-to-int-map, $rels)"/>

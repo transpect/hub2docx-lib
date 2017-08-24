@@ -44,6 +44,14 @@
 
   <xsl:template match="mediaobject[not(ancestor::para) and not(parent::term)]" mode="hub:default">
     <w:p origin="default_i_mediaonotparentp">
+      <xsl:variable name="pPr">
+        <xsl:apply-templates select="@css:text-align" mode="props"/>
+      </xsl:variable>
+      <xsl:if test="$pPr">
+        <w:pPr>
+          <xsl:sequence select="$pPr"/>
+        </w:pPr>
+      </xsl:if>
       <xsl:call-template name="insert-picture"/>
     </w:p>
   </xsl:template>
