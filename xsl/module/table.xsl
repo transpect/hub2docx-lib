@@ -550,7 +550,7 @@
   <xsl:template match="@char" mode="props">
     <xsl:if test="parent::*/@align and parent::*/@align = 'char' and parent::*/@charoff and not(parent::*/@charoff = '')">
       <w:tabs>
-        <w:tab w:val="decimal" w:pos="{tr:length-to-unitless-twip(concat(parent::*/@charoff * number((replace(ancestor::*[@css:font-size][1]/@css:font-size,'pt$',''), ancestor::*[@css:line-height][1]/@css:line-height, 11.5)[1]), 'pt'))}"/>
+        <w:tab w:val="decimal" w:pos="{tr:length-to-unitless-twip(concat(parent::*/@charoff * number(replace((ancestor::*[@css:font-size][1]/@css:font-size, ancestor::*[@css:line-height][1]/@css:line-height, '11.5')[1],'pt$','')), 'pt'))}"/>
       </w:tabs>  
     </xsl:if>
   </xsl:template>
