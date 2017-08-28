@@ -147,7 +147,14 @@
                                 then (@colspan, tr:cals-colspan($name-to-int-map, @namest, @nameend))[1] 
                                 else 1
                              ) = $cols]">
-      <xsl:sequence select="tr:position-trs((), current-group(), $name-to-int-map, $rels)"/>
+      <xsl:choose>
+        <xsl:when test="current-group()[1][not(self::row) and not(self::tr)]">
+          <xsl:apply-templates select="current-group()" mode="#current"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="tr:position-trs((), current-group(), $name-to-int-map, $rels)"/>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:for-each-group>
   </xsl:template>
   
