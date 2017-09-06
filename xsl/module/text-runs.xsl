@@ -277,6 +277,12 @@
     <w:position w:val="{tr:length-to-unitless-twip(../@css:top) * -1}"/> 
   </xsl:template>
 
+  <xsl:template match="@css:text-decoration[. eq 'underline']" mode="props" as="element(w:u)">
+    <w:u w:val="single">
+      <xsl:apply-templates select="../@css:text-decoration-color" mode="props-secondary"/>
+      <xsl:apply-templates select="../@css:text-decoration-style" mode="props-secondary"/>
+    </w:u>
+  </xsl:template>
   <xsl:template match="@css:text-decoration-line[. eq 'underline']" mode="props" as="element(w:u)">
     <w:u w:val="single">
       <xsl:apply-templates select="../@css:text-decoration-color" mode="props-secondary"/>
