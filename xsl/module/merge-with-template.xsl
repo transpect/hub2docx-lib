@@ -250,6 +250,9 @@
           <xsl:sequence select="collection()/w:root_converted/w:settings/w:docVars/w:docVar"/>
         </w:docVars>
       </xsl:if>
+      <xsl:if test="not(w:evenAndOddHeaders) and collection()/w:root_converted/w:header/w:hdr[@hub:header-even[.='true']]">
+        <w:evenAndOddHeaders/>
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
 
@@ -460,6 +463,25 @@
       <xsl:attribute name="xml:base" 
         select="tr:get-new-xml-base(., $footerIdOffset, $document-xml-base-modified)"/>
       <xsl:apply-templates mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="/w:root/w:document/w:body/w:sectPr" mode="hub:merge">
+    <xsl:param name="relationIdOffset" tunnel="yes"/>
+    <xsl:variable name="dot" select="."/>
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:apply-templates mode="#current"/>
+      <xsl:for-each select="collection()/w:root_converted/w:header/w:hdr/@hub:*[matches(local-name(.),'^header\-(even|default|first)$')][.='true']">
+        <xsl:if test="not($dot/w:headerReference[@w:type=replace(current()/local-name(),'^header\-(even|default|first)$','$1')])">
+          <w:headerReference r:id="rId{parent::*/@hub:offset + $relationIdOffset}hdr" w:type="{replace(./local-name(),'^header\-(even|default|first)$','$1')}"/>  
+        </xsl:if>
+      </xsl:for-each>
+      <xsl:for-each select="collection()/w:root_converted/w:footer/w:ftr/@hub:*[matches(local-name(.),'^footer\-(even|default|first)$')][.='true']">
+        <xsl:if test="not($dot/w:footerReference[@w:type=replace(current()/local-name(),'^footer\-(even|default|first)$','$1')])">
+          <w:footerReference r:id="rId{parent::*/@hub:offset + $relationIdOffset}ftr" w:type="{replace(./local-name(),'^footer\-(even|default|first)$','$1')}"/>  
+        </xsl:if>
+      </xsl:for-each>
     </xsl:copy>
   </xsl:template>
 
