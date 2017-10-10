@@ -472,12 +472,12 @@
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:apply-templates mode="#current"/>
-      <xsl:for-each select="collection()/w:root_converted/w:header/w:hdr/@hub:*[matches(local-name(.),'^header\-(even|default|first)$')][.='true']">
+      <xsl:for-each select="collection()/w:root_converted/w:header/w:hdr[not(following-sibling::w:hdr/@hub:*[matches(local-name(.),'^header\-(even|default|first)$')] = @hub:*[matches(local-name(.),'^header\-(even|default|first)$')])]/@hub:*[matches(local-name(.),'^header\-(even|default|first)$')][.='true']">
         <xsl:if test="not($dot/w:headerReference[@w:type=replace(current()/local-name(),'^header\-(even|default|first)$','$1')])">
           <w:headerReference r:id="rId{parent::*/@hub:offset + $relationIdOffset}hdr" w:type="{replace(./local-name(),'^header\-(even|default|first)$','$1')}"/>  
         </xsl:if>
       </xsl:for-each>
-      <xsl:for-each select="collection()/w:root_converted/w:footer/w:ftr/@hub:*[matches(local-name(.),'^footer\-(even|default|first)$')][.='true']">
+      <xsl:for-each select="collection()/w:root_converted/w:footer/w:ftr[not(following-sibling::w:ftr/@hub:*[matches(local-name(.),'^footer\-(even|default|first)$')] = @hub:*[matches(local-name(.),'^footer\-(even|default|first)$')])]/@hub:*[matches(local-name(.),'^footer\-(even|default|first)$')][.='true']">
         <xsl:if test="not($dot/w:footerReference[@w:type=replace(current()/local-name(),'^footer\-(even|default|first)$','$1')])">
           <w:footerReference r:id="rId{parent::*/@hub:offset + $relationIdOffset}ftr" w:type="{replace(./local-name(),'^footer\-(even|default|first)$','$1')}"/>  
         </xsl:if>
@@ -498,7 +498,7 @@
       select="if (name(..) eq 'w:headerReference') then 'hdr' else 'ftr'"/>
     <xsl:variable name="ref-name-long" as="xs:string"
       select="if ($ref-name-short eq 'hdr') then 'header' else 'footer'"/>
-    <xsl:variable name="corresponding-converted-margin-element" as="element(*)?"
+    <xsl:variable name="corresponding-converted-margin-element" as="element(*)*"
       select="collection()/w:root_converted
                 /w:*[local-name() eq $ref-name-long]
                   /w:*[local-name() eq $ref-name-short][
