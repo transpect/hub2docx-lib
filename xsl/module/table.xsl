@@ -607,6 +607,10 @@
     <w:shd w:val="clear" w:color="auto" w:fill="{substring(tr:convert-css-color(., 'hex'), 2, 6)}"/>
   </xsl:template>
 
+  <xsl:template match="@css:writing-mode[. = 'bt-lr']" mode="tcPr">
+    <w:textDirection w:val="btLr"/>
+  </xsl:template>
+
   <xsl:template match="@frame" mode="tblPr">
     <xsl:variable name="frame" as="xs:string *">
       <xsl:value-of select="if (parent::*/@css:border-top-style) then '' else if (.=('all','top','topbot','above','hsides','box','border')) then 'top:single' else 'top:none'"/>
