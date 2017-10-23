@@ -38,7 +38,7 @@
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="tgroup">
-        <xsl:for-each select="tgroup">
+         <xsl:for-each select="tgroup">
           <xsl:call-template name="create-table">
             <xsl:with-param name="tblPrContent" select="$tblPrContent" tunnel="yes"/>
           </xsl:call-template>
@@ -111,11 +111,11 @@
         </xsl:document>
       </xsl:variable>
       <xsl:apply-templates select="(thead, tbody, tfoot)" mode="#current">
-        <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
+        <xsl:with-param name="name-to-int-map" as="document-node(element(map))" select="$name-to-int-map" tunnel="yes"/>
       </xsl:apply-templates>
       <!-- the remainder should be tr or row elements: -->
       <xsl:apply-templates select="* except (title | caption | info | colspec | colgroup | col | thead | tbody | tfoot)" mode="#current">
-        <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
+        <xsl:with-param name="name-to-int-map" as="document-node(element(map))" select="$name-to-int-map" tunnel="yes"/>
       </xsl:apply-templates>
     </w:tbl>
   </xsl:template>
@@ -202,7 +202,7 @@
               <xsl:variable name="morerows" as="xs:string" select="if (exists(@morerows)) then @morerows else if (exists(@rowspan)) then string(number(@rowspan)-1) else ''"/>
               <xsl:variable  name="tcPr" as="element()*">
                 <xsl:call-template name="tr:tcPr">
-                  <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
+                  <xsl:with-param name="name-to-int-map"  as="document-node(element(map))" select="$name-to-int-map" tunnel="yes"/>
                 </xsl:call-template>
               </xsl:variable>
               <xsl:variable name="pPr" as="element(*)*">
@@ -270,6 +270,13 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+  
+  <xsl:template  match="w:tblLook[../..[w:tr[1]/w:trPr/w:tblHeader]]"  mode="hub:clean" priority="3">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:attribute name="w:firstRow" select="'1'"/>
+    </xsl:copy>
+  </xsl:template>
   
   <xsl:template match="w:tc[w:tcPr/w:hMerge/@w:val = 'continue']" mode="hub:clean"/>
 
@@ -439,7 +446,7 @@
         <xsl:variable name="tcPr" as="element(*)*">
           <xsl:for-each select="$cals-entries[1]">
             <xsl:call-template name="tr:tcPr">
-              <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
+              <xsl:with-param name="name-to-int-map"  as="document-node(element(map))"  select="$name-to-int-map" tunnel="yes"/>
             </xsl:call-template>
           </xsl:for-each>
         </xsl:variable>
@@ -512,7 +519,7 @@
     <w:tc>
       <xsl:variable  name="tcPr">
         <xsl:call-template name="tr:tcPr">
-          <xsl:with-param name="name-to-int-map" select="$name-to-int-map" tunnel="yes"/>
+          <xsl:with-param name="name-to-int-map" as="document-node(element(map))" select="$name-to-int-map" tunnel="yes"/>
         </xsl:call-template>
       </xsl:variable>
       <xsl:if test="$tcPr">
