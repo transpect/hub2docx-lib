@@ -30,12 +30,12 @@
   <xsl:function name="hub:whitespace-is-ignorable" as="xs:boolean">
     <xsl:param name="elt" as="element(*)"/>
     <xsl:choose>
-      <xsl:when test="local-name($elt) = ('row', 'tbody', 'part', 'chapter', 'section', 'appendix', 'preface',
+      <xsl:when test="local-name($elt) = ('row', 'tbody', 'tgroup', 'thead', 'part', 'chapter', 'section', 'appendix', 'preface',
                                           'listitem', 'itemizedlist', 'orderedlist', 'variablelist', 'varlistentry')">
         <xsl:sequence select="true()"/>
       </xsl:when>
       <xsl:when test="$elt/self::*[local-name() = ('entry', 'td', 'th')]
-                                  [para | simpara | itemizedlist | orderedlist | variablelist]">
+                                  [*[local-name() = ('para', 'simpara', 'itemizedlist', 'orderedlist',  'variablelist')]]">
         <xsl:sequence select="true()"/>
       </xsl:when>
       <xsl:otherwise>
@@ -166,11 +166,11 @@
     </xsl:choose>
   </xsl:template>
 
+
   <xsl:template  match="text()[matches( . , '^\s+$')]
                               [not(../@xml:space = 'preserve')]
-                              [not(root(..))]
-                              [hub:whitespace-is-ignorable(..)]" mode="hub:default" />
-
+                              [hub:whitespace-is-ignorable(..)]" mode="hub:default"/>
+  
   <xsl:template  match="text()"  mode="hub:default" priority="-10000">
     <xsl:param  name="rPrContent"  as="element(*)*" tunnel="yes"/>
     <w:r>
