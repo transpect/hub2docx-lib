@@ -263,6 +263,9 @@
     <xsl:choose>
       <xsl:when  test="not(@xlink:href) and (count($targetNode) ne 1)">
         <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous (internal @linkend link).'"/>
+        <xsl:if test="count($targetNode) = 0">
+          <xsl:message>  (it does not exist)</xsl:message>
+        </xsl:if>
         <xsl:message  terminate="no" select="."/>
         
         <xsl:apply-templates  select="node()"  mode="#current" >
