@@ -31,6 +31,10 @@
 
   <xsl:variable  name="table-scale"  select="20.0"  as="xs:double" />
 
+  <xsl:template  match="table-group"  mode="hub:default">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
+
   <xsl:template  match="table | informaltable"  mode="hub:default">
     <xsl:apply-templates  select="caption | info | title"  mode="#current" />
     <xsl:variable name="tblPrContent" as="element(*)*">
@@ -726,7 +730,7 @@
     </w:p>
   </xsl:template>
   
-  <xsl:template  match="*[self::table or self::informaltable]/title"  mode="hub:default">
+  <xsl:template  match="*[self::table or self::informaltable or self::table-group]/title"  mode="hub:default">
     <w:p origin="default_p_title">
       <w:pPr>
         <w:pStyle>
