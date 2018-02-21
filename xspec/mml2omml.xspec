@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:description xmlns:x="http://www.jenitennison.com/xslt/xspec"
+  stylesheet="../xsl/omml/mml2omml.xsl">
+  <x:scenario label="Given mml:munder">
+    <x:scenario label="with &#x005f; as second child">
+      <x:scenario label="using mode mml">
+        <x:context mode="mml">
+          <mml:math xmlns:mml="http://www.w3.org/1998/Math/MathML" display="block">
+            <mml:munder accentunder="true">
+              <mml:mrow>
+                <mml:msub>
+                  <mml:mi>U</mml:mi>
+                </mml:msub>
+              </mml:mrow>
+              <mml:mo stretchy="true">_</mml:mo>
+            </mml:munder>
+          </mml:math>
+        </x:context>
+        <x:expect label="a m:bar should be generated">
+          <m:bar xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+            <m:barPr>
+             <m:pos m:val="bot"/>
+            </m:barPr>
+            <m:e>
+              <m:sSub>
+                <m:sSubPr>
+                  <m:ctrlPr/>
+                </m:sSubPr>
+                <m:e>
+                  <m:r>
+                    <m:t xml:space="preserve">U</m:t>
+                  </m:r>
+                </m:e>
+                <m:sub/>
+              </m:sSub>
+            </m:e>
+          </m:bar>
+        </x:expect>
+      </x:scenario>
+      <x:scenario label="using named template FIsBar">
+        <x:call template="FIsBar">
+          <x:param name="ndCur">
+            <mml:munder xmlns:mml="http://www.w3.org/1998/Math/MathML" accentunder="true">
+              <mml:mrow>
+                <mml:msub>
+                  <mml:mi>U</mml:mi>
+                </mml:msub>
+              </mml:mrow>
+              <mml:mo stretchy="true">_</mml:mo>
+            </mml:munder>
+          </x:param>
+        </x:call>
+        <x:expect label="1 should be returned">1</x:expect>
+      </x:scenario>
+    </x:scenario>
+  </x:scenario>
+</x:description>
