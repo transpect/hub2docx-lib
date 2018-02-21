@@ -1686,41 +1686,10 @@
         <xsl:otherwise>0</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:variable name="sLowerCaseAccent">
-      <xsl:choose>
-        <xsl:when test="$fUnder=1">
-          <xsl:choose>
-            <xsl:when test="$ndCur/@accentunder">
-              <xsl:value-of select="translate($ndCur/@accentunder, $StrUCAlphabet, $StrLCAlphabet)"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="translate($ndCur/@mml:accentunder, $StrUCAlphabet, $StrLCAlphabet)"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:choose>
-            <xsl:when test="$ndCur/@accent">
-              <xsl:value-of select="translate($ndCur/@accent, $StrUCAlphabet, $StrLCAlphabet)"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="translate($ndCur/@mml:accent, $StrUCAlphabet, $StrLCAlphabet)"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:variable name="fAccent">
-      <xsl:choose>
-        <xsl:when test="$sLowerCaseAccent='true'">1</xsl:when>
-        <xsl:otherwise>0</xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
 
     <xsl:choose>
       <!-- The script is unaccented and the second child is an mo -->
-      <xsl:when test="$fAccent = 0 
-                      and $ndCur/child::*[2]/self::mml:mo">
+      <xsl:when test="$ndCur/child::*[2]/self::mml:mo">
         <xsl:variable name="sOperator">
           <xsl:value-of select="$ndCur/child::*[2]" />
         </xsl:variable>
@@ -3945,4 +3914,5 @@
       </m:supHide>
     </m:naryPr>
   </xsl:template>
+  
 </xsl:stylesheet>
