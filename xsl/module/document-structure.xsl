@@ -157,9 +157,9 @@
 
   <xsl:variable name="structure-elements" as="xs:string*"
     select="('acknowledgements', 'appendix', 'bibliodiv', 'bibliography', 'blockquote', 'dedication', 'book', 'bookinfo', 
-    'caution', 'chapter', 'epigraph', 'example', 'formalpara', 'glossary', 'glossdiv', 'note', 'part', 
+    'caution', 'chapter', 'colophon', 'epigraph', 'example', 'formalpara', 'glossary', 'glossdiv', 'note', 'part', 
     'partintro', 'preface', 'section', 'sect1', 'sect2', 'sect3', 'sect4', 
-    'sect5', 'sect6', 'sidebar', 'simplesect', 'tip', 'warning', 'div')"/>
+    'sect5', 'sect6', 'sidebar', 'simplesect', 'tip', 'warning', 'div', 'index', 'preface')"/>
 
   <xsl:template  match="*[name() = $structure-elements]"  mode="hub:default" priority="-1">
     <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
@@ -190,6 +190,8 @@
       | book/subtitle
       | book/info/subtitle
       | part/subtitle
+      | chapter/subtitle
+      | section/subtitle
       | book/info/subtitle
       | bridgehead"
     mode="hub:style-name">
@@ -223,8 +225,8 @@
           </xsl:when>
           <xsl:when test="parent::*[
                             starts-with(local-name(), 'sect') or 
-                            self::info and parent::*[local-name() = ('appendix', 'chapter', 'glossary', 'glossdiv', 'preface', 'simplesect')] or 
-                            local-name() = ('appendix', 'chapter', 'glossary', 'glossdiv', 'preface', 'simplesect')
+                            self::info and parent::*[local-name() = ('appendix', 'chapter', 'glossary', 'glossdiv', 'preface', 'simplesect', 'index')] or 
+                            local-name() = ('appendix', 'chapter', 'glossary', 'glossdiv', 'preface', 'simplesect', 'index')
                           ]">
             <xsl:value-of select="concat( $heading-prefix, string(tr:headinglevel(.)))"/>
           </xsl:when>
@@ -246,7 +248,8 @@
       | *[local-name() = $structure-elements]/info/title
       | book/subtitle
       | book/info/subtitle
-      | part/subtitle
+      | chapter/subtitle
+      | section/subtitle
       | book/info/subtitle
       | bridgehead"
     mode="hub:default" priority="3">
