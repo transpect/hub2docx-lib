@@ -470,7 +470,8 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="mml:mrow[count(*) = 1]" mode="fix-mml" priority="0">
+  <xsl:template match="mml:mrow[count(*) = 1][not((preceding-sibling::*[1])[matches(local-name(), '^m(under|over|sub|sup)')])]" mode="fix-mml" priority="0">
+    <!-- sbulka 2018-04-19: sums detect its base depending on mrow, so we must not dissolve those (unless we refactor mml2omml). -->
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
