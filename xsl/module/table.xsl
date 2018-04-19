@@ -104,7 +104,7 @@
           <map xmlns="http://docbook.org/ns/docbook">
             <xsl:for-each select="colspec">
               <xsl:variable name="colnum" as="xs:string"
-                select="if(@colnum ne '') then @colnum else replace(@colname, '^c(\d+)$', '$1')"/>
+                select="if(@colnum ne '') then @colnum else replace(@colname, '^c(ol)?(\d+)$', '$2')"/>
               <xsl:if test="$colnum eq ''">
                 <xsl:message select="'ERROR: element colspec: @colnum', @colnum, 'is empty/nonexistent or nonreadable @colname ', @colname"/>
               </xsl:if>
