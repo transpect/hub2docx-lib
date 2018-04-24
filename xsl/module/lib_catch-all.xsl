@@ -9,7 +9,7 @@
     xmlns:dbk		= "http://docbook.org/ns/docbook"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
     xmlns:docx2hub      = "http://transpect.io/docx2hub"
-
+    xmlns:tr		= "http://transpect.io"
 
   xmlns:rel="http://schemas.openxmlformats.org/package/2006/relationships"
   xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
@@ -32,7 +32,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn dbk xlink o w m r docx2hub"
+    exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn dbk xlink o w m r docx2hub tr"
 >
 
 

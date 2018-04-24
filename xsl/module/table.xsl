@@ -21,7 +21,7 @@
     
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn hub xlink o w m wp r"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn hub xlink o w m wp r css tr"
 >
 
 
