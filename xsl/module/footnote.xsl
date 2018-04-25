@@ -59,7 +59,15 @@
     <xsl:param name="fn" as="element(footnote)" />
     <!-- use footnote/@xml:id instead of generate-id (footnotes in tables are temporary written in a variable 
          and so the generate-id returns another values than those in $originalFootnoteIds) -->
-    <xsl:sequence select="index-of($originalFootnoteIds, $fn/@xml:id)" />
+    <xsl:choose>
+      <!-- all footnotes without xml:id attribute -->
+      <xsl:when test="every $fn in $root//footnote satisfies not($fn/@xml:id/normalize-space(.))">
+        <xsl:sequence select="index-of($root//footnote/generate-id(), $fn/generate-id())"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="index-of($originalFootnoteIds, $fn/@xml:id)"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:function>
 
   <xsl:function name="tr:fn-bm-id" as="xs:integer">
