@@ -3,7 +3,8 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+	xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+	xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
   
   <xsl:include href="fix-mml.xsl"/>
   
@@ -1017,6 +1018,11 @@
         </xsl:choose>
       </xsl:if>
     </xsl:variable>
+    <xsl:if test="$mathcolor!=''">
+      <w:rPr>
+        <w:color w:val="{$mathcolor}"/>
+      </w:rPr>
+    </xsl:if>
     <xsl:call-template name="CreateMathRPR">
       <xsl:with-param name="mathvariant" select="$mathvariant" />
       <xsl:with-param name="fontstyle" select="$fontstyle" />
