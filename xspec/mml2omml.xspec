@@ -314,4 +314,50 @@
       </x:expect>
     </x:scenario>
   </x:scenario>
+  <x:scenario label="Given mroot">
+    <x:scenario label="with exponent empty">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mroot>
+            <mrow/>
+            <mrow/>
+          </mroot>
+        </math>
+      </x:context>
+      <x:expect label="degHide is on" xmlns="http://schemas.openxmlformats.org/officeDocument/2006/math">
+        <rad>
+          <radPr>
+            <degHide m:val="on"/>
+          </radPr>
+          <deg/>
+          <m:e/>
+        </rad>
+      </x:expect>
+    </x:scenario>
+    <x:scenario label="with exponent 3">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mroot>
+            <mrow/>
+            <mrow>
+              <mn>3</mn>
+            </mrow>
+          </mroot>
+        </math>
+      </x:context>
+      <x:expect label="degHide is off" xmlns="http://schemas.openxmlformats.org/officeDocument/2006/math">
+        <rad>
+          <radPr>
+            <degHide m:val="off"/>
+          </radPr>
+          <deg>
+            <r>
+            <t xml:space="preserve">3</t>
+          </r>
+          </deg>
+          <m:e/>
+        </rad>
+      </x:expect>
+    </x:scenario>
+  </x:scenario>
 </x:description>

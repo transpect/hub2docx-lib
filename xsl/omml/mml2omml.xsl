@@ -1477,7 +1477,7 @@
     <xsl:element name="m:rad">
       <xsl:element name="m:radPr">
         <xsl:element name="m:degHide">
-          <xsl:attribute name="m:val">off</xsl:attribute>
+          <xsl:attribute name="m:val" select="(child::*[2][exists(descendant-or-self::*[not(self::mml:mrow)])]/'off','on')[1]"/>
         </xsl:element>
       </xsl:element>
       <xsl:element name="m:deg">
