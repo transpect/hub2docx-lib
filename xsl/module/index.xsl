@@ -36,6 +36,8 @@
   </xsl:template>
 
   <xsl:template  match="indexterm[ not(@class) or @class ne 'endofrange' ]"  mode="hub:default">
+    <xsl:param name="see-prefix" 
+      select="if(/*/@xml:lang = 'de') then 'Siehe' else 'See'"/>
     <xsl:if  test="see/*">
       <xsl:message  terminate="yes"  select="'ERROR: children of see-elements are not supported yet.'"/>
     </xsl:if>
@@ -82,7 +84,7 @@
     <!-- the \t-switch determines the text rendered in an index for this indexentry -->
     <xsl:if test="see">
       <w:r>
-        <w:t xml:space="preserve"> \t &#x22;See <xsl:value-of select="see"/>&#x22;</w:t>
+        <w:t xml:space="preserve"> \t &#x22;<xsl:value-of select="$see-prefix"/> <xsl:value-of select="see"/>&#x22;</w:t>
       </w:r>
     </xsl:if>
     
