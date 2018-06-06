@@ -3,8 +3,9 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
-	xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  exclude-result-prefixes="w m mml xs">
   
   <xsl:include href="fix-mml.xsl"/>
   
