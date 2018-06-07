@@ -1007,6 +1007,14 @@
     <xsl:param name="ndCur" />
     <xsl:param name="fontfamily" />
     <xsl:param name="fNor" />
+    <xsl:variable name="sFontCur">
+      <xsl:call-template name="GetFontCur">
+        <xsl:with-param name="mathvariant" select="$mathvariant" />
+        <xsl:with-param name="fontstyle" select="$fontstyle" />
+        <xsl:with-param name="fontweight" select="$fontweight" />
+        <xsl:with-param name="ndCur" select="$ndCur" />
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:variable name="mstyleColor">
       <xsl:if test="not(not($ndCur))">
         <xsl:choose>
@@ -1019,9 +1027,23 @@
         </xsl:choose>
       </xsl:if>
     </xsl:variable>
-    <xsl:if test="$mathcolor!=''">
+    <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='') or $mathcolor!=''">
       <w:rPr>
-        <w:color w:val="{$mathcolor}"/>
+        <xsl:choose>
+          <xsl:when test="$sFontCur = ('bi', 'bold-italic')">
+            <w:b/>
+            <w:i/>
+          </xsl:when>
+          <xsl:when test="$sFontCur = 'bold'">
+            <w:b/>
+          </xsl:when>
+          <xsl:when test="$sFontCur = 'italic'">
+            <w:i/>
+          </xsl:when>
+        </xsl:choose>
+        <xsl:if test="$mathcolor!=''">
+          <w:color w:val="{$mathcolor}"/>
+        </xsl:if>
       </w:rPr>
     </xsl:if>
     <xsl:call-template name="CreateMathRPR">
@@ -1030,6 +1052,7 @@
       <xsl:with-param name="fontweight" select="$fontweight" />
       <xsl:with-param name="ndCur" select="$ndCur" />
       <xsl:with-param name="fNor" select="$fNor" />
+      <xsl:with-param name="sFontCur" select="$sFontCur"/>
     </xsl:call-template>
   </xsl:template>
 
@@ -1041,14 +1064,7 @@
     <xsl:param name="fontweight" />
     <xsl:param name="ndCur" />
     <xsl:param name="fNor" />
-    <xsl:variable name="sFontCur">
-      <xsl:call-template name="GetFontCur">
-        <xsl:with-param name="mathvariant" select="$mathvariant" />
-        <xsl:with-param name="fontstyle" select="$fontstyle" />
-        <xsl:with-param name="fontweight" select="$fontweight" />
-        <xsl:with-param name="ndCur" select="$ndCur" />
-      </xsl:call-template>
-    </xsl:variable>
+    <xsl:param name="sFontCur"/>
     <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='')">
       <xsl:element name="m:rPr">
         <xsl:if test="$fNor=1">

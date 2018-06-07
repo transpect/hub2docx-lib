@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <x:description xmlns:x="http://www.jenitennison.com/xslt/xspec"
-  xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+  xmlns:w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:m ="http://schemas.openxmlformats.org/officeDocument/2006/math"
   xmlns:hub = "http://transpect.io/hub"
   stylesheet="../xsl/omml/mml2omml.xsl">
   <x:scenario label="Given munder">
@@ -357,6 +358,65 @@
           </deg>
           <m:e/>
         </rad>
+      </x:expect>
+    </x:scenario>
+  </x:scenario>
+  <x:scenario label="Given mtext">
+    <x:scenario label="with @mathvariant='italic'">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mtext mathvariant="italic">ß</mtext>
+        </math>
+      </x:context>
+      <x:expect label="w:rPr/w:i is generated">
+        <m:r>
+          <w:rPr>
+            <w:i/>
+          </w:rPr>
+          <m:rPr>
+            <m:nor/>
+          </m:rPr>
+          <m:t xml:space="preserve">ß</m:t>
+        </m:r>
+      </x:expect>
+    </x:scenario>
+    <x:scenario label="with @mathvariant='bold'">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mtext mathvariant="bold">ß</mtext>
+        </math>
+      </x:context>
+      <x:expect label="w:rPr/w:i is generated">
+        <m:r>
+          <w:rPr>
+            <w:b/>
+          </w:rPr>
+          <m:rPr>
+            <m:nor/>
+            <m:sty m:val="b"/>
+          </m:rPr>
+          <m:t xml:space="preserve">ß</m:t>
+        </m:r>
+      </x:expect>
+    </x:scenario>
+    <x:scenario label="with @mathvariant='bold-italic'">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mtext mathvariant="bold-italic">ß</mtext>
+        </math>
+      </x:context>
+      <x:expect label="w:rPr/w:i is generated">
+        <m:r>
+          <w:rPr>
+            <w:b/>
+            <w:i/>
+          </w:rPr>
+          <m:rPr>
+            <m:nor/>
+            <m:sty m:val="bi" />
+          </m:rPr>
+          <m:t xml:space="preserve">ß</m:t>
+        </m:r>
       </x:expect>
     </x:scenario>
   </x:scenario>
