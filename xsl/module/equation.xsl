@@ -78,5 +78,12 @@
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
+  
+  <xsl:template match="omml:r/w:rPr[not(w:rFonts)]" mode="hub:clean">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/>
+    </xsl:copy>
+  </xsl:template>
 
 </xsl:stylesheet>
