@@ -282,6 +282,19 @@
     </xsl:copy>
   </xsl:template>
   
+  
+  <xsl:template match="w:tc[*[last()][self::w:tbl]]" priority="1" mode="hub:clean">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <w:p>
+            <w:pPr>
+              <w:spacing w:after="0"/>
+              <w:jc w:val="left"/>
+            </w:pPr>
+       </w:p>
+    </xsl:copy>
+  </xsl:template>
+  
   <xsl:template match="w:tc[w:tcPr/w:hMerge/@w:val = 'continue']" mode="hub:clean"/>
 
   <xsl:template match="w:tc/w:tcPr/w:hMerge" mode="hub:clean"/>
