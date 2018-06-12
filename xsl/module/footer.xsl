@@ -29,7 +29,7 @@
          <info>
            <css:rules>
              <css:page pseudo="right" name="myfooter">
-               <css:page-margin-box location="top-center"/>
+               <css:page-margin-box location="bottom-center"/>
              </css:page>
              <css:rule name="anyfooter" layout-type="object"/>
            </css:rules>
