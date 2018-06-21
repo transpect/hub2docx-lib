@@ -50,6 +50,38 @@
     </m:oMath>
   </xsl:template>
   
+  <xsl:template match="m:math[m:mtable and
+    (
+      .//m:mspace[@linebreak='newline'] or
+      .//m:maligngroup[@columnalign = 'left']
+    )]" mode="hub:default" exclude-result-prefixes="mc w">
+    <xsl:element name="m:oMathPara" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
+      <xsl:for-each select="m:mtable/m:mtr">
+        <xsl:element name="m:oMath" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
+          <xsl:variable name="mml" as="node()*">
+            <xsl:apply-templates select="node()" mode="m-to-mml"/>
+          </xsl:variable>
+          <xsl:apply-templates select="$mml" mode="mml"/>
+          <xsl:if test="position() lt last()">
+            <xsl:element name="m:r" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
+              <xsl:element name="m:rPr" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
+                <xsl:element name="m:sty" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
+                  <xsl:attribute name="m:val" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math"
+                    select="'p'"/>
+                </xsl:element>
+              </xsl:element>
+              <w:rPr>
+                <w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/>
+                <w:lang w:val="en-US"/>
+              </w:rPr>
+              <w:br/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:element>
+      </xsl:for-each>
+    </xsl:element>
+  </xsl:template>
+  
   <xsl:template match="m:*" mode="m-to-mml">
     <xsl:element name="{local-name(.)}" namespace="http://www.w3.org/1998/Math/MathML">
       <xsl:apply-templates select="@*" mode="#current"/>

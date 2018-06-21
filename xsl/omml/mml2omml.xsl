@@ -276,6 +276,8 @@
 					parent::mml:msqrt or parent::mml:menclose or
 					parent::mml:math or parent::mml:mphantom or 
 					parent::mml:mtd or parent::mml:maction)" />
+    
+    <xsl:variable name="maligngroup" select="preceding-sibling::node()[1]/self::mml:maligngroup/@columnalign = 'left'" as="xs:boolean"/>
 
     <!--In MathML, the meaning of the different parts that make up mathematical structures, such as a fraction 
 			having a numerator and a denominator, is determined by the relative order of those different parts.  
@@ -385,6 +387,7 @@
                 </xsl:choose>
               </xsl:with-param>
               <xsl:with-param name="ndTokenFirst" select="." />
+              <xsl:with-param name="maligngroup" select="$maligngroup" tunnel="yes"/>
             </xsl:call-template>
           </xsl:when>
         </xsl:choose>
@@ -1065,8 +1068,13 @@
     <xsl:param name="ndCur" />
     <xsl:param name="fNor" />
     <xsl:param name="sFontCur"/>
-    <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='')">
+    <xsl:param name="maligngroup" select="false()" tunnel="yes" as="xs:boolean"/>
+    <xsl:variable name="needs-mrPr" select="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='') or $maligngroup"/>
+    <xsl:if test="$needs-mrPr">
       <xsl:element name="m:rPr">
+        <xsl:if test="$maligngroup">
+          <m:aln/>
+        </xsl:if>
         <xsl:if test="$fNor=1">
           <m:nor />
         </xsl:if>
