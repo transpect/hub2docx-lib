@@ -414,7 +414,7 @@
     <xsl:param name="rels" as="xs:string*"/>
     
     <xsl:choose>
-      <xsl:when test="empty($cals-entries)">
+      <xsl:when test="empty($cals-entries)"><!-- expand all remaining columns by built w:tc(w:vMerge) -->
         <xsl:for-each select="$built-entries[w:tcPr/w:vMerge[@hub:morerows  and number(@hub:morerows) gt 0]]">
           <w:tc>
             <w:tcPr>
@@ -438,6 +438,7 @@
         </xsl:for-each>
       </xsl:when>
       <xsl:when test="$built-entries[1][w:tcPr/w:vMerge[@hub:morerows and number(@hub:morerows) gt 0]]">
+        <!-- expand current column by w:tc(w:vMerge) from previous w:tr -->
         <w:tc>
           <w:tcPr>
             <xsl:perform-sort>
@@ -457,9 +458,10 @@
             </xsl:if>
           </w:p>
         </w:tc>
+        <!-- process next column, do not consume cals-entry -->
         <xsl:sequence select="tr:position-tcs($built-entries[position() gt 1], $cals-entries, $name-to-int-map, $rels)"/>
       </xsl:when>
-      <xsl:otherwise>
+      <xsl:otherwise><!-- generate new w:tc by cals-entry (more than one if colspan) -->
         <xsl:variable name="tcPr" as="element(*)*">
           <xsl:for-each select="$cals-entries[1]">
             <xsl:call-template name="tr:tcPr">
@@ -470,7 +472,7 @@
         <xsl:variable name="pPr" as="element(*)*">
           <xsl:apply-templates select="$cals-entries[1]/para/@css:page-break-avoid" mode="props"/>
         </xsl:variable>
-        <w:tc>
+        <w:tc><!-- w:tc for current col must be generated -->
             <w:tcPr>
               <xsl:perform-sort>
                 <xsl:sort data-type="number" order="ascending">
@@ -490,8 +492,15 @@
             <xsl:with-param name="rels" select="$rels" tunnel="yes"/>
           </xsl:apply-templates>
         </w:tc>
-        <xsl:if test="exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan)">
-          <xsl:for-each select="1 to (xs:integer($cals-entries[1]/@colspan), xs:integer(tr:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend)))[1]-1">
+        <xsl:variable name="span-length"
+          select="
+          if (exists($cals-entries[1]/@namest) or exists($cals-entries[1]/@colspan))
+          then (xs:integer($cals-entries[1]/@colspan), xs:integer(tr:cals-colspan($name-to-int-map, $cals-entries[1]/@namest, $cals-entries[1]/@nameend)))[1]
+          else 1"
+          as="xs:integer"/>
+        <xsl:if test="$span-length gt 1">
+          <!-- w:tc for following cols will be generated if spanning multiple cols -->
+          <xsl:for-each select="1 to $span-length - 1">
             <w:tc>
               <w:tcPr>
                 <xsl:perform-sort>
@@ -515,7 +524,8 @@
             </w:tc>
           </xsl:for-each>
         </xsl:if>
-        <xsl:sequence select="tr:position-tcs($built-entries[position() gt 1], $cals-entries[position() gt 1], $name-to-int-map, $rels)"/>
+        <!-- process next column, do consume cals-entry -->
+        <xsl:sequence select="tr:position-tcs($built-entries[position() gt $span-length], $cals-entries[position() gt 1], $name-to-int-map, $rels)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
