@@ -384,7 +384,7 @@
   <xsl:template name="tr:tcPr" as="element(*)*">
     <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
     <xsl:apply-templates select="(@colspan, tr:cals-colspan($name-to-int-map, @namest, @nameend))[1], 
-                                 @class, 
+                                 @class, @valign,
                                  (@rowsep, @colsep)[1], 
                                  @css:*[not(starts-with(local-name(), 'padding-'))]" mode="tcPr"/>
     <xsl:sequence select="tr:borders(.)"/>
@@ -633,7 +633,7 @@
     </xsl:element>
   </xsl:template>
   
-  <xsl:template match="@css:vertical-align" mode="tcPr">
+  <xsl:template match="@css:vertical-align | @valign" mode="tcPr">
     <w:vAlign w:val="{if (.='middle') then 'center' else .}"/>
   </xsl:template>
 
