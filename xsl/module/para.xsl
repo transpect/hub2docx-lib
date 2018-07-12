@@ -86,17 +86,32 @@
       <xsl:if test="@xml:id">
         <w:bookmarkStart w:id="{generate-id()}"  w:name="bm_{generate-id(.)}_"/>
       </xsl:if>
-      <xsl:apply-templates  select="node()"  mode="#current">
-        <xsl:with-param name="rPrContent" as="element(*)*" tunnel="yes">
-           <xsl:apply-templates select="@css:color, 
-                                        @css:font-size, 
-                                        @css:font-weight, 
-                                        @css:font-style, 
-                                        @css:font-family, 
-                                        @css:font-style, 
-                                        @css:text-transform"  mode="props"/>
-        </xsl:with-param>
-      </xsl:apply-templates>
+      <xsl:variable name="content" as="node()*">
+        <xsl:apply-templates  select="node()"  mode="#current">
+          <xsl:with-param name="rPrContent" as="element(*)*" tunnel="yes">
+             <xsl:apply-templates select="@css:color, 
+                                          @css:font-size, 
+                                          @css:font-weight, 
+                                          @css:font-style, 
+                                          @css:font-family, 
+                                          @css:font-style, 
+                                          @css:text-transform"  mode="props"/>
+          </xsl:with-param>
+        </xsl:apply-templates>
+      </xsl:variable>
+      <xsl:choose>
+        <xsl:when test="parent::entry and (every $n in node() satisfies $n/(self::equation, self::inlineequation))">
+          <m:oMathPara>
+            <m:oMathParaPr>
+              <m:jc m:val="{(((equation, inlineequation)/@css:text-align), @css:text-align, parent::*/@align, 'center')[1]}"/>
+            </m:oMathParaPr>
+            <xsl:sequence select="$content"/>
+          </m:oMathPara>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="$content"/>
+        </xsl:otherwise>
+      </xsl:choose>
       <xsl:if test="@xml:id">
         <w:bookmarkEnd w:id="{generate-id()}"/>
       </xsl:if>
