@@ -17,6 +17,7 @@
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
+    xmlns:mml = "http://www.w3.org/1998/Math/MathML"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
@@ -100,7 +101,8 @@
         </xsl:apply-templates>
       </xsl:variable>
       <xsl:choose>
-        <xsl:when test="parent::entry and (every $n in node() satisfies $n/(self::equation, self::inlineequation))">
+        <xsl:when test="parent::entry and (every $n in node() satisfies ($n/(self::equation, self::inlineequation)
+          and (every $m in $n/node() satisfies ($m/self::mml:math))))">
           <m:oMathPara>
             <m:oMathParaPr>
               <m:jc m:val="{(((equation, inlineequation)/@css:text-align), @css:text-align, parent::*/@align, 'center')[1]}"/>
