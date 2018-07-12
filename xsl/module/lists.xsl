@@ -109,7 +109,7 @@
     <xsl:apply-templates select="$dissolve" mode="#current" />
   </xsl:template>
 
-  <xsl:template  match="para[ *[ local-name() = $hub:list-element-names] ]"   mode="hub:default" priority="10">
+  <xsl:template  match="para[ *[ local-name() = $hub:list-element-names] ]" mode="hub:group hub:default" priority="10">
     <xsl:param name="fn" as="element(footnote)?" tunnel="yes"/>
     <xsl:variable name="dissolve" as="element(*)+">
       <xsl:for-each-group select="node()" group-adjacent="exists(self::*[ local-name() = $hub:list-element-names])">

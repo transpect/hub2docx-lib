@@ -57,7 +57,7 @@
   <xsl:template match="comment()" mode="hub:default" priority="-1" />
 
   <xsl:template match="node() | @*"
-    mode="hub:default hub:clean footnotes header footer comments glossary2table patchTemplateFile extract-text numbering props trPr tcPr remove-misplaced-runs"
+    mode="hub:group hub:default hub:clean footnotes header footer comments glossary2table patchTemplateFile extract-text numbering props trPr tcPr remove-misplaced-runs"
                 priority="-1001">
     <!-- Must. Not. Add. copy-namespaces="no" 
          Otherwise it’ll break at some point (for ex. when you include wp14: elements, or graphics) -->
