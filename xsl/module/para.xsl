@@ -21,7 +21,7 @@
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn hub xlink css o w m wp r docx2hub"
+    exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn hub xlink css o w m wp r docx2hub mml"
 >
 
   <xsl:key name="styleId" match="w:style" use="@w:styleId"/>
