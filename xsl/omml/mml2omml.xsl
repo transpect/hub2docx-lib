@@ -3281,6 +3281,7 @@
   <xsl:template match="mml:mspace[matches(@width, '^[1-9]\d*(.\d+)?em$')]" mode="mml">
     <xsl:element name="m:r">
       <xsl:element name="m:t">
+        <xsl:attribute name="xml:space" select="'preserve'"/>
         <xsl:for-each select="1 to xs:integer(replace(@width, '^([1-9]\d*)(\.\d+)?em$', '$1')) * 4">
           <xsl:text xml:space="preserve"> </xsl:text>
         </xsl:for-each>
@@ -3291,6 +3292,7 @@
   <xsl:template match="mml:mspace[not(matches(@width, '^[1-9]\d*(.\d+)?em$'))]" mode="mml">
     <xsl:element name="m:r">
       <xsl:element name="m:t">
+        <xsl:attribute name="xml:space" select="'preserve'"/>
         <xsl:text xml:space="preserve"> </xsl:text>
       </xsl:element>
     </xsl:element>
