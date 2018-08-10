@@ -54,6 +54,11 @@
       </xsl:if>
       <xsl:call-template name="insert-picture"/>
     </w:p>
+    <xsl:apply-templates select="caption" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="mediaobject/caption" mode="hub:default">
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
 
   <xsl:template match="inlinemediaobject | mediaobject[ancestor::para or parent::term]" mode="hub:default" name="insert-picture">
