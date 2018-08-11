@@ -101,8 +101,23 @@
         </xsl:apply-templates>
       </xsl:variable>
       <xsl:choose>
-        <xsl:when test="parent::entry and (every $n in node() satisfies ($n/(self::equation, self::inlineequation)
-          and (every $m in $n/node() satisfies ($m/self::mml:math))))">
+        <xsl:when test="parent::entry 
+                        and (exists(node())
+                             and 
+                             (
+                               every $n in node() 
+                               satisfies ($n/(self::equation, self::inlineequation)
+                                         and 
+                                         (exists($n/node())
+                                          and 
+                                          (
+                                            every $m in $n/node() 
+                                            satisfies ($m/self::mml:math)
+                                          )
+                                         )
+                                       )
+                             )
+                            )">
           <m:oMathPara>
             <m:oMathParaPr>
               <m:jc m:val="{(((equation, inlineequation)/@css:text-align), @css:text-align, parent::*/@align, 'center')[1]}"/>
