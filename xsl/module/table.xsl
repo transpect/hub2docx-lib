@@ -676,7 +676,10 @@
                                         else round(tr:length-to-unitless-twip(.))"/>
       <xsl:attribute name="w:type" select="if (matches(.,'%$')) then 'pct' else if (matches(.,'(pt|mm)$')) then 'dxa' else 'auto'"/>
     </xsl:element>
-    <xsl:if test="matches(.,'(auto|pt|mm)$')">
+  </xsl:template>
+  
+  <xsl:template match="@css:table-layout" mode="tblPr">
+    <xsl:if test=". = 'fixed'">
       <w:tblLayout w:type="fixed"/>
     </xsl:if>
   </xsl:template>
