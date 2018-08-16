@@ -38,7 +38,7 @@
   <xsl:template  match="table | informaltable"  mode="hub:default">
     <xsl:apply-templates  select="caption | info | title"  mode="#current" />
     <xsl:variable name="tblPrContent" as="element(*)*">
-      <xsl:apply-templates select="@css:width, @css:text-align, @role, @css:margin-left, @css:margin-right, @css:background-color, @frame" mode="tblPr"/>
+      <xsl:apply-templates select="@css:width, @css:table-layout, @css:text-align, @role, @css:margin-left, @css:margin-right, @css:background-color, @frame" mode="tblPr"/>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="tgroup">
