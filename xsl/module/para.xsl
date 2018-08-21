@@ -122,7 +122,14 @@
             <m:oMathParaPr>
               <m:jc m:val="{(((equation, inlineequation)/@css:text-align), @css:text-align, parent::*/@align, 'center')[1]}"/>
             </m:oMathParaPr>
-            <xsl:sequence select="$content"/>
+            <xsl:choose>
+              <xsl:when test="$content[self::m:oMathPara]">
+                <xsl:sequence select="$content/node()"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:sequence select="$content"/>
+              </xsl:otherwise>
+            </xsl:choose>
           </m:oMathPara>
         </xsl:when>
         <xsl:otherwise>
