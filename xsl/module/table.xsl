@@ -133,6 +133,12 @@
       </xsl:if>
     </w:gridCol>
   </xsl:template>
+  
+  <xsl:template match="row" mode="hub:default">
+    <w:tr>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </w:tr>
+  </xsl:template>
 
   <!--<xsl:template  match="thead | tbody | tfoot"  mode="hub:default_DISABLED">
     <xsl:apply-templates  mode="#current"/>
