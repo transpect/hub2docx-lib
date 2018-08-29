@@ -118,10 +118,12 @@
             <xsl:sequence select="current-group()" />
           </xsl:when>
           <xsl:otherwise>
-            <para xmlns="http://docbook.org/ns/docbook">
-              <xsl:sequence select="@*" />
-              <xsl:sequence select="current-group() except *[ local-name() = $hub:list-element-names]" />
-            </para>
+            <xsl:if test="current-group()[normalize-space() or exists(*)]">
+              <para xmlns="http://docbook.org/ns/docbook">
+                <xsl:sequence select="@*" />
+                <xsl:sequence select="current-group() except *[ local-name() = $hub:list-element-names]" />
+              </para>
+            </xsl:if>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each-group>
