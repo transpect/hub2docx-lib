@@ -111,6 +111,8 @@
 
   <xsl:template  match="para[ *[ local-name() = $hub:list-element-names] ]" mode="hub:group hub:default" priority="10">
     <xsl:param name="fn" as="element(footnote)?" tunnel="yes"/>
+    
+    <xsl:variable name="props" select="@*"/>
     <xsl:variable name="dissolve" as="element(*)+">
       <xsl:for-each-group select="node()" group-adjacent="exists(self::*[ local-name() = $hub:list-element-names])">
         <xsl:choose>
@@ -120,7 +122,7 @@
           <xsl:otherwise>
             <xsl:if test="current-group()[normalize-space() or exists(*)]">
               <para xmlns="http://docbook.org/ns/docbook">
-                <xsl:sequence select="@*" />
+                <xsl:sequence select="$props" />
                 <xsl:sequence select="current-group() except *[ local-name() = $hub:list-element-names]" />
               </para>
             </xsl:if>
