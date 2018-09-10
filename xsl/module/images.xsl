@@ -68,14 +68,15 @@
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
     </xsl:variable>
+    <xsl:variable name="media-id" select="index-of($MediaIds, generate-id(.))" as="xs:integer"/>
     <xsl:choose>
       <xsl:when test="count(.//imagedata) eq 1 and
                       matches(.//imagedata/@fileref, '^container[:]')">
         <w:r>
           <w:pict>
-            <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{string-join($pictstyle,';')}">
-              <v:imagedata hub:fileref="{replace(.//@fileref, '^container:word/', '')}" r:id="{index-of($rels, generate-id(.))}"
-                id="img{index-of($MediaIds, generate-id(.))}" o:title=""/>
+            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
+              <v:imagedata hub:fileref="{replace(.//@fileref, '^container:word/', '')}" 
+                r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}" o:title=""/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
               </xsl:if>
@@ -86,8 +87,9 @@
       <xsl:otherwise>
         <w:r>
           <w:pict>
-            <v:shape id="h2d_img{index-of($MediaIds, generate-id(.))}" style="{string-join($pictstyle,';')}">
-              <v:imagedata hub:fileref="{.//@fileref}" o:title="" r:id="{index-of($rels, generate-id(.))}"/>
+            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
+              <v:imagedata hub:fileref="{.//@fileref}" o:title="" 
+                r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}"/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
               </xsl:if>
