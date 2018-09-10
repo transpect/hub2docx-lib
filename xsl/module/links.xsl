@@ -80,7 +80,7 @@
         <xsl:call-template  name="mergeRunProperties">
           <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
           <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
-            <w:rStyle w:val="bibref"/>
+            <w:rStyle w:val="{$link-bibref-rstyle}"/>
           </xsl:with-param>
         </xsl:call-template>
       </w:rPr>
@@ -170,7 +170,7 @@
               <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
               <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
                 <xsl:if  test="@role eq 'bibref'">
-                  <w:rStyle w:val="LiteraturverweisZchn"/>
+                  <w:rStyle w:val="{$link-bibref-rstyle}"/>
                 </xsl:if>
               </xsl:with-param>
             </xsl:call-template>
@@ -187,134 +187,84 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  
+  <xsl:variable name="link-bibref-rstyle" as="xs:string?"
+    select="'LiteraturverweisZchn'"/>
+  <xsl:variable name="link-internal-rstyle" as="xs:string?"
+    select="'InternalRef'"/>
 
-  <xsl:template  match="link[@role = ( 'internal', 'bibref' )]"  mode="hub:default">
-    <xsl:param  name="rPrContent" as="element(*)*" tunnel="yes"/>
-    <xsl:choose>
-      <xsl:when  test="@xlink:href eq 'id_NOTFOUND_DEADLINK'">
-        <xsl:apply-templates  select="node()"  mode="#current" >
-          <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
-            <xsl:call-template  name="mergeRunProperties">
-              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-              <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
-                <!-- §§ this rStyle has still to be defined or replaced by another one! -->
-                <w:rStyle  w:val="DeadHyperlink"/>
-              </xsl:with-param>
-            </xsl:call-template>
-          </xsl:with-param>
-        </xsl:apply-templates>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:variable  name="targetNode"  select="$root//*[ @xml:id eq current()/(@xlink:href, @linkend)]"/>
-        <xsl:choose>
-          <xsl:when  test="count( $targetNode) ne 1">
-            <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous. Target:', (@xlink:href, @linkend)"/>
-            <xsl:message  terminate="no" select="."/>
-
-            <xsl:apply-templates  select="node()"  mode="#current" >
-              <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
-                <xsl:call-template  name="mergeRunProperties">
-                  <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-                  <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
-                    <xsl:if  test="@role eq 'bibref'">
-                      <w:rStyle w:val="LiteraturverweisZchn"/>
-                    </xsl:if>
-                  </xsl:with-param>
-                </xsl:call-template>
-              </xsl:with-param>
-            </xsl:apply-templates>
-
-          </xsl:when>
-          <xsl:otherwise>
-            <!-- § This stuff has to be located within w:p! Is this guaranteed? -->
-            <w:r>
-              <w:fldChar w:fldCharType="begin"/>
-            </w:r>
-            <w:r>
-              <w:instrText xml:space="preserve"> HYPERLINK \l bm_<xsl:value-of  select="$targetNode/generate-id()"/>_ \o "<xsl:value-of  select="string-join((., if(@role eq 'bibref') then () else ''), ' ')"/>"</w:instrText>
-            </w:r>
-            <w:r>
-              <w:fldChar w:fldCharType="separate"/>
-            </w:r>
-            <xsl:apply-templates  select="node()"  mode="#current" >
-              <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
-                <xsl:call-template  name="mergeRunProperties">
-                  <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-                  <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
-                    <xsl:if  test="@role eq 'bibref'">
-                      <w:rStyle w:val="bibref"/>
-                    </xsl:if>
-                  </xsl:with-param>
-                </xsl:call-template>
-              </xsl:with-param>
-            </xsl:apply-templates>
-            <w:r>
-              <w:fldChar w:fldCharType="end"/>
-            </w:r>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template match="link[not(@role = ( 'internal', 'bibref' ))]" mode="hub:default">
+  <xsl:template match="link" mode="hub:default">
     <xsl:param name="rPrContent" as="element(*)*" tunnel="yes"/>
-    <xsl:variable name="targetNode" select="key('by-id', @linkend, $root)"/>
+    <xsl:variable name="targetNode" 
+      select="$root//*[ @xml:id eq current()/(@xlink:href, @linkend)]"/>
+    <xsl:variable name="targetNode-corrected" 
+      select="if($targetNode/self::tgroup) then $targetNode/ancestor::table[1] else $targetNode"/>
+
     <xsl:choose>
-      <xsl:when  test="not(@xlink:href) and (count($targetNode) ne 1)">
-        <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous (internal @linkend link).'"/>
-        <xsl:if test="count($targetNode) = 0">
-          <xsl:message>  (it does not exist)</xsl:message>
-        </xsl:if>
-        <xsl:message  terminate="no" select="."/>
-        
-        <xsl:apply-templates  select="node()"  mode="#current" >
-          <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
-            <xsl:call-template  name="mergeRunProperties">
-              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-              <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)?">
-                <!-- Does anyone need this style? If so, please call it hub:InternalRef -->
-                <!-- <w:rStyle w:val="InternalRef"/>-->
+      <xsl:when test="not(@xlink:href) and count( $targetNode-corrected) ne 1">
+        <xsl:message select="'ERROR: Target node of a link-element does not exist or is ambiguous. Target:', (@xlink:href, @linkend)"/>
+        <xsl:message terminate="no" select="."/>
+
+        <xsl:apply-templates select="node()" mode="#current" >
+          <xsl:with-param name="rPrContent" tunnel="yes" as="element(*)*">
+            <xsl:call-template name="mergeRunProperties">
+              <xsl:with-param name="inherited_rPrContent" select="$rPrContent" as="element(*)*"/>
+              <xsl:with-param name="new_rPrContent" as="element(w:rStyle)?">
+                <xsl:if test="@role eq 'bibref'">
+                  <w:rStyle w:val="{$link-bibref-rstyle}"/>
+                </xsl:if>
               </xsl:with-param>
             </xsl:call-template>
           </xsl:with-param>
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="target" select="@linkend | @xlink:href" as="xs:string"/><!-- include some sanitization here -->
-        <xsl:variable name="title" select="(@xlink:title, string-join((., if(@role eq 'bibref') then () else ''), ' '))[1]" as="xs:string"/>
+        
+        <xsl:variable name="target" select="($targetNode-corrected/@xml:id, @linkend)[1] | @xlink:href" as="xs:string"/>
+        <xsl:variable name="title" select="replace((@xlink:title, ., ' ')[1], '(&quot;)', '\\$1')" as="xs:string"/>
         <xsl:if test="@xml:id">
-          <w:bookmarkStart  w:id="{generate-id()}"  w:name="{generate-id()}"/>  
+          <w:bookmarkStart w:id="{generate-id()}" w:name="{generate-id()}"/>
         </xsl:if>
         <w:r>
           <w:fldChar w:fldCharType="begin"/>
         </w:r>
         <w:r>
-          <w:instrText xml:space="preserve"> HYPERLINK <xsl:value-of select="if (@linkend or @role='internal') then '\l' else ''"/> <xsl:value-of select="$target"/> \o "<xsl:value-of  
-            select="replace($title, '(&quot;)', '\\$1')"/>"</w:instrText>
+          <xsl:choose>
+            <xsl:when test="@xlink:href">
+              <w:instrText xml:space="preserve"> HYPERLINK <xsl:value-of select="$target"/> \o "<xsl:value-of select="$title"/>"</w:instrText>
+            </xsl:when>
+            <xsl:otherwise>
+              <w:instrText xml:space="preserve"> HYPERLINK \l bm_<xsl:value-of select="$targetNode-corrected/generate-id()"/>_ \o "<xsl:value-of select="$title"/>"</w:instrText>
+            </xsl:otherwise>
+          </xsl:choose>
         </w:r>
         <w:r>
           <w:fldChar w:fldCharType="separate"/>
         </w:r>
-
         <xsl:apply-templates  select="node()"  mode="#current" >
-          <xsl:with-param  name="rPrContent"  tunnel="yes" as="element(*)*">
-            <xsl:call-template  name="mergeRunProperties">
-              <xsl:with-param  name="inherited_rPrContent"  select="$rPrContent" as="element(*)*"/>
-              <xsl:with-param  name="new_rPrContent" as="element(w:rStyle)">
-                <w:rStyle w:val="InternalRef"/>
+          <xsl:with-param name="rPrContent" tunnel="yes" as="element(*)*">
+            <xsl:call-template name="mergeRunProperties">
+              <xsl:with-param name="inherited_rPrContent" select="$rPrContent" as="element(*)*"/>
+              <xsl:with-param name="new_rPrContent" as="element(w:rStyle)?">
+                <xsl:choose>
+                  <xsl:when test="@role eq 'bibref'">
+                    <w:rStyle w:val="{$link-bibref-rstyle}"/>
+                  </xsl:when>
+                  <xsl:when test="@role eq 'internal'">
+                    <w:rStyle w:val="{$link-internal-rstyle}"/>
+                  </xsl:when>
+                  <xsl:otherwise/>
+                </xsl:choose>
               </xsl:with-param>
             </xsl:call-template>
           </xsl:with-param>
         </xsl:apply-templates>
-
         <w:r>
           <w:fldChar w:fldCharType="end"/>
         </w:r>
         <xsl:if test="@xml:id">
-          <w:bookmarkEnd  w:id="{generate-id()}"/>  
+          <w:bookmarkEnd w:id="{generate-id()}"/>
         </xsl:if>
-        
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
