@@ -70,12 +70,12 @@
     </xsl:variable>
     <xsl:variable name="media-id" select="index-of($MediaIds, generate-id(.))" as="xs:integer"/>
     <xsl:choose>
-      <xsl:when test="count(.//imagedata) eq 1 and
-                      matches(.//imagedata/@fileref, '^container[:]')">
+      <xsl:when test="count(./imageobject/imagedata) eq 1 and
+                      matches(./imageobject/imagedata/@fileref, '^container[:]')">
         <w:r>
           <w:pict>
             <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
-              <v:imagedata hub:fileref="{replace(.//@fileref, '^container:word/', '')}" 
+              <v:imagedata hub:fileref="{replace(./imageobject/imagedata/@fileref, '^container:word/', '')}" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}" o:title=""/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
@@ -88,7 +88,7 @@
         <w:r>
           <w:pict>
             <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
-              <v:imagedata hub:fileref="{.//@fileref}" o:title="" 
+              <v:imagedata hub:fileref="{./imageobject/imagedata/@fileref}" o:title="" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}"/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
@@ -219,13 +219,13 @@
 
   <!--  mode = "documentRels"-->
   
-  <xsl:template  match="inlinemediaobject[not(count(.//imagedata) eq 1 and matches(.//imagedata/@fileref, '^container[:]'))] | 
-                        mediaobject[not(count(.//imagedata) eq 1 and matches(.//imagedata/@fileref, '^container[:]'))]"  
+  <xsl:template  match="inlinemediaobject[not(count(./imageobject/imagedata) eq 1 and matches(./imageobject/imagedata/@fileref, '^container[:]'))] | 
+                        mediaobject[not(count(./imageobject/imagedata) eq 1 and matches(./imageobject/imagedata/@fileref, '^container[:]'))]"  
                  mode="documentRels">
     <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  
-      Target="{.//@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-      <xsl:if test="not(matches(.//@fileref,'^media'))">
+      Target="{./imageobject/imagedata/@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+      <xsl:if test="not(matches(./imageobject/imagedata/@fileref,'^media'))">
         <xsl:attribute name="TargetMode" select="'External'"/>
       </xsl:if>
     </Relationship>
