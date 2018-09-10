@@ -60,12 +60,12 @@
     <!-- use footnote/@xml:id instead of generate-id (footnotes in tables are temporary written in a variable 
          and so the generate-id returns another values than those in $originalFootnoteIds) -->
     <xsl:choose>
-      <!-- all footnotes without xml:id attribute -->
-      <xsl:when test="every $fn in $root//footnote satisfies not($fn/@xml:id/normalize-space(.))">
-        <xsl:sequence select="index-of($root//footnote/generate-id(), $fn/generate-id())"/>
+      <!-- all footnotes with xml:id attribute -->
+      <xsl:when test="every $i in $root//footnote satisfies $i/@xml:id/normalize-space(.)">
+        <xsl:sequence select="index-of($originalFootnoteIds, $fn/@xml:id)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:sequence select="index-of($originalFootnoteIds, $fn/@xml:id)"/>
+        <xsl:sequence select="index-of($root//footnote/generate-id(), $fn/generate-id())"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
