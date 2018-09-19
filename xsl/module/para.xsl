@@ -48,7 +48,7 @@
                                    @css:margin-bottom, 
                                    @css:margin-top, 
                                    @css:line-height,
-                                   @css:text-align, 
+                                   (@css:text-align, ancestor-or-self::entry[@align][1]/@align)[1], 
                                    ancestor-or-self::entry[@char][1]/@char" mode="props" />
       <xsl:call-template name="w:ind"/>
       <!-- will typically handle @role (or create a style if no @role is present / depending on context) -->
@@ -261,7 +261,10 @@
     </w:spacing>
   </xsl:template>
   
-  <xsl:template match="@css:text-align" mode="props tblPr">
+  <!-- not implemented, yet -->
+  <xsl:template match="@align[. eq 'char']" mode="props tblPr"/>
+  
+  <xsl:template match="@css:text-align | @align" mode="props tblPr">
     <w:jc w:val="{if (. = 'justify') then 'both' else .}"/>
   </xsl:template>
   
