@@ -217,14 +217,14 @@
         <xsl:message select="'para.xsl, match=@role: no style for role ', string(.)"/>
         <xsl:variable name="elt-name">
           <xsl:choose>
-            <xsl:when test="$parent-is-para">
+            <xsl:when test="$parent-is-para or parent::title">
               <xsl:sequence select="'w:pStyle'"/>
             </xsl:when>
             <xsl:when test="$parent-is-inline">
               <xsl:sequence select="'w:rStyle'"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:message><xsl:value-of select="parent::*"/> not implemented as parent for @role="<xsl:value-of select="."/>"</xsl:message>
+              <xsl:message>Element <xsl:value-of select="name(parent::*)"/> not implemented as parent for @role="<xsl:value-of select="."/>"</xsl:message>
               <xsl:sequence select="'implementMe'"/>
             </xsl:otherwise>
           </xsl:choose>  
