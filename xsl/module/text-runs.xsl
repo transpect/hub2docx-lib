@@ -146,10 +146,10 @@
                         </xsl:matching-substring>
                         <xsl:non-matching-substring>
                           <w:t>
-                            <xsl:if  test="matches( . , '^\s|\s$')">
+                            <xsl:if  test="matches( . , '^\s|\s$') or exists($context[not(hub:whitespace-is-ignorable(.))])">
                               <xsl:attribute  name="xml:space"  select="'preserve'"/>
                             </xsl:if>
-                            <xsl:value-of select="if ($context/@xml:space = 'preserve')
+                            <xsl:value-of select="if ($context[(@xml:space = 'preserve') or not(hub:whitespace-is-ignorable(.))])
                                                   then .
                                                   else replace(., '\s+', ' ')"/>
                           </w:t>    
@@ -180,7 +180,7 @@
         </w:rPr>
       </xsl:if>
       <w:t>
-        <xsl:if  test="matches( . , '^\s|\s$')">
+        <xsl:if  test="matches( . , '^\s|\s$') or not(hub:whitespace-is-ignorable(ancestor::*[1]))">
           <xsl:attribute  name="xml:space"  select="'preserve'"/>
         </xsl:if>
         <xsl:value-of  select="." />
