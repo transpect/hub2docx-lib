@@ -79,6 +79,118 @@
                           "/>
   </xsl:function>
 
+  <!-- This function provides the integer equivalent of a listitem's number. -->
+  <xsl:function name="tr:getLiNumAsInt" as="xs:integer?">
+    <xsl:param name="num" as="xs:string?"/>
+    <xsl:param name="numeration" as="xs:string?"><!-- arabic, loweralpha, lowerroman, upperalpha, upperroman --></xsl:param>
+    <xsl:variable name="cleanNum" as="xs:string" select="replace($num, '^\s?([^\.\) ]+)[\.\) ]*$', '$1')"/>
+    <xsl:choose>
+      <xsl:when test="not($num)"/>
+      <xsl:when test="$numeration eq 'arabic'">
+        <xsl:sequence select="xs:integer($cleanNum)"/>
+      </xsl:when>
+      <xsl:when test="$numeration = ('loweralpha', 'upperalpha')">
+        <xsl:sequence select="tr:letters-to-number($cleanNum)"/>
+      </xsl:when>
+      <xsl:when test="$numeration = ('lowerroman', 'upperroman')">
+        <xsl:sequence select="tr:roman-to-int($cleanNum)"/>
+      </xsl:when>
+      <xsl:when test="matches($cleanNum, '^[0-9]+$')"><!-- arabic -->
+        <xsl:value-of select="$cleanNum"/>
+      </xsl:when>
+      <xsl:otherwise/>
+    </xsl:choose>
+  </xsl:function>
+  
+  <!-- This function identifies whether a list starts or continues a preceding list. -->
+  <xsl:function name="tr:isContinuedList" as="xs:boolean">
+    <xsl:param name="list" as="element()"/>
+    <xsl:choose>
+      <xsl:when test="$list/listitem[1][@override]">
+        <xsl:variable name="num" as="xs:string" select="$list/listitem[1]/@override"/>
+        <xsl:variable name="type" as="xs:string" select="($list/@numeration, '')[1]"/>
+        <xsl:variable name="possiblyContinuedList" as="element()?" 
+                      select="($list/preceding-sibling::*[ local-name() = $hub:list-element-names]
+                                                         [listitem[1][@override][matches(@override, '^[\(]?[aA1iI][\.\)]?')]])[1]"/>
+        <xsl:sequence select=" if (tr:getLiNumAsInt($num, $type) = 1)
+                               then false()
+                               else if (    exists($possiblyContinuedList) 
+                                        and
+                                            (  tr:getLiNumAsInt($num, $type) 
+                                             - tr:getLiNumAsInt($possiblyContinuedList/listitem[last()]/@override, 
+                                                               ($possiblyContinuedList/@numeration, '')[1]) 
+                                             = 1)
+                                        )
+                                    then true()
+                                    else false()"/>
+      </xsl:when>
+      <xsl:when test="$list/@continuation eq 'continues'">
+        <xsl:sequence select="true()"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="false()"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <!-- This function examines whether the current number is the ordinary follower of the preceding number. -->
+  <xsl:function name="tr:isOrdinaryFollower" as="xs:boolean">
+    <xsl:param name="elt" as="element()"/>
+    <xsl:variable name="currentNum" as="xs:integer?" select="tr:getLiNumAsInt($elt/@override, ($elt/ancestor::*[local-name() = $hub:list-element-names][1]/@numeration, '')[1])"/>
+    <xsl:variable name="precedingNum" as="xs:integer?" select="(tr:getLiNumAsInt($elt/preceding-sibling::*[1]/@override, ($elt/ancestor::*[local-name() = $hub:list-element-names][1]/@numeration, '')[1]), 0)[1]"/>
+    <xsl:sequence select="boolean(($currentNum - $precedingNum) = 1)"/>
+  </xsl:function>
+  
+  <!-- This function calculates new starting numbers within lists as a sequence of integer values. 
+       For example: 'b)', 'd)' will return '2 4'. -->
+  <xsl:function name="tr:getOverrideStarts" as="xs:integer*">
+    <xsl:param name="list" as="element()"/>
+    <xsl:choose>
+      <xsl:when test="$list/local-name() = ('itemizedlist', 'variablelist')">
+        <xsl:sequence select="1"/>
+      </xsl:when>      
+      <xsl:otherwise>
+        <xsl:variable name="numeration" as="xs:string" select="($list/@numeration, '')[1]"/>
+        <xsl:variable name="numbers" as="xs:integer*" 
+          select="for $li in $list/* return (if ($li/@override[normalize-space()]) 
+                                             then if (not(tr:isOrdinaryFollower($li)))
+                                                  then tr:getLiNumAsInt($li/@override, $numeration)
+                                                  else ()
+                                             else ())"/>
+        <xsl:sequence select="$numbers"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <xsl:function name="tr:getLastOverrideStart" as="xs:integer">
+    <xsl:param name="elt" as="element()"/>
+    <xsl:variable name="li" as="element(listitem)" select="$elt/ancestor-or-self::listitem[1]"/>
+    <xsl:variable name="numeration" as="xs:string" select="($li/parent::*/@numeration, '')[1]"/>
+    <xsl:variable name="lastOverrideStart" as="xs:integer" 
+      select="($li/preceding-sibling::*[not(tr:isOrdinaryFollower(.))][1]/tr:getLiNumAsInt(@override, $numeration), 1)[1]"/>
+    <xsl:variable name="currentNumAsInt" as="xs:integer?" select="tr:getLiNumAsInt($li/@override, $numeration)"/>
+    <xsl:sequence select="if ($li/@override[normalize-space()]) 
+                          then  if (tr:isOrdinaryFollower($li))
+                                then $lastOverrideStart
+                                else $currentNumAsInt
+                          else $lastOverrideStart"/>
+  </xsl:function>
+  
+  <!-- This function selects the ilvl value. -->
+  <xsl:function name="tr:getIlvl" as="xs:integer">
+    <xsl:param name="elt" as="element()"/>
+    <xsl:value-of select="count( ancestor-or-self::*[self::*[ local-name() = $hub:list-element-names]]) - 1"/>
+  </xsl:function>
+  
+  <!-- This function calculates the numId for a single listitem or para. -->
+  <xsl:function name="tr:getLiNumId" as="xs:integer">
+    <xsl:param name="elt" as="element()"/>
+    <xsl:param name="overrideStart" as="xs:integer"/>
+    <xsl:sequence select="xs:integer(tr:getNumId(generate-id($elt/ancestor-or-self::*[local-name() = $hub:list-element-names][1])) 
+                          * 1000
+                          + $overrideStart)"/>
+  </xsl:function>
+  
 
 <!-- ================================================================================ -->
 <!-- TEMPLATES -->
@@ -137,9 +249,16 @@
   <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="hub:default">
     <xsl:apply-templates  mode="hub:default">
       <xsl:with-param name="continued-list" as="element(*)?" tunnel="yes" 
-                      select="if (listitem[1][@override][not(matches(@override, '^[\( ]?[aA1iI][\.\)]?'))])
-                              then (preceding-sibling::*[ local-name() = $hub:list-element-names][listitem[1][@override][matches(@override, '^[\(]?[aA1iI][\.\)]?')]])[1] 
+                      select="if (listitem[1][@override][not(matches(@override, '^[\( ]?[aA1iI][\.\)]?'))] and tr:isContinuedList(.))
+                              then (preceding-sibling::*[ local-name() = $hub:list-element-names]
+                                                        [listitem[1][@override][matches(@override, '^[\(]?[aA1iI][\.\)]?')]])[1] 
                               else ()"/>
+      <xsl:with-param name="continues" tunnel="yes" 
+                      select="if (listitem[1][@override] or (@continuation eq 'continues'))
+                                then if (tr:isContinuedList(.))
+                                        then true() 
+                                     else false()
+                              else false()"/>
     </xsl:apply-templates>
   </xsl:template>
 
@@ -208,15 +327,20 @@
   <xsl:template  match="variablelist"  mode="numbering" priority="2"/>
 
   <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="numbering">
-    <xsl:variable name="ilvl"  select="count( ancestor-or-self::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
+    <xsl:variable name="list" as="element()" select="."/>
+    <xsl:variable name="ilvl"  select="tr:getIlvl(.)" as="xs:integer"/>
+    <xsl:variable name="getOverrideStarts" as="xs:integer*" select="tr:getOverrideStarts(.)"/>
+    <xsl:variable name="numbers" as="xs:integer+" select="if (count($getOverrideStarts) gt 0) then $getOverrideStarts else 1"/>
+    <xsl:for-each select="$numbers">
     <!-- ~~~~~~~~~~~~~~~~~~~~ w:num ~~~~~~~~~~~~~~~~~~~~ -->
-    <w:num>
-      <xsl:attribute  name="w:numId"  select="tr:getNumId( generate-id())"/>
-      <w:abstractNumId w:val="{tr:getAbstractNumId( .)}"/>
-      <w:lvlOverride w:ilvl="{if(starts-with(local-name(), 'biblio')) then 0 else $ilvl}">
-        <w:startOverride w:val="1" />
-      </w:lvlOverride> 
-    </w:num>
+      <w:num>
+        <xsl:attribute  name="w:numId"  select="tr:getLiNumId($list, .)"/>
+        <w:abstractNumId w:val="{tr:getAbstractNumId($list)}"/>
+        <w:lvlOverride w:ilvl="{if(starts-with($list/local-name(), 'biblio')) then 0 else $ilvl}">
+          <w:startOverride w:val="{.}" />
+        </w:lvlOverride> 
+      </w:num>
+    </xsl:for-each>
     <xsl:apply-templates  mode="#current"/>
     <!-- ~~~~~~~~~~~~~~~~~~~~ w:abstractNumId ~~~~~~~~~~~~~~~~~~~~ -->
     <!-- Currently we do not want to generate the w:abstractNum-elements referenced by the w:num/w:numId/@val.
