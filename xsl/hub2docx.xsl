@@ -31,6 +31,7 @@
   <xsl:import href="http://transpect.io/docx_modify/xsl/props.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/lengths/xsl/lengths.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/mime-type/xsl/mime-type.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/num/xsl/num.xsl"/>
   
   <xsl:import href="module/lib_catch-all.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
