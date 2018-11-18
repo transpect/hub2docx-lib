@@ -83,11 +83,14 @@
   <xsl:function name="tr:getLiNumAsInt" as="xs:integer?">
     <xsl:param name="num" as="xs:string?"/>
     <xsl:param name="numeration" as="xs:string?"><!-- arabic, loweralpha, lowerroman, upperalpha, upperroman --></xsl:param>
-    <xsl:variable name="cleanNum" as="xs:string" select="replace($num, '^\s?([^\.\) ]+)[\.\) ]*$', '$1')"/>
+    <xsl:variable name="cleanNum" as="xs:string" select="replace($num, '^[\s\p{Zs}]*([^\.\) ]+)[\.\) ]*$', '$1')"/>
     <xsl:choose>
       <xsl:when test="not($num)"/>
-      <xsl:when test="$numeration eq 'arabic'">
+      <xsl:when test="$numeration eq 'arabic' and ($cleanNum castable as xs:integer)">
         <xsl:sequence select="xs:integer($cleanNum)"/>
+      </xsl:when>
+      <xsl:when test="$numeration eq 'arabic'">
+        <xsl:message select="'tr:getLiNumAsInt: Value', $num, 'cleaned as ', $cleanNum, 'may not be cast to integer'"/>        
       </xsl:when>
       <xsl:when test="$numeration = ('loweralpha', 'upperalpha')">
         <xsl:sequence select="tr:letters-to-number($cleanNum)"/>
@@ -179,7 +182,7 @@
   <!-- This function selects the ilvl value. -->
   <xsl:function name="tr:getIlvl" as="xs:integer">
     <xsl:param name="elt" as="element()"/>
-    <xsl:value-of select="count( ancestor-or-self::*[self::*[ local-name() = $hub:list-element-names]]) - 1"/>
+    <xsl:value-of select="count($elt/ancestor-or-self::*[local-name() = $hub:list-element-names]) - 1"/>
   </xsl:function>
   
   <!-- This function calculates the numId for a single listitem or para. -->
