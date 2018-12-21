@@ -117,5 +117,11 @@
       <w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/>
     </xsl:copy>
   </xsl:template>
+  
+  <xsl:template match="w:tc/omml:oMath" mode="hub:clean">
+    <w:p>
+      <xsl:next-match/>
+    </w:p>
+  </xsl:template>
 
 </xsl:stylesheet>
