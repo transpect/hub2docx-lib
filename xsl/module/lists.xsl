@@ -111,7 +111,7 @@
     <xsl:choose>
       <xsl:when test="$list/listitem[1][@override]">
         <xsl:variable name="num" as="xs:string" select="$list/listitem[1]/@override"/>
-        <xsl:variable name="type" as="xs:string" select="($list/@numeration, '')[1]"/>
+        <xsl:variable name="type" as="xs:string" select="tr:getNumerationType($list)"/>
         <xsl:variable name="possiblyContinuedList" as="element()?" 
                       select="($list/preceding-sibling::*[ local-name() = $hub:list-element-names]
                                                          [listitem[1][@override][matches(@override, '^[\(]?[aA1iI][\.\)]?')]])[1]"/>
@@ -121,7 +121,7 @@
                                         and
                                             (  tr:getLiNumAsInt($num, $type) 
                                              - tr:getLiNumAsInt($possiblyContinuedList/listitem[last()]/@override, 
-                                                               ($possiblyContinuedList/@numeration, '')[1]) 
+                                                               (tr:getNumerationType($possiblyContinuedList))) 
                                              = 1)
                                         )
                                     then true()
@@ -139,8 +139,10 @@
   <!-- This function examines whether the current number is the ordinary follower of the preceding number. -->
   <xsl:function name="tr:isOrdinaryFollower" as="xs:boolean">
     <xsl:param name="elt" as="element()"/>
-    <xsl:variable name="currentNum" as="xs:integer?" select="tr:getLiNumAsInt($elt/@override, ($elt/ancestor::*[local-name() = $hub:list-element-names][1]/@numeration, '')[1])"/>
-    <xsl:variable name="precedingNum" as="xs:integer?" select="(tr:getLiNumAsInt($elt/preceding-sibling::*[1]/@override, ($elt/ancestor::*[local-name() = $hub:list-element-names][1]/@numeration, '')[1]), 0)[1]"/>
+    <xsl:variable name="currentNum" as="xs:integer?" 
+      select="tr:getLiNumAsInt($elt/@override, tr:getNumerationType($elt/ancestor::*[local-name() = $hub:list-element-names][1]))"/>
+    <xsl:variable name="precedingNum" as="xs:integer?" 
+      select="(tr:getLiNumAsInt($elt/preceding-sibling::*[1]/@override, tr:getNumerationType($elt/ancestor::*[local-name() = $hub:list-element-names][1])), 0)[1]"/>
     <xsl:sequence select="boolean(($currentNum - $precedingNum) = 1)"/>
   </xsl:function>
   
@@ -153,7 +155,7 @@
         <xsl:sequence select="1"/>
       </xsl:when>      
       <xsl:otherwise>
-        <xsl:variable name="numeration" as="xs:string" select="($list/@numeration, '')[1]"/>
+        <xsl:variable name="numeration" as="xs:string" select="tr:getNumerationType($list)"/>
         <xsl:variable name="numbers" as="xs:integer*" 
           select="for $li in $list/* return (if ($li/@override[normalize-space()]) 
                                              then if (not(tr:isOrdinaryFollower($li)))
@@ -168,7 +170,7 @@
   <xsl:function name="tr:getLastOverrideStart" as="xs:integer">
     <xsl:param name="elt" as="element()"/>
     <xsl:variable name="li" as="element(listitem)" select="$elt/ancestor-or-self::listitem[1]"/>
-    <xsl:variable name="numeration" as="xs:string" select="($li/parent::*/@numeration, '')[1]"/>
+    <xsl:variable name="numeration" as="xs:string" select="tr:getNumerationType($li/parent::*)"/>
     <xsl:variable name="lastOverrideStart" as="xs:integer" 
       select="($li/preceding-sibling::*[not(tr:isOrdinaryFollower(.))][1]/tr:getLiNumAsInt(@override, $numeration), 1)[1]"/>
     <xsl:variable name="currentNumAsInt" as="xs:integer?" select="tr:getLiNumAsInt($li/@override, $numeration)"/>
@@ -192,6 +194,31 @@
     <xsl:sequence select="xs:integer(tr:getNumId(generate-id($elt/ancestor-or-self::*[local-name() = $hub:list-element-names][1])) 
                           * 1000
                           + $overrideStart)"/>
+  </xsl:function>
+  
+  <xsl:function name="tr:getNumerationType" as="xs:string?">
+    <xsl:param name="list" as="element()"/>
+    <xsl:variable name="givenNumeration" as="xs:string?" select="$list/@numeration"/>
+    <xsl:variable name="nums" as="xs:string*" 
+      select="for $o in $list/listitem/@override return replace($o, '^\s?([^\.\) ]+)[\.\) ]*$', '$1')"/>
+    <xsl:choose>
+      <xsl:when test="    ($givenNumeration eq 'arabic')
+                      and (every $num in $nums satisfies matches($num, '^[0-9]+$'))">arabic</xsl:when>
+      <xsl:when test="    ($givenNumeration eq 'loweralpha')
+                      and (every $num in $nums satisfies matches($num, '^[a-z]+$'))">loweralpha</xsl:when>
+      <xsl:when test="    ($givenNumeration eq 'upperalpha')
+                      and (every $num in $nums satisfies matches($num, '^[A-Z]+$'))">upperalpha</xsl:when>
+      <xsl:when test="    ($givenNumeration eq 'lowerroman')
+                      and (every $num in $nums satisfies matches($num, '^[ivxcdml]+$'))">lowerroman</xsl:when>
+      <xsl:when test="    ($givenNumeration eq 'upperroman')
+                      and (every $num in $nums satisfies matches($num, '^[IVXCDML]+$'))">upperroman</xsl:when>
+      <xsl:when test="every $num in $nums satisfies matches($num, '^[0-9]+$')">arabic</xsl:when>
+      <xsl:when test="every $num in $nums satisfies matches($num, '^[ivxcdml]+$')">lowerroman</xsl:when>
+      <xsl:when test="every $num in $nums satisfies matches($num, '^[IVXCDML]+$')">upperroman</xsl:when>
+      <xsl:when test="every $num in $nums satisfies matches($num, '^[a-z]+$')">loweralpha</xsl:when>
+      <xsl:when test="every $num in $nums satisfies matches($num, '^[A-Z]+$')">upperalpha</xsl:when>
+      <xsl:otherwise>other</xsl:otherwise>
+    </xsl:choose>
   </xsl:function>
   
 
