@@ -72,6 +72,7 @@
               </xsl:element>
               <w:rPr>
                 <w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/>
+                <xsl:copy-of select="ancestor::w:p/w:pPr/w:rPr/w:sz"/>
                 <w:lang w:val="en-US"/>
               </w:rPr>
               <w:br/>
@@ -106,6 +107,7 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <w:rPr>
         <w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/>
+        <xsl:copy-of select="ancestor::w:p/w:pPr/w:rPr/w:sz"/>
       </w:rPr>
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:copy>
@@ -115,6 +117,7 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
       <w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/>
+      <xsl:copy-of select="ancestor::w:p/w:pPr/w:rPr/w:sz"/>
     </xsl:copy>
   </xsl:template>
   
