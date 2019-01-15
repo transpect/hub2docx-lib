@@ -324,30 +324,49 @@
   <!-- a para within listitem creates a w:p with special pPr-properties -->
   <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem/para"  mode="hub:default">
     <xsl:param name="continued-list" as="element(*)?" tunnel="yes"/>
+    <xsl:param name="continues" tunnel="yes"/>
     <xsl:variable name="ilvl"  select="count( ancestor::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
     <!-- if list doesn't start here but somewhere else before-->
-    <xsl:variable name="numId" select="if ($continued-list) 
-                                       then tr:getNumId( $continued-list/ancestor-or-self::*[self::*[ local-name() = $hub:list-element-names]][last()]/generate-id() )
-                                       else tr:getNumId( ancestor::*[self::*[ local-name() = $hub:list-element-names]][last()]/generate-id() )" />
+    <xsl:variable name="numId" select="if (parent::listitem/parent::orderedlist) 
+                                       then tr:getLiNumId(., tr:getLastOverrideStart(.)) 
+                                       else tr:getLiNumId(., 1)" />
     <!-- §§ should we consider scoping? -->
     <xsl:variable name="in-blockquote" select="if (ancestor::blockquote) then 'Bq' else ''" as="xs:string" />
     <xsl:variable name="continued-list-para" select="if (count(preceding-sibling::para) eq 0) then '' else 'Cont'" as="xs:string" />
+    <xsl:variable name="pStyle" select="concat(if ($template-lang = 'de') then 'Listenabsatz' else 'ListParagraph', $in-blockquote, $continued-list-para)"/>
+     <xsl:variable name="lvl" as="xs:integer" select="count(ancestor::*[ local-name() = ('itemizedlist','orderedlist')])"/>
     <w:p>
       <w:pPr>
-        <!-- §§ ListParagraph okay? -->
-        <w:pStyle w:val="{if ($template-lang = 'de') then 'Listenabsatz' else 'ListParagraph'}{$in-blockquote}{$continued-list-para}"/>
-        <xsl:if test="$continued-list-para eq ''">
-          <w:numPr>
-            <w:ilvl w:val="{$ilvl}"/>
-            <w:numId w:val="{$numId}"/>
-          </w:numPr>
-        </xsl:if>
-        <!-- §§ okay? -->
-<!--         <w:ind w:left="{180 + ( 180 * $ilvl )}"/> -->
+        <w:pStyle w:val="{$pStyle}"/>
+        <xsl:choose>
+          <xsl:when test="count(preceding-sibling::*)=0">
+            <xsl:if test="$continued-list-para eq ''">
+              <w:ind w:left="{tr:calculate-li-ind($lvl)}"/>
+              <w:numPr>
+                <w:ilvl w:val="{$ilvl}"/>
+                <w:numId w:val="{$numId}"/>
+              </w:numPr>
+            </xsl:if>
+          </xsl:when>
+          <xsl:otherwise>
+            <w:ind w:left="{tr:calculate-li-ind($lvl)}"/>
+            <w:numPr>
+              <w:ilvl w:val="0"/>
+              <w:numId w:val="0"/>
+            </w:numPr>
+          </xsl:otherwise>
+        </xsl:choose>
       </w:pPr>
       <xsl:apply-templates  select="node()"  mode="hub:default"/>
     </w:p>
   </xsl:template>
+  
+  <xsl:variable name="ind" as="xs:integer" select="400"/>
+  
+  <xsl:function name="tr:calculate-li-ind" as="xs:integer">
+    <xsl:param name="lvl" as="xs:integer"/>
+    <xsl:value-of select="$lvl * $ind"/>
+  </xsl:function>
 
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
