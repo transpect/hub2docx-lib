@@ -38,6 +38,9 @@
                                   [*[local-name() = ('para', 'simpara', 'itemizedlist', 'orderedlist',  'variablelist')]]">
         <xsl:sequence select="true()"/>
       </xsl:when>
+      <xsl:when test="not(matches($elt, '(^\p{Zs}|\p{Zs}$)'))">
+        <xsl:sequence select="true()"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:sequence select="false()"/>
       </xsl:otherwise>
