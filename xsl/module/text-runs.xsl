@@ -38,7 +38,7 @@
                                   [*[local-name() = ('para', 'simpara', 'itemizedlist', 'orderedlist',  'variablelist')]]">
         <xsl:sequence select="true()"/>
       </xsl:when>
-      <xsl:when test="not(matches($elt, '(^\p{Zs}|\p{Zs}$)'))">
+      <xsl:when test="not(matches($elt, '(^\s|\s$)', 's'))">
         <xsl:sequence select="true()"/>
       </xsl:when>
       <xsl:otherwise>
@@ -149,7 +149,7 @@
                         </xsl:matching-substring>
                         <xsl:non-matching-substring>
                           <w:t>
-                            <xsl:if  test="matches( . , '^\s|\s$') or exists($context[not(hub:whitespace-is-ignorable(.))])">
+                            <xsl:if  test="matches( . , '(^\s|\s$)', 's') (:or exists($context[not(hub:whitespace-is-ignorable(.))]):)">
                               <xsl:attribute  name="xml:space"  select="'preserve'"/>
                             </xsl:if>
                             <xsl:value-of select="if ($context[(@xml:space = 'preserve') or not(hub:whitespace-is-ignorable(.))])
