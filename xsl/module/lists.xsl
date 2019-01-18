@@ -342,19 +342,19 @@
         <xsl:choose>
           <xsl:when test="count(preceding-sibling::*)=0">
             <xsl:if test="$continued-list-para eq ''">
-              <w:ind w:left="{tr:calculate-li-ind($lvl)}"/>
               <w:numPr>
                 <w:ilvl w:val="{$ilvl}"/>
                 <w:numId w:val="{$numId}"/>
               </w:numPr>
+              <w:ind w:left="{tr:calculate-li-ind($lvl)}"/>
             </xsl:if>
           </xsl:when>
           <xsl:otherwise>
-            <w:ind w:left="{tr:calculate-li-ind($lvl)}"/>
             <w:numPr>
               <w:ilvl w:val="0"/>
               <w:numId w:val="0"/>
             </w:numPr>
+            <w:ind w:left="{tr:calculate-li-ind($lvl)}"/>
           </xsl:otherwise>
         </xsl:choose>
       </w:pPr>
