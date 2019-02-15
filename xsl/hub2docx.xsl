@@ -22,6 +22,7 @@
   xmlns:tr = "http://transpect.io"
   xmlns:dbk = "http://docbook.org/ns/docbook"
   xmlns:css = "http://www.w3.org/1996/css"
+  xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"
   
   xpath-default-namespace = "http://docbook.org/ns/docbook"
   exclude-result-prefixes="xs docx2hub hub tr rel"
