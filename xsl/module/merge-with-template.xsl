@@ -311,7 +311,7 @@
 
   <xsl:template 
     mode="hub:merge"
-    match="//w:root_converted//w:hyperlink/@r:id | //w:root_converted//v:imagedata/@r:id">
+    match="//w:root_converted//w:hyperlink/@r:id | //w:root_converted//v:imagedata/@r:id | //w:root_converted//a:blip/@r:link">
     <xsl:param name="relationIdOffset" tunnel="yes" />
     <xsl:if test="not(matches(., '^\d+$'))">
       <xsl:message 
@@ -320,9 +320,9 @@
         This can happen if the source Hub XML contains images in hub:foreign phrases.',
         .."/>
     </xsl:if>
-    <xsl:attribute name="r:id" select="concat('rId', $relationIdOffset + number(replace(., '\D', '')))"/>
+    <xsl:attribute name="r:{local-name(.)}" select="concat('rId', $relationIdOffset + number(replace(., '\D', '')))"/>
   </xsl:template>
-
+  
   <xsl:template 
     mode="hub:merge"
     match="w:docRels/rel:Relationships">
