@@ -96,7 +96,7 @@
     </xsl:variable>
 
     <!-- Replace &#xa0; (non-breaking space) with ' ' -->
-    <xsl:variable name="sCharReplaceFinal" select="translate($sCharReplace, '&#xa0;', ' ')" />
+    <xsl:variable name="sCharReplaceFinal" select="$sCharReplace(:translate($sCharReplace, '&#xa0;', ' '):)" />
 
     <xsl:attribute name="xml:space" select="'preserve'"/>
     <!-- Finally, return the last value -->
