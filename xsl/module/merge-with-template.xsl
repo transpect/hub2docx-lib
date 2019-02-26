@@ -120,7 +120,7 @@
                              /rel:Relationship[@Type = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image']">
         <xsl:if test="not($ct/ct:Default[@Extension = current-grouping-key()])">
           <Default xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
-            Extension="{current-grouping-key()}" ContentType="{tr:fileext-to-mime-type(@Target)}"/>
+            Extension="{current-grouping-key()}" ContentType="{tr:fileref-to-mime-type(@Target)}"/>
         </xsl:if>
       </xsl:for-each-group>
 
