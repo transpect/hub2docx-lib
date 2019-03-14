@@ -98,7 +98,9 @@
       <w:fldChar w:fldCharType="separate"/>
     </w:r>
     <w:r>
-      <w:t>?</w:t>
+      <w:t>
+        <xsl:value-of select="(@label, '?')[1]"/>
+      </w:t>
     </w:r>
     <w:r>
       <w:fldChar w:fldCharType="end"/>
