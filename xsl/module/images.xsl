@@ -74,12 +74,14 @@
                       matches(./imageobject/imagedata/@fileref, '^container[:]')">
         <w:r>
           <w:pict>
-            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
+            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}" stroked="f">
+              <xsl:call-template name="v:shape-border-atts"/>
               <v:imagedata hub:fileref="{replace(./imageobject/imagedata/@fileref, '^container:word/', '')}" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}" o:title=""/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
               </xsl:if>
+              <xsl:call-template name="v:shape-border-elts"/>
             </v:shape>
           </w:pict>
         </w:r>
@@ -87,17 +89,61 @@
       <xsl:otherwise>
         <w:r>
           <w:pict>
-            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
+            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}" stroked="f">
+              <xsl:call-template name="v:shape-border-atts"/>
               <v:imagedata hub:fileref="{./imageobject/imagedata/@fileref}" o:title="" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}"/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
               </xsl:if>
+              <xsl:call-template name="v:shape-border-elts"/>
             </v:shape>
           </w:pict>
         </w:r>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template name="v:shape-border-atts">
+    <xsl:for-each select="@css:*[matches(local-name(), '^border-.+-color')]">
+      <xsl:attribute name="o:{replace(local-name(), '-', '')}" select="tr:convert-css-color(., 'hex')"/>
+    </xsl:for-each>
+  </xsl:template>
+  
+  <xsl:template name="v:shape-border-elts">
+    <xsl:if test="exists(@css:*[starts-with(local-name(), 'border-')])">
+      <v:stroke joinstyle="miter"/>
+      <v:path o:connecttype="segments"/>
+    </xsl:if>
+    <xsl:for-each select="@css:*[matches(local-name(), '^border-.+-width')]">
+      <xsl:variable name="side" as="xs:string" select="replace(local-name(), 'border-(.+)-width', '$1')"/>
+      <xsl:element name="w10:border{$side}">
+        <xsl:apply-templates select="., ../@css:*[local-name() = concat('border-', $side, '-style')]" mode="v:shape-border"/>
+      </xsl:element>
+    </xsl:for-each>
+  </xsl:template>
+  
+  <xsl:template match="@css:*[matches(local-name(), '^border-.+-width$')]" mode="v:shape-border">
+    <xsl:attribute name="width">
+      <xsl:choose>
+        <xsl:when test=". = 'thick'">
+          <xsl:sequence select="32"/>
+        </xsl:when>
+        <xsl:when test=". = 'medium'">
+          <xsl:sequence select="8"/>
+        </xsl:when>
+        <xsl:when test=". = 'thin'">
+          <xsl:sequence select="4"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="xs:integer(tr:length-to-unitless-twip(.) * 0.4)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:attribute>
+  </xsl:template>
+  
+  <xsl:template match="@css:*[matches(local-name(), '^border-.+-style$')]" mode="v:shape-border">
+    <xsl:attribute name="type" select="tr:border-style(.)"/>
   </xsl:template>
   
   <xsl:template match="sidebar[parent::para or parent::title]" mode="hub:default">
