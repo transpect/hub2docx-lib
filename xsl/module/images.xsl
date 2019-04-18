@@ -74,7 +74,7 @@
                       matches(./imageobject/imagedata/@fileref, '^container[:]')">
         <w:r>
           <w:pict>
-            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}" stroked="f">
+            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
               <xsl:call-template name="v:shape-border-atts"/>
               <v:imagedata hub:fileref="{replace(./imageobject/imagedata/@fileref, '^container:word/', '')}" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}" o:title=""/>
@@ -89,7 +89,7 @@
       <xsl:otherwise>
         <w:r>
           <w:pict>
-            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}" stroked="f">
+            <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
               <xsl:call-template name="v:shape-border-atts"/>
               <v:imagedata hub:fileref="{./imageobject/imagedata/@fileref}" o:title="" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}"/>
