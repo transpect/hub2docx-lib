@@ -83,7 +83,7 @@
   <xsl:function name="tr:getLiNumAsInt" as="xs:integer?">
     <xsl:param name="num" as="xs:string?"/>
     <xsl:param name="numeration" as="xs:string?"><!-- arabic, loweralpha, lowerroman, upperalpha, upperroman --></xsl:param>
-    <xsl:variable name="cleanNum" as="xs:string" select="replace(replace($num, '^[\s\p{Zs}]*([^\.\) ]+)[\.\) ]*$', '$1'),
+    <xsl:variable name="cleanNum" as="xs:string" select="replace(replace($num, '^[\s\p{Zs}\(]*([^\.\) ]+)[\.\) ]*$', '$1'),
                                                                  '^(\d+\.)+(\d+\.?)$', '$2')"/>
     <xsl:choose>
       <xsl:when test="not($num)"/>
@@ -201,7 +201,7 @@
     <xsl:param name="list" as="element()"/>
     <xsl:variable name="givenNumeration" as="xs:string?" select="$list/@numeration"/>
     <xsl:variable name="nums" as="xs:string*" 
-      select="for $o in $list/listitem/@override return replace($o, '^\s?([^\.\) ]+)[\.\) ]*$', '$1')"/>
+      select="for $o in $list/listitem/@override return replace($o, '^\s?[\(]?([^\.\)\( ]+)[\.\) ]*$', '$1')"/>
     <xsl:choose>
       <xsl:when test="    ($givenNumeration eq 'arabic')
                       and (every $num in $nums satisfies matches($num, '^[0-9]+$'))">arabic</xsl:when>
