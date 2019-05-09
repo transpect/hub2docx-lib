@@ -116,14 +116,18 @@
         <xsl:variable name="possiblyContinuedList" as="element()?" 
                       select="($list/preceding-sibling::*[ local-name() = $hub:list-element-names]
                                                          [listitem[1][@override][matches(@override, '^[\(]?[aA1iI][\.\)]?')]])[1]"/>
+        <xsl:variable name="possiblyContinuedListSeq" as="element()*"
+                      select="$possiblyContinuedList, 
+                              $list/preceding-sibling::*[ local-name() = $hub:list-element-names]
+                                                        [preceding-sibling::*[. is $possiblyContinuedList]]"/>
         <xsl:sequence select=" if (tr:getLiNumAsInt($num, $type) = 1)
                                then false()
                                else if (    exists($possiblyContinuedList) 
                                         and
                                             (  tr:getLiNumAsInt($num, $type) 
-                                             - tr:getLiNumAsInt($possiblyContinuedList/listitem[last()]/@override, 
+                                             - tr:getLiNumAsInt($possiblyContinuedListSeq[last()]/listitem[last()]/@override, 
                                                                (tr:getNumerationType($possiblyContinuedList))) 
-                                             = 1)
+                                               = 1)
                                         )
                                     then true()
                                     else false()"/>
@@ -335,7 +339,7 @@
     <xsl:variable name="in-blockquote" select="if (ancestor::blockquote) then 'Bq' else ''" as="xs:string" />
     <xsl:variable name="continued-list-para" select="if (count(preceding-sibling::para) eq 0) then '' else 'Cont'" as="xs:string" />
     <xsl:variable name="pStyle" select="concat(if ($template-lang = 'de') then 'Listenabsatz' else 'ListParagraph', $in-blockquote, $continued-list-para)"/>
-     <xsl:variable name="lvl" as="xs:integer" select="count(ancestor::*[ local-name() = ('itemizedlist','orderedlist')])"/>
+    <xsl:variable name="lvl" as="xs:integer" select="count(ancestor::*[ local-name() = ('itemizedlist','orderedlist')])"/>
     <w:p>
       <w:pPr>
         <w:pStyle w:val="{$pStyle}"/>
