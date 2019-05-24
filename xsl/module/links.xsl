@@ -192,6 +192,12 @@
     select="'LiteraturverweisZchn'"/>
   <xsl:variable name="link-internal-rstyle" as="xs:string?"
     select="'InternalRef'"/>
+  
+  <xsl:template match="link[matches(@xlink:href, '^([a-z][a-z0-9+\-.]*)://')]" mode="hub:default" priority="10">
+    <w:hyperlink>
+      <xsl:next-match/>
+    </w:hyperlink>
+  </xsl:template>
 
   <xsl:template match="link" mode="hub:default">
     <xsl:param name="rPrContent" as="element(*)*" tunnel="yes"/>
@@ -199,7 +205,6 @@
       select="$root//*[ @xml:id eq current()/(@xlink:href, @linkend)]"/>
     <xsl:variable name="targetNode-corrected" 
       select="if($targetNode/self::tgroup) then $targetNode/ancestor::table[1] else $targetNode"/>
-
     <xsl:choose>
       <xsl:when test="not(@xlink:href) and count( $targetNode-corrected) ne 1">
         <xsl:message select="'ERROR: Target node of a link-element does not exist or is ambiguous. Target:', (@xlink:href, @linkend)"/>
