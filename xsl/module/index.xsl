@@ -84,7 +84,7 @@
     <!-- the \t-switch determines the text rendered in an index for this indexentry -->
     <xsl:if test="see">
       <w:r>
-        <w:t xml:space="preserve"> \t &#x22;<xsl:value-of select="$see-prefix"/> <xsl:value-of select="see"/>&#x22;</w:t>
+        <w:t xml:space="preserve"> \t &#x22;<xsl:if test="$see-prefix and $see-prefix ne ''"><xsl:value-of select="$see-prefix"/> </xsl:if><xsl:value-of select="see"/>&#x22;</w:t>
       </w:r>
     </xsl:if>
     
