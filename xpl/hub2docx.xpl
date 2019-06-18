@@ -59,6 +59,7 @@
     <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
     <p:input port="source">
       <p:pipe step="transformed-hub" port="result"/>
+      <p:pipe step="split" port="matched"/>
     </p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
