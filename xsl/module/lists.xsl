@@ -165,7 +165,7 @@
           select="for $li in $list/* return (if ($li/@override[normalize-space()]) 
                                              then if (not(tr:isOrdinaryFollower($li)))
                                                   then tr:getLiNumAsInt($li/@override, $numeration)
-                                                  else ()
+                                                  else 1
                                              else ())"/>
         <xsl:sequence select="$numbers"/>
       </xsl:otherwise>
@@ -383,7 +383,7 @@
   <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="numbering">
     <xsl:variable name="list" as="element()" select="."/>
     <xsl:variable name="ilvl"  select="tr:getIlvl(.)" as="xs:integer"/>
-    <xsl:variable name="getOverrideStarts" as="xs:integer*" select="tr:getOverrideStarts(.)"/>
+    <xsl:variable name="getOverrideStarts" as="xs:integer*" select="distinct-values(tr:getOverrideStarts(.))"/>
     <xsl:variable name="numbers" as="xs:integer+" select="if (count($getOverrideStarts) gt 0) then $getOverrideStarts else 1"/>
     <xsl:for-each select="$numbers">
     <!-- ~~~~~~~~~~~~~~~~~~~~ w:num ~~~~~~~~~~~~~~~~~~~~ -->
