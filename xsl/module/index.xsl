@@ -14,6 +14,7 @@
     xmlns:m		= "http://schemas.openxmlformats.org/officeDocument/2006/math"
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
+    xmlns:mml="http://www.w3.org/1998/Math/MathML"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
@@ -106,10 +107,11 @@
     <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="indexterm//*[not(local-name() = ('subscript', 'superscript'))]" mode="hub:default" priority="-1">
+  <xsl:template match="indexterm//*[not(local-name() = ('subscript', 'superscript'))]
+                                   [not(self::mml:math)]" mode="hub:default" priority="-1">
     <xsl:message select="'hub2docx, unmapped children ', name(), ' in indexterm element.'"/>
     <xsl:choose>
-      <xsl:when test="self::phrase or self::emphasis">
+      <xsl:when test="self::phrase or self::emphasis or self::mml:math">
         <xsl:next-match/>
       </xsl:when>
       <xsl:otherwise>
