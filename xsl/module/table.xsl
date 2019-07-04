@@ -543,7 +543,7 @@
     <xsl:param name="namest" as="xs:string?" />
     <xsl:param name="nameend" as="xs:string?" />
     <xsl:if test="$namest and $nameend">
-      <xsl:attribute name="colspan" select="xs:integer(key('map', $nameend, $map)/@val) - xs:integer(key('map', $namest, $map)/@val) + 1" />
+      <xsl:attribute name="colspan" select="xs:integer(key('map', $nameend, $map)/@val/replace(., '^c(ol)?(\d+)$', '$2')) - xs:integer(key('map', $namest, $map)/@val/replace(., '^c(ol)?(\d+)$', '$2')) + 1" />
     </xsl:if>
   </xsl:function>
 
