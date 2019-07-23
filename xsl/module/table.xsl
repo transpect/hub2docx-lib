@@ -325,6 +325,17 @@
     </xsl:copy>
   </xsl:template>
   
+  <!-- invalid run-text only table cell -->
+  <xsl:template mode="hub:clean" priority="-1"
+    match="w:tc[every $n in node() satisfies $n[self::*][name() = ('w:r', 'w:tcPr', 'w:bookmarkEnd', 'w:bookmarkStart')]]">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, w:tcPr" mode="#current"/>
+      <w:p>
+        <xsl:apply-templates select="node() except w:tcPr" mode="#current"/>
+      </w:p>
+    </xsl:copy>
+  </xsl:template>
+  
   <xsl:template match="w:tblGrid/w:gridCol/@w:w[. = '']" mode="hub:clean"/>
   
   <xsl:template match="w:tcW" mode="tr:propsortkey" as="xs:integer">
