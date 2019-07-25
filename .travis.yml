@@ -4,6 +4,11 @@ jdk:
   - openjdk8
   - oraclejdk8
 
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
 env:
   - SAXON_CP=saxon/saxon9he.jar
 
