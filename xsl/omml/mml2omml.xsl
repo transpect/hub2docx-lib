@@ -1031,23 +1031,28 @@
       </xsl:if>
     </xsl:variable>
     <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='') or $mathcolor!=''">
-      <w:rPr>
-        <xsl:choose>
-          <xsl:when test="$sFontCur = ('bi', 'bold-italic')">
-            <w:b/>
-            <w:i/>
-          </xsl:when>
-          <xsl:when test="$sFontCur = 'bold'">
-            <w:b/>
-          </xsl:when>
-          <xsl:when test="$sFontCur = 'italic'">
-            <w:i/>
-          </xsl:when>
-        </xsl:choose>
-        <xsl:if test="$mathcolor!=''">
-          <w:color w:val="{$mathcolor}"/>
-        </xsl:if>
-      </w:rPr>
+      <xsl:variable name="w-rPr" as="element(w:rPr)">
+        <w:rPr>
+          <xsl:choose>
+            <xsl:when test="$sFontCur = ('bi', 'bold-italic')">
+              <w:b/>
+              <w:i/>
+            </xsl:when>
+            <xsl:when test="$sFontCur = 'bold'">
+              <w:b/>
+            </xsl:when>
+            <xsl:when test="$sFontCur = 'italic'">
+              <w:i/>
+            </xsl:when>
+          </xsl:choose>
+          <xsl:if test="$mathcolor!=''">
+            <w:color w:val="{$mathcolor}"/>
+          </xsl:if>
+        </w:rPr>
+      </xsl:variable>
+      <xsl:if test="$w-rPr/node()">
+        <xsl:sequence select="$w-rPr"/>
+      </xsl:if>
     </xsl:if>
     <xsl:call-template name="CreateMathRPR">
       <xsl:with-param name="mathvariant" select="$mathvariant" />
