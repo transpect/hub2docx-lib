@@ -518,5 +518,14 @@
       </xsl:for-each-group>
     </xsl:copy>
   </xsl:template>
+  
+  <!-- fix for invalid ooxml, may occur when you define para styles 
+       for actual inline content in your template -->
+  
+  <xsl:template match="w:rPr/w:pStyle" mode="hub:clean">
+    <w:rStyle>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </w:rStyle>
+  </xsl:template>
 
 </xsl:stylesheet>
