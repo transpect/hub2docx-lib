@@ -56,7 +56,7 @@
     </xsl:if>
     
     <w:r>
-      <w:t>XE &quot;</w:t>
+      <w:instrText xml:space="preserve">XE &quot;</w:instrText>
     </w:r>
     <xsl:apply-templates select="primary" mode="#current"/>
     <xsl:if test="secondary">
@@ -72,9 +72,8 @@
       <xsl:apply-templates select="tertiary" mode="#current"/>
     </xsl:if>
     <w:r>
-      <w:t>&quot;</w:t>
+      <w:instrText xml:space="preserve">&quot;</w:instrText>
     </w:r>
-    
     <!-- the \f-switch determines an index type -->
     <xsl:if test="@type">
       <w:r>
