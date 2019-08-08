@@ -20,11 +20,6 @@
     source document.
     The file option will probably not be used here, so declare it obsolete?</p:documentation>
   </p:option>
-  <p:option name="render-index-list" select="'no'">
-    <p:documentation>
-      Wheter to generate a pre-rendered index listings.
-    </p:documentation>
-  </p:option>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
   
@@ -56,7 +51,6 @@
     </p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-param name="render-index-list" select="$render-index-list"/>
   </tr:xslt-mode>
   
   <p:sink/>
