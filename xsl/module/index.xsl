@@ -169,6 +169,7 @@
       <xsl:call-template name="group-index-terms">
         <xsl:with-param name="indexterms" select="$index-terms-by-type" as="element(indexterm)+"/>
         <xsl:with-param name="level" select="1" as="xs:integer"/>
+        <xsl:with-param name="indexterm-style" select="concat('Index', '1')" as="xs:string"/>
       </xsl:call-template>
       <!-- index list end -->
       <w:p>
@@ -184,15 +185,16 @@
   <xsl:template name="group-index-terms">
     <xsl:param name="indexterms" as="element(indexterm)+"/>
     <xsl:param name="level" as="xs:integer"/>
+    <xsl:param name="indexterm-style" as="xs:string"/>
     <xsl:variable name="name" select="('primary', 'secondary', 'tertiary')[$level]"/>
-    <xsl:for-each-group select="current-group()" 
+    <xsl:for-each-group select="$indexterms" 
                         group-by="(*[local-name() eq $name]/@sortas, 
                                      upper-case(normalize-space(*[local-name() eq $name]))
                                    )[1]">
       <xsl:sort select="current-grouping-key()"/>
       <w:p>
         <w:pPr>
-          <w:pStyle w:val="Index{$level}"/>
+          <w:pStyle w:val="{concat($indexterm-style, $level)}"/>
         </w:pPr>
         <xsl:apply-templates select="*[local-name() eq $name]" mode="#current"/>
       </w:p>
@@ -201,6 +203,7 @@
         <xsl:call-template name="group-index-terms">
           <xsl:with-param name="indexterms" select="current-group()"/>
           <xsl:with-param name="level" select="$level + 1"/>
+          <xsl:with-param name="indexterm-style" select="concat($indexterm-style, xs:string($level))" as="xs:string"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:for-each-group>
