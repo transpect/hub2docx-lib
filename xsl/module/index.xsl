@@ -153,15 +153,6 @@
     <xsl:for-each-group select="$indexterms" group-by="@type">
       <xsl:variable name="index-type" select="current-grouping-key()" as="xs:string"/>
       <xsl:variable name="index-terms-by-type" select="current-group()" as="element(indexterm)+"/>
-      <!-- index headline start -->
-      <w:p>
-        <w:pPr>
-          <w:pStyle w:val="IndexHeading"/>
-        </w:pPr>
-        <w:r>
-          <w:t>Register</w:t>
-        </w:r>
-      </w:p>
       <!-- index section start -->
       <w:p>
         <w:r>
