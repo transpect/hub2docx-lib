@@ -203,7 +203,7 @@
         <xsl:call-template name="group-index-terms">
           <xsl:with-param name="indexterms" select="current-group()"/>
           <xsl:with-param name="level" select="$level + 1"/>
-          <xsl:with-param name="indexterm-style" select="concat($indexterm-style, xs:string($level))" as="xs:string"/>
+          <xsl:with-param name="indexterm-style" select="$indexterm-style" as="xs:string"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:for-each-group>
