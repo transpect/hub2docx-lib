@@ -11,8 +11,7 @@
   xmlns:tr="http://transpect.io" 
   version="1.0"
   name="hub2docx"
-  type="hub2docx:modify"
-  >
+  type="hub2docx:modify">
   
   <p:documentation>This is meant to be fed into the xpl port of http://transpect.io/docx_modify/xpl/docx_modify.xpl</p:documentation>
   
@@ -20,6 +19,11 @@
     <p:documentation>A docx template file. Parts of it will be replaced with the transformed
     source document.
     The file option will probably not be used here, so declare it obsolete?</p:documentation>
+  </p:option>
+  <p:option name="render-index-list" select="'no'">
+    <p:documentation>
+      Wheter to generate a pre-rendered index listings.
+    </p:documentation>
   </p:option>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
@@ -52,8 +56,11 @@
     </p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-param name="render-index-list" select="$render-index-list"/>
   </tr:xslt-mode>
-<p:sink/>
+  
+  <p:sink/>
+  
   <tr:xslt-mode name="clean-hub" msg="yes" mode="hub:clean" prefix="hub2docx/15">
     <p:input port="models"><p:empty/></p:input>
     <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
@@ -64,7 +71,9 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </tr:xslt-mode>
-<p:sink/>
+  
+  <p:sink/>
+  
   <tr:xslt-mode name="merge" msg="yes" mode="hub:merge" prefix="hub2docx/50">
     <p:input port="models"><p:empty/></p:input>
     <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>

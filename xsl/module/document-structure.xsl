@@ -23,7 +23,9 @@
   <!-- ================================================================================ -->
   <!-- VARIABLES -->
   <!-- ================================================================================ -->
-  
+
+  <xsl:param name="render-index-list" select="'no'" as="xs:string"/>
+
   <xsl:key name="by-genid" match="*" use="generate-id()"/>
 
   <xsl:variable name="page-settings" as="element(w:sectPr)">
@@ -111,6 +113,11 @@
           <xsl:next-match>
             <xsl:with-param name="rels" select="$rels" as="xs:string*" tunnel="yes"/>
           </xsl:next-match>
+          <xsl:if test="$render-index-list eq 'yes' and exists(//indexterm)">
+            <xsl:call-template name="create-index-list">
+              <xsl:with-param name="indexterms" select="//indexterm" as="element(indexterm)*"/>
+            </xsl:call-template>
+          </xsl:if>
         </w:body>
       </w:document>
     </w:root_converted>

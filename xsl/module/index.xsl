@@ -38,23 +38,20 @@
 
   <xsl:template  match="indexterm[ not(@class) or @class ne 'endofrange' ]"  mode="hub:default">
     <xsl:param name="see-prefix" 
-      select="if(/*/@xml:lang = 'de') then 'Siehe' else 'See'"/>
+               select="if(/*/@xml:lang = 'de') then 'Siehe' else 'See'"/>
     <xsl:if  test="see/*">
-      <xsl:message  terminate="yes"  select="'ERROR: children of see-elements are not supported yet.'"/>
+      <xsl:message terminate="yes" select="'ERROR: children of see-elements are not supported yet.'"/>
     </xsl:if>
     <xsl:if test=".//seealso">
-      <xsl:message  terminate="no"   select="'WARNING: indexterm with seealso element(s). Not supported yet.'"/>
+      <xsl:message terminate="no" select="'WARNING: indexterm with seealso element(s). Not supported yet.'"/>
     </xsl:if>
-    
-    <w:r>
+    <w:r w:rsidR="">
       <w:fldChar w:fldCharType="begin"/>
     </w:r>
-    
     <!-- mark the startofrange/endofrange-range with a bookmark and then reference that bookmark by use of the \r-switch of the XE field -->
     <xsl:if test="@class eq 'startofrange'">
       <w:bookmarkStart  w:id="{generate-id()}"  w:name="bm_{generate-id()}_"/>
     </xsl:if>
-    
     <w:r>
       <w:instrText xml:space="preserve">XE &quot;</w:instrText>
     </w:r>
@@ -79,8 +76,7 @@
       <w:r>
         <w:t xml:space="preserve"> \f <xsl:value-of select="@type"/></w:t>
       </w:r>
-    </xsl:if>
-    
+    </xsl:if>    
     <!-- the \t-switch determines the text rendered in an index for this indexentry -->
     <xsl:if test="see">
       <w:r>
@@ -152,4 +148,71 @@
     </w:p>
   </xsl:template>
 
+  <xsl:template name="create-index-list">
+    <xsl:param name="indexterms" as="element(indexterm)*"/>
+    <xsl:for-each-group select="$indexterms" group-by="@type">
+      <xsl:variable name="index-type" select="current-grouping-key()" as="xs:string"/>
+      <xsl:variable name="index-terms-by-type" select="current-group()" as="element(indexterm)+"/>
+      <!-- index headline start -->
+      <w:p>
+        <w:pPr>
+          <w:pStyle w:val="IndexHeading"/>
+        </w:pPr>
+        <w:r>
+          <w:t>Register</w:t>
+        </w:r>
+      </w:p>
+      <!-- index section start -->
+      <w:p>
+        <w:r>
+          <w:fldChar w:fldCharType="begin"/>
+        </w:r>
+        <w:r>
+          <w:instrText xml:space="preserve"> INDEX \h "a" \c "2" \z "1031" </w:instrText>
+        </w:r>
+        <w:r>
+          <w:fldChar w:fldCharType="separate"/>
+        </w:r>
+      </w:p>
+      <!-- index list start -->
+      <xsl:call-template name="group-index-terms">
+        <xsl:with-param name="indexterms" select="$index-terms-by-type" as="element(indexterm)+"/>
+        <xsl:with-param name="level" select="1" as="xs:integer"/>
+      </xsl:call-template>
+      <!-- index list end -->
+      <w:p>
+        <w:r>
+          <w:lastRenderedPageBreak/>
+          <w:fldChar w:fldCharType="end"/>
+        </w:r>
+      </w:p>
+      <!-- index section end -->
+    </xsl:for-each-group>
+  </xsl:template>
+  
+  <xsl:template name="group-index-terms">
+    <xsl:param name="indexterms" as="element(indexterm)+"/>
+    <xsl:param name="level" as="xs:integer"/>
+    <xsl:variable name="name" select="('primary', 'secondary', 'tertiary')[$level]"/>
+    <xsl:for-each-group select="current-group()" 
+                        group-by="(*[local-name() eq $name]/@sortas, 
+                                     upper-case(normalize-space(*[local-name() eq $name]))
+                                   )[1]">
+      <xsl:sort select="current-grouping-key()"/>
+      <w:p>
+        <w:pPr>
+          <w:pStyle w:val="Index{$level}"/>
+        </w:pPr>
+        <xsl:apply-templates select="*[local-name() eq $name]" mode="#current"/>
+      </w:p>
+      <xsl:if test="some $i in current-group() 
+                    satisfies count($i/*) gt $level">
+        <xsl:call-template name="group-index-terms">
+          <xsl:with-param name="indexterms" select="current-group()"/>
+          <xsl:with-param name="level" select="$level + 1"/>
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:for-each-group>
+  </xsl:template>
+  
 </xsl:stylesheet>

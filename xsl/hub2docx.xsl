@@ -23,9 +23,9 @@
   xmlns:dbk = "http://docbook.org/ns/docbook"
   xmlns:css = "http://www.w3.org/1996/css"
   xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"
-  
+  xmlns:mml="http://www.w3.org/1998/Math/MathML"
   xpath-default-namespace = "http://docbook.org/ns/docbook"
-  exclude-result-prefixes="xs docx2hub hub tr rel"
+  exclude-result-prefixes="xs docx2hub hub tr rel mml"
   version="2.0">
   
   <xsl:import href="http://transpect.io/docx_modify/xsl/identity.xsl"/>
@@ -65,6 +65,8 @@
   <xsl:param  name="heading-prefix" select="'berschrift'" as="xs:string"/>
   <xsl:param  name="landscape" select="'no'"/>				<!-- page orientation landscape -->
   <xsl:param  name="template-lang" select="'en'"/>				<!-- language of the docx template. Important for default Style names -->
+  <!-- render static index list -->
+  <xsl:param name="render-index-list" select="'no'" as="xs:string?"/>
 
   <xsl:variable name="footnote-bookmark-prefix" as="xs:string"
     select="'FN_'"/>
