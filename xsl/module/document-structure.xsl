@@ -116,6 +116,7 @@
           <xsl:if test="$render-index-list eq 'yes' and exists(//indexterm)">
             <xsl:call-template name="create-index-list">
               <xsl:with-param name="indexterms" select="//indexterm" as="element(indexterm)*"/>
+              <xsl:with-param name="lang" select="(/*/@xml:lang, 'de')[1]" as="xs:string"/>
             </xsl:call-template>
           </xsl:if>
         </w:body>

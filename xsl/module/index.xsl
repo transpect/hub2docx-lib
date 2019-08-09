@@ -150,16 +150,23 @@
 
   <xsl:template name="create-index-list">
     <xsl:param name="indexterms" as="element(indexterm)*"/>
+    <xsl:param name="lang" as="xs:string"/>
     <xsl:for-each-group select="$indexterms" group-by="@type">
       <xsl:variable name="index-type" select="current-grouping-key()" as="xs:string"/>
       <xsl:variable name="index-terms-by-type" select="current-group()" as="element(indexterm)+"/>
+      <xsl:variable name="lang-code" select="('1031', '1033')[index-of(('de', 'en'), $lang]" as="xs:string"/>
       <!-- index section start -->
       <w:p>
         <w:r>
-          <w:fldChar w:fldCharType="begin"/>
+          <w:fldChar w:fldCharType="begin" w:dirty="true"/>
         </w:r>
         <w:r>
-          <w:instrText xml:space="preserve"> INDEX \h "a" \c "2" \z "1031" </w:instrText>
+          <w:instrText xml:space="preserve"><xsl:value-of select="concat('INDEX \h &quot;a&quot; \c &quot;2&quot; \z &quot;', 
+                                                                         $lang-code, 
+                                                                         '&quot;',
+                                                                         if($index-type) then concat(' \f ', $index-type) else ()
+                                                                         )
+                                                                         "/></w:instrText>
         </w:r>
         <w:r>
           <w:fldChar w:fldCharType="separate"/>
