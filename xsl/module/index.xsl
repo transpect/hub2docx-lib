@@ -154,7 +154,7 @@
     <xsl:for-each-group select="$indexterms" group-by="@type">
       <xsl:variable name="index-type" select="current-grouping-key()" as="xs:string"/>
       <xsl:variable name="index-terms-by-type" select="current-group()" as="element(indexterm)+"/>
-      <xsl:variable name="lang-code" select="('1031', '1033')[index-of(('de', 'en'), $lang]" as="xs:string"/>
+      <xsl:variable name="lang-code" select="('1031', '1033')[index-of(('de', 'en'), $lang)]" as="xs:string"/>
       <!-- index section start -->
       <w:p>
         <w:r>
