@@ -53,7 +53,7 @@
   <xsl:template match="m:math[m:mtable and
     (
       .//m:mspace[@linebreak='newline'] or
-      .//m:maligngroup[@columnalign = 'left']
+      .//m:maligngroup[(@columnalign = 'left') or (@groupalign = 'left')]
     )]" mode="hub:default" exclude-result-prefixes="mc w">
     <xsl:element name="m:oMathPara" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
       <xsl:for-each select="m:mtable/m:mtr">
