@@ -22,7 +22,7 @@
     <xsl:apply-templates select="*" mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="mml:math" mode="mml_">
+  <xsl:template match="mml:math" mode="mml">
     <xsl:variable name="fix-mml" as="document-node()"><!-- with whatever elements are below mml:math -->
       <xsl:document>
         <xsl:apply-templates select="*" mode="fix-mml"/>
@@ -162,7 +162,7 @@
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="preceding-sibling::*[1][self::mml:munder or self::mml:mover or self::mml:munderover or
-                                                    self::mml:msub or self::mml:msup or self::mml:msubsup(:§ or self::mml:mrow:)]
+                                                    self::mml:msub or self::mml:msup or self::mml:msubsup or self::mml:mrow]
 							      and $fNary='true'">1</xsl:when>
       <xsl:otherwise>0</xsl:otherwise>
     </xsl:choose>
