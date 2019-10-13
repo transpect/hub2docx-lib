@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="2.0" 
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:saxon="http://saxon.sf.net/"
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  exclude-result-prefixes="w m mml xs">
+  exclude-result-prefixes="w m mml xs saxon">
   
   <xsl:include href="fix-mml.xsl"/>
   
@@ -132,6 +133,8 @@
 	-->
   <xsl:template name="FStartOfRun">
     <xsl:param name="ndCur" select="." />
+    <!-- https://github.com/transpect/hub2docx-lib/issues/4 -->
+    <xsl:param name="first-in-nary-arg" as="element(*)?" tunnel="yes"/>
     <xsl:variable name="fPrecSibNonGlyphToken">
       <xsl:call-template name="FNonGlyphToken">
         <xsl:with-param name="ndCur" select="$ndCur/preceding-sibling::*[1]" />
@@ -139,6 +142,7 @@
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="count($ndCur/preceding-sibling::*)=0 
+                      or ($ndCur is $first-in-nary-arg) (: https://github.com/transpect/hub2docx-lib/issues/4 :)
 											or $fPrecSibNonGlyphToken=0">1</xsl:when>
       <xsl:otherwise>0</xsl:otherwise>
     </xsl:choose>
@@ -161,6 +165,8 @@
       </xsl:call-template>
     </xsl:variable>
     <xsl:choose>
+      <!-- https://github.com/transpect/hub2docx-lib/issues/4 -->
+      <xsl:when test="parent::mml:mfrac">0</xsl:when>
       <xsl:when test="preceding-sibling::*[1][self::mml:munder or self::mml:mover or self::mml:munderover or
                                                     self::mml:msub or self::mml:msup or self::mml:msubsup or self::mml:mrow]
 							      and $fNary='true'">1</xsl:when>
@@ -224,6 +230,8 @@
                       <xsl:call-template name="CreateArgProp" />
                       <xsl:call-template name="NaryHandleMrowMstyle">
                         <xsl:with-param name="ndCur" select="child::*[2]" />
+                        <!-- https://github.com/transpect/hub2docx-lib/issues/4 -->
+                        <xsl:with-param name="first-in-nary-arg" select="*[2]" tunnel="yes"/>
                       </xsl:call-template>
                     </m:e>
                   </m:nary>
@@ -1701,6 +1709,10 @@
       <xsl:when test="$ndCur[self::mml:mstyle]">
         <xsl:apply-templates select="$ndCur/*" mode="#current" />
       </xsl:when>
+      <xsl:otherwise>
+        <!-- https://github.com/transpect/hub2docx-lib/issues/4 -->
+        <xsl:apply-templates select="$ndCur" mode="#current" />
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
