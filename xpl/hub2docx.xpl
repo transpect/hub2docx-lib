@@ -24,7 +24,7 @@
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
   
   <p:input port="source" primary="true" sequence="true">
-    <p:documentation>A Hub XML document (version 1.1 or newer).
+    <p:documentation>A Hub XML document (version 1.2 or newer).
     Please note that the following mapping will occur:
     - keywordset[@role='custom-meta'] will map to {http://schemas.openxmlformats.org/officeDocument/2006/custom-properties}Properties in docProps/custom.xml (editable in the Word UI)
     - keywordset[@role='docVars'] will map to w:docVars in word/settings.xml</p:documentation>

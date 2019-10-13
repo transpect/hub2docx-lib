@@ -22,7 +22,9 @@
     exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn hub xlink o w m omml wp r mml"
 >
 
-  <xsl:import href="../omml/mml2omml.xsl"/>
+  <xsl:import href="../omml/office16/MML2OMML.XSL" use-when="system-property('mml2omml') = 'office16'"/>
+  <xsl:import href="../omml/mml2omml.xsl" use-when="not(system-property('mml2omml') = 'office16')"/>
+  
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <!-- mode="hub:default" -->
@@ -43,11 +45,25 @@
 
   <xsl:template match="m:math" mode="hub:default">
     <m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
-      <xsl:variable name="mml" as="node()*">
+      <xsl:variable name="mml" as="element(mml:math)">
         <xsl:apply-templates select="." mode="m-to-mml"/>
       </xsl:variable>
-      <xsl:apply-templates select="$mml" mode="mml" />
+      <xsl:call-template name="hub:mml2omml">
+        <xsl:with-param name="mml" select="$mml"/>
+      </xsl:call-template>
     </m:oMath>
+  </xsl:template>
+  
+  <xsl:template name="hub:mml2omml">
+    <xsl:param name="mml" as="element(mml:math)"/>
+    <xsl:choose>
+      <xsl:when test="system-property('mml2omml') = 'office16'">
+        <xsl:apply-templates select="$mml"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="$mml" mode="mml"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="m:math[m:mtable and
@@ -58,10 +74,12 @@
     <xsl:element name="m:oMathPara" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
       <xsl:for-each select="m:mtable/m:mtr">
         <xsl:element name="m:oMath" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
-          <xsl:variable name="mml" as="node()*">
+          <xsl:variable name="mml" as="element(mml:math)">
             <xsl:apply-templates select="node()" mode="m-to-mml"/>
           </xsl:variable>
-          <xsl:apply-templates select="$mml" mode="mml"/>
+          <xsl:call-template name="hub:mml2omml">
+            <xsl:with-param name="mml" select="$mml"/>
+          </xsl:call-template>
           <xsl:if test="position() lt last()">
             <xsl:element name="m:r" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
               <xsl:element name="m:rPr" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">

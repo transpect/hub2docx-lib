@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet version="2.0" 
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-  xmlns:mml="http://www.w3.org/1998/Math/MathML"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
-  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  exclude-result-prefixes="w m mml xs">
-  
-  <xsl:include href="fix-mml.xsl"/>
-  
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:mml="http://www.w3.org/1998/Math/MathML"
+	xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
   <xsl:output method="xml" encoding="UTF-8" />
+
 
   <xsl:variable name="StrUCAlphabet">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="StrLCAlphabet">abcdefghijklmnopqrstuvwxyz</xsl:variable>
@@ -18,31 +11,19 @@
 
 		The catch all template, just passes through 
 	-->
-  <xsl:template match="*" mode="mml">
-    <xsl:apply-templates select="*" mode="#current"/>
-  </xsl:template>
-  
-  <xsl:template match="mml:math" mode="mml_">
-    <xsl:variable name="fix-mml" as="document-node()"><!-- with whatever elements are below mml:math -->
-      <xsl:document>
-        <xsl:apply-templates select="*" mode="fix-mml"/>
-      </xsl:document>
-    </xsl:variable>
-    <xsl:apply-templates select="$fix-mml" mode="mml"/>
+  <xsl:template match="*">
+    <xsl:apply-templates select="*" />
   </xsl:template>
 
   <!-- %%Template: match *
 
 		Another catch all template, just passes through 
 	-->
-  <!--<xsl:template match="/" mode="mml">
+  <xsl:template match="/">
     <m:oMath>
-      <!-\-<xsl:variable name="fix-mml">
-        <xsl:apply-templates select="*" mode="fix-mml"/>
-      </xsl:variable>-\->
-      <xsl:apply-templates select="*" mode="mml"/>
+      <xsl:apply-templates select="*" />
     </m:oMath>
-  </xsl:template>-->
+  </xsl:template>
 
   <!-- %%Template: SReplace
 
@@ -98,9 +79,8 @@
     </xsl:variable>
 
     <!-- Replace &#xa0; (non-breaking space) with ' ' -->
-    <xsl:variable name="sCharReplaceFinal" select="$sCharReplace(:translate($sCharReplace, '&#xa0;', ' '):)" />
+    <xsl:variable name="sCharReplaceFinal" select="translate($sCharReplace, '&#xa0;', ' ')" />
 
-    <xsl:attribute name="xml:space" select="'preserve'"/>
     <!-- Finally, return the last value -->
     <xsl:value-of select="$sCharReplaceFinal" />
   </xsl:template>
@@ -162,7 +142,7 @@
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="preceding-sibling::*[1][self::mml:munder or self::mml:mover or self::mml:munderover or
-                                                    self::mml:msub or self::mml:msup or self::mml:msubsup(:§ or self::mml:mrow:)]
+                                                    self::mml:msub or self::mml:msup or self::mml:msubsup]
 							      and $fNary='true'">1</xsl:when>
       <xsl:otherwise>0</xsl:otherwise>
     </xsl:choose>
@@ -174,15 +154,10 @@
          mover, munder, munderover, msupsub, msup, or msub with 
          the base being an n-ary operator) then ignore this. Otherwise
          pass through -->
-  <xsl:template match="mml:mrow|mml:mstyle" mode="mml">
+  <xsl:template match="mml:mrow|mml:mstyle">
     <xsl:variable name="fNaryArgument">
       <xsl:call-template name="FIsNaryArgument">
         <xsl:with-param name="ndCur" select="."/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:variable name="fNary">
-      <xsl:call-template name="isNary">
-        <xsl:with-param name="ndCur" select="child::*[1]" />
       </xsl:call-template>
     </xsl:variable>
     <xsl:if test="$fNaryArgument=0">
@@ -210,28 +185,7 @@
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:choose>
-                <xsl:when test="$fNary='true' and self::mml:mrow">
-                  <m:nary>
-                    <xsl:call-template name="CreateNaryProp">
-                      <xsl:with-param name="chr">
-                        <xsl:value-of select="normalize-space(child::*[1])" />
-                      </xsl:with-param>
-                      <xsl:with-param name="sMathmlType" select="'mrow'" />
-                      <xsl:with-param name="sGrow" select="'false'"/>
-                    </xsl:call-template>
-                    <m:e>
-                      <xsl:call-template name="CreateArgProp" />
-                      <xsl:call-template name="NaryHandleMrowMstyle">
-                        <xsl:with-param name="ndCur" select="child::*[2]" />
-                      </xsl:call-template>
-                    </m:e>
-                  </m:nary>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:apply-templates select="*" mode="#current"/>
-                </xsl:otherwise>
-              </xsl:choose>
+              <xsl:apply-templates select="*" />
             </xsl:otherwise>
           </xsl:choose>
         </xsl:otherwise>
@@ -242,7 +196,7 @@
 	                     mml:mn[not(child::mml:mglyph)] | 
 	                     mml:mo[not(child::mml:mglyph)] | 
 	                     mml:ms[not(child::mml:mglyph)] |
-                       mml:mtext[not(child::mml:mglyph)]" mode="mml">
+                       mml:mtext[not(child::mml:mglyph)]">
 
     <!-- tokens with mglyphs as children are tranformed
 			 in a different manner than "normal" token elements.  
@@ -278,8 +232,6 @@
 					parent::mml:msqrt or parent::mml:menclose or
 					parent::mml:math or parent::mml:mphantom or 
 					parent::mml:mtd or parent::mml:maction)" />
-    
-    <xsl:variable name="maligngroup" select="(preceding-sibling::node()[1]/self::mml:maligngroup/@columnalign = 'left') or (preceding-sibling::node()[1]/self::mml:maligngroup/@groupalign = 'left')" as="xs:boolean"/>
 
     <!--In MathML, the meaning of the different parts that make up mathematical structures, such as a fraction 
 			having a numerator and a denominator, is determined by the relative order of those different parts.  
@@ -389,7 +341,6 @@
                 </xsl:choose>
               </xsl:with-param>
               <xsl:with-param name="ndTokenFirst" select="." />
-              <xsl:with-param name="maligngroup" select="$maligngroup" tunnel="yes"/>
             </xsl:call-template>
           </xsl:when>
         </xsl:choose>
@@ -781,13 +732,10 @@
             <xsl:call-template name="OutputText">
               <xsl:with-param name="sInput">
                 <xsl:choose>
-                  <xsl:when test="$ndTokenFirst/self::mml:ms">
+                  <xsl:when test="namespace-uri($ndTokenFirst) = 'http://www.w3.org/1998/Math/MathML' and local-name($ndTokenFirst) = 'ms'">
                     <xsl:call-template name="OutputMs">
                       <xsl:with-param name="msCur" select="$ndTokenFirst" />
                     </xsl:call-template>
-                  </xsl:when>
-                  <xsl:when test="$ndTokenFirst/self::mml:mtext">
-                    <xsl:value-of select="string($ndTokenFirst)" />
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:value-of select="normalize-space($ndTokenFirst)" />
@@ -795,13 +743,11 @@
                 </xsl:choose>
                 <xsl:for-each select="$ndTokenFirst/following-sibling::*[position() &lt; $cndRun]">
                   <xsl:choose>
-                    <xsl:when test="self::mml:ms">
+                    <xsl:when test="namespace-uri(.) = 'http://www.w3.org/1998/Math/MathML' and 
+													local-name(.) = 'ms'">
                       <xsl:call-template name="OutputMs">
                         <xsl:with-param name="msCur" select="." />
                       </xsl:call-template>
-                    </xsl:when>
-                    <xsl:when test="self::mml:mtext">
-                      <xsl:value-of select="."/>
                     </xsl:when>
                     <xsl:otherwise>
                       <xsl:value-of select="normalize-space(.)" />
@@ -844,13 +790,11 @@
             <xsl:call-template name="OutputText">
               <xsl:with-param name="sInput">
                 <xsl:choose>
-                  <xsl:when test="$ndTokenFirst/self::mml:ms">
+                  <xsl:when test="namespace-uri($ndTokenFirst) = 'http://www.w3.org/1998/Math/MathML' and 
+													local-name($ndTokenFirst) = 'ms'">
                     <xsl:call-template name="OutputMs">
                       <xsl:with-param name="msCur" select="$ndTokenFirst" />
                     </xsl:call-template>
-                  </xsl:when>
-                  <xsl:when test="$ndTokenFirst/self::mml:mtext">
-                    <xsl:value-of select="string($ndTokenFirst)" />
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:value-of select="normalize-space($ndTokenFirst)" />
@@ -858,13 +802,11 @@
                 </xsl:choose>
                 <xsl:for-each select="$ndTokenFirst/following-sibling::*[self::mml:mi or self::mml:mn or self::mml:mo or self::mml:ms or self::mml:mtext]">
                   <xsl:choose>
-                    <xsl:when test="self::mml:ms">
+                    <xsl:when test="namespace-uri(.) = 'http://www.w3.org/1998/Math/MathML' and 
+													local-name(.) = 'ms'">
                       <xsl:call-template name="OutputMs">
                         <xsl:with-param name="msCur" select="." />
                       </xsl:call-template>
-                    </xsl:when>
-                    <xsl:when test="self::mml:mtext">
-                      <xsl:value-of select="."/>
                     </xsl:when>
                     <xsl:otherwise>
                       <xsl:value-of select="normalize-space(.)" />
@@ -1012,14 +954,6 @@
     <xsl:param name="ndCur" />
     <xsl:param name="fontfamily" />
     <xsl:param name="fNor" />
-    <xsl:variable name="sFontCur">
-      <xsl:call-template name="GetFontCur">
-        <xsl:with-param name="mathvariant" select="$mathvariant" />
-        <xsl:with-param name="fontstyle" select="$fontstyle" />
-        <xsl:with-param name="fontweight" select="$fontweight" />
-        <xsl:with-param name="ndCur" select="$ndCur" />
-      </xsl:call-template>
-    </xsl:variable>
     <xsl:variable name="mstyleColor">
       <xsl:if test="not(not($ndCur))">
         <xsl:choose>
@@ -1032,37 +966,12 @@
         </xsl:choose>
       </xsl:if>
     </xsl:variable>
-    <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='') or $mathcolor!=''">
-      <xsl:variable name="w-rPr" as="element(w:rPr)">
-        <w:rPr>
-          <xsl:choose>
-            <xsl:when test="$sFontCur = ('bi', 'bold-italic')">
-              <w:b/>
-              <w:i/>
-            </xsl:when>
-            <xsl:when test="$sFontCur = 'bold'">
-              <w:b/>
-            </xsl:when>
-            <xsl:when test="$sFontCur = 'italic'">
-              <w:i/>
-            </xsl:when>
-          </xsl:choose>
-          <xsl:if test="$mathcolor!=''">
-            <w:color w:val="{$mathcolor}"/>
-          </xsl:if>
-        </w:rPr>
-      </xsl:variable>
-      <xsl:if test="$w-rPr/node()">
-        <xsl:sequence select="$w-rPr"/>
-      </xsl:if>
-    </xsl:if>
     <xsl:call-template name="CreateMathRPR">
       <xsl:with-param name="mathvariant" select="$mathvariant" />
       <xsl:with-param name="fontstyle" select="$fontstyle" />
       <xsl:with-param name="fontweight" select="$fontweight" />
       <xsl:with-param name="ndCur" select="$ndCur" />
       <xsl:with-param name="fNor" select="$fNor" />
-      <xsl:with-param name="sFontCur" select="$sFontCur"/>
     </xsl:call-template>
   </xsl:template>
 
@@ -1074,14 +983,16 @@
     <xsl:param name="fontweight" />
     <xsl:param name="ndCur" />
     <xsl:param name="fNor" />
-    <xsl:param name="sFontCur"/>
-    <xsl:param name="maligngroup" select="false()" tunnel="yes" as="xs:boolean"/>
-    <xsl:variable name="needs-mrPr" select="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='') or $maligngroup"/>
-    <xsl:if test="$needs-mrPr">
+    <xsl:variable name="sFontCur">
+      <xsl:call-template name="GetFontCur">
+        <xsl:with-param name="mathvariant" select="$mathvariant" />
+        <xsl:with-param name="fontstyle" select="$fontstyle" />
+        <xsl:with-param name="fontweight" select="$fontweight" />
+        <xsl:with-param name="ndCur" select="$ndCur" />
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='')">
       <xsl:element name="m:rPr">
-        <xsl:if test="$maligngroup">
-          <m:aln/>
-        </xsl:if>
         <xsl:if test="$fNor=1">
           <m:nor />
         </xsl:if>
@@ -1274,7 +1185,7 @@
 
   <!-- %%Template: match mfrac 
 		-->
-  <xsl:template match="mml:mfrac" mode="mml">
+  <xsl:template match="mml:mfrac">
     <xsl:variable name="fBar">
       <xsl:call-template name="FBar">
         <xsl:with-param name="sLineThickness">
@@ -1304,18 +1215,18 @@
       </xsl:element>
       <xsl:element name="m:num">
         <xsl:call-template name="CreateArgProp" />
-        <xsl:apply-templates select="child::*[1]" mode="#current"/>
+        <xsl:apply-templates select="child::*[1]" />
       </xsl:element>
       <xsl:element name="m:den">
         <xsl:call-template name="CreateArgProp" />
-        <xsl:apply-templates select="child::*[2]" mode="#current"/>
+        <xsl:apply-templates select="child::*[2]" />
       </xsl:element>
     </xsl:element>
   </xsl:template>
 
   <!-- %%Template: match menclose msqrt
 	-->
-  <xsl:template match="mml:menclose | mml:msqrt" mode="mml">
+  <xsl:template match="mml:menclose | mml:msqrt">
     <xsl:variable name="sLowerCaseNotation">
       <xsl:choose>
         <xsl:when test="@notation">
@@ -1343,7 +1254,7 @@
           </xsl:element>
           <xsl:element name="m:e">
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="*" mode="#current" />
+            <xsl:apply-templates select="*" />
           </xsl:element>
         </xsl:element>
       </xsl:when>
@@ -1472,7 +1383,7 @@
               </xsl:if>
               <xsl:element name="m:e">
                 <xsl:call-template name="CreateArgProp" />
-                <xsl:apply-templates select="*" mode="#current" />
+                <xsl:apply-templates select="*" />
               </xsl:element>
             </xsl:element>
           </xsl:otherwise>
@@ -1505,20 +1416,20 @@
 
   <!-- %%Template: match mroot
 	-->
-  <xsl:template match="mml:mroot" mode="mml">
+  <xsl:template match="mml:mroot">
     <xsl:element name="m:rad">
       <xsl:element name="m:radPr">
         <xsl:element name="m:degHide">
-          <xsl:attribute name="m:val" select="(child::*[2][exists(descendant-or-self::*[not(self::mml:mrow)])]/'off','on')[1]"/>
+          <xsl:attribute name="m:val">off</xsl:attribute>
         </xsl:element>
       </xsl:element>
       <xsl:element name="m:deg">
         <xsl:call-template name="CreateArgProp" />
-        <xsl:apply-templates select="child::*[2]" mode="#current" />
+        <xsl:apply-templates select="child::*[2]" />
       </xsl:element>
       <xsl:element name="m:e">
         <xsl:call-template name="CreateArgProp" />
-        <xsl:apply-templates select="child::*[1]" mode="#current" />
+        <xsl:apply-templates select="child::*[1]" />
       </xsl:element>
     </xsl:element>
   </xsl:template>
@@ -1613,11 +1524,11 @@
       </xsl:element>
       <xsl:element name="m:num">
         <xsl:call-template name="CreateArgProp" />
-        <xsl:apply-templates select="$ndCur/*[1]" mode="#current" />
+        <xsl:apply-templates select="$ndCur/*[1]" />
       </xsl:element>
       <xsl:element name="m:den">
         <xsl:call-template name="CreateArgProp" />
-        <xsl:apply-templates select="$ndCur/*[3]" mode="#current" />
+        <xsl:apply-templates select="$ndCur/*[3]" />
       </xsl:element>
     </xsl:element>
   </xsl:template>
@@ -1630,10 +1541,10 @@
 
     <xsl:element name="m:func">
       <xsl:element name="m:fName">
-        <xsl:apply-templates select="$ndCur/child::*[1]" mode="#current" />
+        <xsl:apply-templates select="$ndCur/child::*[1]" />
       </xsl:element>
       <xsl:element name="m:e">
-        <xsl:apply-templates select="$ndCur/child::*[3]" mode="#current" />
+        <xsl:apply-templates select="$ndCur/child::*[3]" />
       </xsl:element>
     </xsl:element>
   </xsl:template>
@@ -1687,19 +1598,14 @@
                 </xsl:call-template>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:variable name="fNary">
-                  <xsl:call-template name="isNary">
-                    <xsl:with-param name="ndCur" select="$ndCur/*[1]"/>
-                  </xsl:call-template>
-                </xsl:variable>
-                <xsl:apply-templates select="if ($fNary='true') then $ndCur else $ndCur/*" mode="#current" />
+                <xsl:apply-templates select="$ndCur/*" />
               </xsl:otherwise>
             </xsl:choose>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
       <xsl:when test="$ndCur[self::mml:mstyle]">
-        <xsl:apply-templates select="$ndCur/*" mode="#current" />
+        <xsl:apply-templates select="$ndCur/*" />
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -1724,10 +1630,41 @@
         <xsl:otherwise>0</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+    <xsl:variable name="sLowerCaseAccent">
+      <xsl:choose>
+        <xsl:when test="$fUnder=1">
+          <xsl:choose>
+            <xsl:when test="$ndCur/@accentunder">
+              <xsl:value-of select="translate($ndCur/@accentunder, $StrUCAlphabet, $StrLCAlphabet)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="translate($ndCur/@mml:accentunder, $StrUCAlphabet, $StrLCAlphabet)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:choose>
+            <xsl:when test="$ndCur/@accent">
+              <xsl:value-of select="translate($ndCur/@accent, $StrUCAlphabet, $StrLCAlphabet)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="translate($ndCur/@mml:accent, $StrUCAlphabet, $StrLCAlphabet)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="fAccent">
+      <xsl:choose>
+        <xsl:when test="$sLowerCaseAccent='true'">1</xsl:when>
+        <xsl:otherwise>0</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
 
     <xsl:choose>
       <!-- The script is unaccented and the second child is an mo -->
-      <xsl:when test="$ndCur/child::*[2]/self::mml:mo">
+      <xsl:when test="$fAccent = 0 
+                      and $ndCur/child::*[2]/self::mml:mo">
         <xsl:variable name="sOperator">
           <xsl:value-of select="$ndCur/child::*[2]" />
         </xsl:variable>
@@ -1884,7 +1821,7 @@
 
   <!-- %%Template: match munder
 	-->
-  <xsl:template match="mml:munder" mode="mml">
+  <xsl:template match="mml:munder">
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
@@ -1901,7 +1838,7 @@
           </xsl:call-template>
           <m:sub>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[2]" mode="#current" />
+            <xsl:apply-templates select="child::*[2]" />
           </m:sub>
           <m:sup>
             <xsl:call-template name="CreateArgProp" />
@@ -1929,7 +1866,7 @@
               </m:barPr>
               <m:e>
                 <xsl:call-template name="CreateArgProp" />
-                <xsl:apply-templates select="child::*[1]" mode="#current" />
+                <xsl:apply-templates select="child::*[1]" />
               </m:e>
             </m:bar>
           </xsl:when>
@@ -1956,7 +1893,7 @@
                     <xsl:with-param name="vertJc">top</xsl:with-param>
                   </xsl:call-template>
                   <xsl:element name="m:e">
-                    <xsl:apply-templates select="mml:mrow" mode="#current" />
+                    <xsl:apply-templates select="mml:mrow" />
                   </xsl:element>
                 </xsl:element>
               </xsl:when>
@@ -1965,11 +1902,11 @@
                 <xsl:element name="m:limLow">
                   <xsl:element name="m:e">
                     <xsl:call-template name="CreateArgProp" />
-                    <xsl:apply-templates select="child::*[1]" mode="#current" />
+                    <xsl:apply-templates select="child::*[1]" />
                   </xsl:element>
                   <xsl:element name="m:lim">
                     <xsl:call-template name="CreateArgProp" />
-                    <xsl:apply-templates select="child::*[2]" mode="#current" />
+                    <xsl:apply-templates select="child::*[2]" />
                   </xsl:element>
                 </xsl:element>
               </xsl:otherwise>
@@ -2083,7 +2020,7 @@
 
   <!-- %%Template: match mover
 	-->
-  <xsl:template match="mml:mover" mode="mml">
+  <xsl:template match="mml:mover">
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
@@ -2103,7 +2040,7 @@
           </m:sub>
           <m:sup>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[2]" mode="#current" />
+            <xsl:apply-templates select="child::*[2]" />
           </m:sup>
           <m:e>
             <xsl:call-template name="CreateArgProp" />
@@ -2130,7 +2067,7 @@
               </m:barPr>
               <m:e>
                 <xsl:call-template name="CreateArgProp" />
-                <xsl:apply-templates select="child::*[1]" mode="#current" />
+                <xsl:apply-templates select="child::*[1]" />
               </m:e>
             </m:bar>
           </xsl:when>
@@ -2161,7 +2098,7 @@
                   </m:accPr>
                   <m:e>
                     <xsl:call-template name="CreateArgProp" />
-                    <xsl:apply-templates select="child::*[1]" mode="#current" />
+                    <xsl:apply-templates select="child::*[1]" />
                   </m:e>
                 </m:acc>
               </xsl:when>
@@ -2189,7 +2126,7 @@
                         <xsl:with-param name="vertJc">bot</xsl:with-param>
                       </xsl:call-template>
                       <xsl:element name="m:e">
-                        <xsl:apply-templates select="mml:mrow" mode="#current" />
+                        <xsl:apply-templates select="mml:mrow" />
                       </xsl:element>
                     </xsl:element>
                   </xsl:when>
@@ -2198,11 +2135,11 @@
                     <xsl:element name="m:limUpp">
                       <xsl:element name="m:e">
                         <xsl:call-template name="CreateArgProp" />
-                        <xsl:apply-templates select="child::*[1]" mode="#current" />
+                        <xsl:apply-templates select="child::*[1]" />
                       </xsl:element>
                       <xsl:element name="m:lim">
                         <xsl:call-template name="CreateArgProp" />
-                        <xsl:apply-templates select="child::*[2]" mode="#current" />
+                        <xsl:apply-templates select="child::*[2]" />
                       </xsl:element>
                     </xsl:element>
                   </xsl:otherwise>
@@ -2218,7 +2155,7 @@
 
   <!-- %%Template: match munderover
 	-->
-  <xsl:template match="mml:munderover" mode="mml">
+  <xsl:template match="mml:munderover">
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
@@ -2235,11 +2172,11 @@
           </xsl:call-template>
           <m:sub>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[2]" mode="#current" />
+            <xsl:apply-templates select="child::*[2]" />
           </m:sub>
           <m:sup>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[3]" mode="#current" />
+            <xsl:apply-templates select="child::*[3]" />
           </m:sup>
           <m:e>
             <xsl:call-template name="CreateArgProp" />
@@ -2256,17 +2193,17 @@
             <xsl:element name="m:limLow">
               <xsl:element name="m:e">
                 <xsl:call-template name="CreateArgProp" />
-                <xsl:apply-templates select="child::*[1]" mode="#current" />
+                <xsl:apply-templates select="child::*[1]" />
               </xsl:element>
               <xsl:element name="m:lim">
                 <xsl:call-template name="CreateArgProp" />
-                <xsl:apply-templates select="child::*[2]" mode="#current" />
+                <xsl:apply-templates select="child::*[2]" />
               </xsl:element>
             </xsl:element>
           </xsl:element>
           <xsl:element name="m:lim">
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[3]" mode="#current" />
+            <xsl:apply-templates select="child::*[3]" />
           </xsl:element>
         </xsl:element>
       </xsl:otherwise>
@@ -2274,7 +2211,7 @@
   </xsl:template>
 
   <!-- %%Template: match mfenced -->
-  <xsl:template match="mml:mfenced" mode="mml">
+  <xsl:template match="mml:mfenced">
     <m:d>
       <xsl:call-template name="CreateDelimProp">
         <xsl:with-param name="fChOpenValid">
@@ -2350,7 +2287,7 @@
       <xsl:for-each select="*">
         <m:e>
           <xsl:call-template name="CreateArgProp" />
-          <xsl:apply-templates select="." mode="#current"/>
+          <xsl:apply-templates select="."/>
         </m:e>
       </xsl:for-each>
     </m:d>
@@ -2486,7 +2423,7 @@
 
   <!-- %%Template: match msub
 	-->
-  <xsl:template match="mml:msub" mode="mml">
+  <xsl:template match="mml:msub">
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
@@ -2503,7 +2440,7 @@
           </xsl:call-template>
           <m:sub>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[2]" mode="#current" />
+            <xsl:apply-templates select="child::*[2]" />
           </m:sub>
           <m:sup>
             <xsl:call-template name="CreateArgProp" />
@@ -2518,16 +2455,13 @@
       </xsl:when>
       <xsl:otherwise>
         <m:sSub>
-          <m:sSubPr>
-            <m:ctrlPr/>
-          </m:sSubPr>
           <m:e>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[1]" mode="#current"/>
+            <xsl:apply-templates select="child::*[1]" />
           </m:e>
           <m:sub>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[2]" mode="#current"/>
+            <xsl:apply-templates select="child::*[2]" />
           </m:sub>
         </m:sSub>
       </xsl:otherwise>
@@ -2536,7 +2470,7 @@
 
   <!-- %%Template: match msup
 	-->
-  <xsl:template match="mml:msup" mode="mml">
+  <xsl:template match="mml:msup">
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
@@ -2556,7 +2490,7 @@
           </m:sub>
           <m:sup>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[2]" mode="#current"/>
+            <xsl:apply-templates select="child::*[2]" />
           </m:sup>
           <m:e>
             <xsl:call-template name="CreateArgProp" />
@@ -2568,16 +2502,13 @@
       </xsl:when>
       <xsl:otherwise>
         <m:sSup>
-          <m:sSupPr>
-            <m:ctrlPr/>
-          </m:sSupPr>
           <m:e>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[1]" mode="#current"/>
+            <xsl:apply-templates select="child::*[1]" />
           </m:e>
           <m:sup>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[2]" mode="#current"/>
+            <xsl:apply-templates select="child::*[2]" />
           </m:sup>
         </m:sSup>
       </xsl:otherwise>
@@ -2586,7 +2517,7 @@
 
   <!-- %%Template: match msubsup
 	-->
-  <xsl:template match="mml:msubsup" mode="mml">
+  <xsl:template match="mml:msubsup">
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
@@ -2603,11 +2534,11 @@
           </xsl:call-template>
           <m:sub>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[2]" mode="#current"/>
+            <xsl:apply-templates select="child::*[2]" />
           </m:sub>
           <m:sup>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[3]" mode="#current"/>
+            <xsl:apply-templates select="child::*[3]" />
           </m:sup>
           <m:e>
             <xsl:call-template name="CreateArgProp" />
@@ -2619,20 +2550,17 @@
       </xsl:when>
       <xsl:otherwise>
         <m:sSubSup>
-          <m:sSubSupPr>
-            <m:ctrlPr/>
-          </m:sSubSupPr>
           <m:e>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[1]" mode="#current"/>
+            <xsl:apply-templates select="child::*[1]" />
           </m:e>
           <m:sub>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[2]" mode="#current"/>
+            <xsl:apply-templates select="child::*[2]" />
           </m:sub>
           <m:sup>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[3]" mode="#current"/>
+            <xsl:apply-templates select="child::*[3]" />
           </m:sup>
         </m:sSubSup>
       </xsl:otherwise>
@@ -2651,27 +2579,11 @@
     <xsl:param name="ndScripts" />
     <m:sub>
       <xsl:call-template name="CreateArgProp" />
-      <xsl:apply-templates select="$ndScripts[(position() mod 2) = 1]" mode="#current"/>
-      <xsl:if test="local-name($ndScripts[(position() mod 2) = 1])='none'">
-        <m:r>
-          <m:t>
-            <xsl:attribute name="xml:space" select="'preserve'"/>
-            <xsl:text xml:space="preserve"> </xsl:text>
-          </m:t>
-        </m:r>
-      </xsl:if>
+      <xsl:apply-templates select="$ndScripts[(position() mod 2) = 1]" />
     </m:sub>
     <m:sup>
       <xsl:call-template name="CreateArgProp" />
-      <xsl:apply-templates select="$ndScripts[(position() mod 2) = 0]" mode="#current"/>
-      <xsl:if test="local-name($ndScripts[(position() mod 2) = 0])='none'">
-        <m:r>
-          <m:t>
-            <xsl:attribute name="xml:space" select="'preserve'"/>
-            <xsl:text xml:space="preserve"> </xsl:text>
-          </m:t>
-        </m:r>
-      </xsl:if>
+      <xsl:apply-templates select="$ndScripts[(position() mod 2) = 0]" />
     </m:sup>
   </xsl:template>
 
@@ -2680,7 +2592,7 @@
 		There is some subtlety with the mml:mprescripts element. Everything that comes before 
 		that is considered a script (as opposed to a pre-script), but it need not be present.
 	-->
-  <xsl:template match="mml:mmultiscripts" mode="mml">
+  <xsl:template match="mml:mmultiscripts">
 
     <!-- count the nodes. Everything that comes after a mml:mprescripts is considered a pre-script;
 			Everything that does not have an mml:mprescript as a preceding-sibling (and is not itself 
@@ -2716,7 +2628,7 @@
     <xsl:choose>
       <!-- The easy case first. No prescripts, and no script ... just a base -->
       <xsl:when test="$cndPrescriptStrict &lt;= 0 and $cndScriptStrict &lt;= 0">
-        <xsl:apply-templates select="*[1]" mode="#current"/>
+        <xsl:apply-templates select="*[1]" />
       </xsl:when>
 
       <!-- Next, if there are no prescripts -->
@@ -2727,12 +2639,9 @@
           <!-- We have both sub and super scripts-->
           <xsl:when test="$cndSuperScript &gt; 0 and $cndSubScript &gt; 0">
             <m:sSubSup>
-              <m:sSubSupPr>
-                <m:ctrlPr/>
-              </m:sSubSupPr>
               <m:e>
                 <xsl:call-template name="CreateArgProp" />
-                <xsl:apply-templates select="child::*[1]" mode="#current"/>
+                <xsl:apply-templates select="child::*[1]" />
               </m:e>
 
               <!-- Every child except the first is a script.  Do the split -->
@@ -2744,34 +2653,28 @@
           <!-- Just a sub script -->
           <xsl:when test="$cndSubScript &gt; 0">
             <m:sSub>
-              <m:sSubPr>
-                <m:ctrlPr/>
-              </m:sSubPr>
               <m:e>
                 <xsl:call-template name="CreateArgProp" />
-                <xsl:apply-templates select="child::*[1]" mode="#current"/>
+                <xsl:apply-templates select="child::*[1]" />
               </m:e>
 
               <!-- No prescripts and no super scripts, therefore, it's a sub. -->
               <m:sub>
-                <xsl:apply-templates select="*[position() &gt; 1]" mode="#current"/>
+                <xsl:apply-templates select="*[position() &gt; 1]" />
               </m:sub>
             </m:sSub>
           </xsl:when>
           <!-- Just super script -->
           <xsl:otherwise>
             <m:sSup>
-              <m:sSupPr>
-                <m:ctrlPr/>
-              </m:sSupPr>
               <m:e>
                 <xsl:call-template name="CreateArgProp" />
-                <xsl:apply-templates select="child::*[1]" mode="#current"/>
+                <xsl:apply-templates select="child::*[1]" />
               </m:e>
 
               <!-- No prescripts and no sub scripts, therefore, it's a sup. -->
               <m:sup>
-                <xsl:apply-templates select="*[position() &gt; 1]" mode="#current"/>
+                <xsl:apply-templates select="*[position() &gt; 1]" />
               </m:sup>
             </m:sSup>
           </xsl:otherwise>
@@ -2785,7 +2688,7 @@
         <m:sPre>
           <m:e>
             <xsl:call-template name="CreateArgProp" />
-            <xsl:apply-templates select="child::*[1]" mode="#current"/>
+            <xsl:apply-templates select="child::*[1]" />
           </m:e>
 
           <!-- The prescripts come after the mml:mprescript and if we get here
@@ -2809,12 +2712,9 @@
               <!-- We have both sub and super scripts-->
               <xsl:when test="$cndSuperScript &gt; 0 and $cndSubScript &gt; 0">
                 <m:sSubSup>
-                  <m:sSubSupPr>
-                    <m:ctrlPr/>
-                  </m:sSubSupPr>
                   <m:e>
                     <xsl:call-template name="CreateArgProp" />
-                    <xsl:apply-templates select="child::*[1]" mode="#current"/>
+                    <xsl:apply-templates select="child::*[1]" />
                   </m:e>
 
                   <!-- scripts come before the mml:mprescript but after the first child, so their
@@ -2827,36 +2727,30 @@
               <!-- Just a sub script -->
               <xsl:when test="$cndSubScript &gt; 0">
                 <m:sSub>
-                  <m:sSubPr>
-                    <m:ctrlPr/>
-                  </m:sSubPr>
                   <m:e>
                     <xsl:call-template name="CreateArgProp" />
-                    <xsl:apply-templates select="child::*[1]" mode="#current"/>
+                    <xsl:apply-templates select="child::*[1]" />
                   </m:e>
 
                   <!-- We have prescripts but no super scripts, therefore, do a sub 
 									and apply templates to all tokens counted by cndScript. -->
                   <m:sub>
-                    <xsl:apply-templates select="*[position() &gt; 1 and (position() &lt;= ($cndScript + 1))]" mode="#current"/>
+                    <xsl:apply-templates select="*[position() &gt; 1 and (position() &lt;= ($cndScript + 1))]" />
                   </m:sub>
                 </m:sSub>
               </xsl:when>
               <!-- Just super script -->
               <xsl:otherwise>
                 <m:sSup>
-                  <m:sSupPr>
-                    <m:ctrlPr/>
-                  </m:sSupPr>
                   <m:e>
                     <xsl:call-template name="CreateArgProp" />
-                    <xsl:apply-templates select="child::*[1]" mode="#current"/>
+                    <xsl:apply-templates select="child::*[1]" />
                   </m:e>
 
                   <!-- We have prescripts but no sub scripts, therefore, do a sub 
 									and apply templates to all tokens counted by cndScript. -->
                   <m:sup>
-                    <xsl:apply-templates select="*[position() &gt; 1 and (position() &lt;= ($cndScript + 1))]" mode="#current"/>
+                    <xsl:apply-templates select="*[position() &gt; 1 and (position() &lt;= ($cndScript + 1))]" />
                   </m:sup>
                 </m:sSup>
               </xsl:otherwise>
@@ -2991,13 +2885,8 @@
             <xsl:with-param name="ndCur" select="$ndCur" />
           </xsl:call-template>
         </xsl:variable>
-        <xsl:variable name="fNary">
-          <xsl:call-template name="isNary">
-            <xsl:with-param name="ndCur" select="$ndCur/*[1]" />
-          </xsl:call-template>
-        </xsl:variable>
         <xsl:choose>
-          <xsl:when test="$fLinearFraction=1 or $fFunc=1 or $fNary='true'">1</xsl:when>
+          <xsl:when test="$fLinearFraction=1 or $fFunc=1">1</xsl:when>
           <xsl:otherwise>0</xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -3076,11 +2965,11 @@
             </xsl:element>
           </xsl:if>
           <!-- Now that the '&' have been extracted, just apply-templates to this node.-->
-          <xsl:apply-templates select="." mode="#current"/>
+          <xsl:apply-templates select="." />
         </xsl:when>
         <!-- If there are no alignment points as descendants, then go ahead and output this node. -->
         <xsl:otherwise>
-          <xsl:apply-templates select="." mode="#current"/>
+          <xsl:apply-templates select="." />
         </xsl:otherwise>
       </xsl:choose>
     </xsl:for-each>
@@ -3107,7 +2996,7 @@
 			 In the case that the above 
 	
 	-->
-  <xsl:template match="mml:mtable" mode="mml">
+  <xsl:template match="mml:mtable">
     <xsl:variable name="fEqArray">
       <xsl:call-template name="FIsEqArray">
         <xsl:with-param name="ndCur" select="." />
@@ -3157,7 +3046,7 @@
                     <xsl:when test="self::mml:mtr">
                       <xsl:for-each select="*">
                         <m:e>
-                          <xsl:apply-templates select="." mode="#current"/>
+                          <xsl:apply-templates select="." />
                         </m:e>
                       </xsl:for-each>
                       <xsl:call-template name="CreateEmptyElmt">
@@ -3167,7 +3056,7 @@
                     <xsl:otherwise>
                       <xsl:for-each select="*[position() &gt; 1]">
                         <m:e>
-                          <xsl:apply-templates select="." mode="#current"/>
+                          <xsl:apply-templates select="." />
                         </m:e>
                       </xsl:for-each>
                       <xsl:call-template name="CreateEmptyElmt">
@@ -3180,7 +3069,7 @@
               <xsl:otherwise>
                 <m:mr>
                   <m:e>
-                    <xsl:apply-templates select="." mode="#current"/>
+                    <xsl:apply-templates select="." />
                   </m:e>
                   <xsl:call-template name="CreateEmptyElmt">
                     <xsl:with-param name="cEmptyMtd" select="$cMaxElmtsInRow - 1" />
@@ -3193,8 +3082,8 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  <xsl:template match="m:mtd" mode="mml">
-    <xsl:apply-templates select="*" mode="#current"/>
+  <xsl:template match="m:mtd">
+    <xsl:apply-templates select="*" />
   </xsl:template>
   <xsl:template name="CreateEmptyElmt">
     <xsl:param name="cEmptyMtd" />
@@ -3268,7 +3157,7 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="mml:mglyph" mode="mml">
+  <xsl:template match="mml:mglyph">
     <xsl:element name="m:r">
       <xsl:element name="m:rPr">
         <xsl:element name="m:nor" />
@@ -3285,32 +3174,12 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="mml:mspace[matches(@width, '^[1-9]\d*(.\d+)?em$')]" mode="mml">
-    <xsl:element name="m:r">
-      <xsl:element name="m:t">
-        <xsl:attribute name="xml:space" select="'preserve'"/>
-        <xsl:for-each select="1 to xs:integer(replace(@width, '^([1-9]\d*)(\.\d+)?em$', '$1')) * 4">
-          <xsl:text xml:space="preserve"> </xsl:text>
-        </xsl:for-each>
-      </xsl:element>
-    </xsl:element>
-  </xsl:template>
-
-  <xsl:template match="mml:mspace[not(matches(@width, '^[1-9]\d*(.\d+)?em$'))]" mode="mml">
-    <xsl:element name="m:r">
-      <xsl:element name="m:t">
-        <xsl:attribute name="xml:space" select="'preserve'"/>
-        <xsl:text xml:space="preserve"> </xsl:text>
-      </xsl:element>
-    </xsl:element>
-  </xsl:template>
-
   <!-- Omml doesn't really support mglyph, so just output the alt text -->
   <xsl:template match="mml:mi[child::mml:mglyph] | 
 	                     mml:mn[child::mml:mglyph] | 
 	                     mml:mo[child::mml:mglyph] | 
 	                     mml:ms[child::mml:mglyph] | 
-	                     mml:mtext[child::mml:mglyph]" mode="mml">
+	                     mml:mtext[child::mml:mglyph]">
     <xsl:variable name="mathvariant">
       <xsl:choose>
         <xsl:when test="@mathvariant">
@@ -3391,7 +3260,7 @@
     <xsl:if test="self::mml:ms">
       <xsl:variable name="chLquote">
         <xsl:call-template name="LQuoteFromMs">
-          <xsl:with-param name="msCur" select="." />
+          <xsl:with-param name="curMs" select="." />
         </xsl:call-template>
       </xsl:variable>
       <xsl:element name="m:r">
@@ -3466,7 +3335,7 @@
     <xsl:if test="self::mml:ms">
       <xsl:variable name="chRquote">
         <xsl:call-template name="RQuoteFromMs">
-          <xsl:with-param name="msCur" select="." />
+          <xsl:with-param name="curMs" select="." />
         </xsl:call-template>
       </xsl:variable>
       <xsl:element name="m:r">
@@ -3686,11 +3555,11 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="mml:mpadded" mode="mml">
+  <xsl:template match="mml:mpadded">
     <xsl:choose>
       <xsl:when test="count(parent::mml:mphantom)=1 and count(preceding-sibling::*)=0 and count(following-sibling::*)=0">
         <!-- This mpadded is inside an mphantom that has already setup phantom attributes, therefore, just apply templates -->
-        <xsl:apply-templates select="*" mode="#current"/>
+        <xsl:apply-templates select="*" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="sLowerCaseWidth">
@@ -3748,21 +3617,21 @@
             <xsl:with-param name="fFullDepth" select="$fFullDepth" />
           </xsl:call-template>
           <m:e>
-            <xsl:apply-templates select="*" mode="#current"/>
+            <xsl:apply-templates select="*" />
           </m:e>
         </xsl:element>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="mml:mphantom" mode="mml">
+  <xsl:template match="mml:mphantom">
     <xsl:element name="m:phant">
       <xsl:call-template name="CreatePhantProperties">
         <xsl:with-param name="ndCur" select="." />
         <xsl:with-param name="fShow" select="0" />
       </xsl:call-template>
       <m:e>
-        <xsl:apply-templates select="*" mode="#current"/>
+        <xsl:apply-templates select="*" />
       </m:e>
     </xsl:element>
   </xsl:template>
@@ -3793,7 +3662,6 @@
   <xsl:template name="isNary">
     <!-- ndCur is the element around the nAry operator -->
     <xsl:param name="ndCur" />
-    
     <xsl:variable name="sNdCur">
       <xsl:value-of select="normalize-space($ndCur)" />
     </xsl:variable>
@@ -3890,8 +3758,7 @@
           <xsl:choose>
             <xsl:when test="$sMathmlType='munder' or 
 									$sMathmlType='mover' or 
-									$sMathmlType='munderover' or
-									$sMathmlType='mrow'">
+									$sMathmlType='munderover'">
               <xsl:text>undOvr</xsl:text>
             </xsl:when>
             <xsl:when test="$sMathmlType='msub' or
@@ -3928,8 +3795,7 @@
         <xsl:attribute name="m:val">
           <xsl:choose>
             <xsl:when test="$sMathmlType='mover' or
-						                $sMathmlType='msup' or
-						                $sMathmlType='mrow'">
+						                $sMathmlType='msup'">
               <xsl:text>on</xsl:text>
             </xsl:when>
             <xsl:otherwise>
@@ -3942,8 +3808,7 @@
         <xsl:attribute name="m:val">
           <xsl:choose>
             <xsl:when test="$sMathmlType='munder' or
-						                $sMathmlType='msub' or
-						                $sMathmlType='mrow'">
+						                $sMathmlType='msub'">
               <xsl:text>on</xsl:text>
             </xsl:when>
             <xsl:otherwise>
@@ -3954,5 +3819,4 @@
       </m:supHide>
     </m:naryPr>
   </xsl:template>
-  
 </xsl:stylesheet>
