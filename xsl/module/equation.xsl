@@ -55,7 +55,7 @@
   </xsl:template>
   
   <xsl:template name="hub:mml2omml">
-    <xsl:param name="mml" as="element(mml:math)"/>
+    <xsl:param name="mml"/>
     <xsl:choose>
       <xsl:when test="system-property('mml2omml') = 'office16'">
         <xsl:apply-templates select="$mml"/>
@@ -74,7 +74,7 @@
     <xsl:element name="m:oMathPara" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
       <xsl:for-each select="m:mtable/m:mtr">
         <xsl:element name="m:oMath" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
-          <xsl:variable name="mml" as="element(mml:math)">
+          <xsl:variable name="mml" as="node()">
             <xsl:apply-templates select="node()" mode="m-to-mml"/>
           </xsl:variable>
           <xsl:call-template name="hub:mml2omml">
