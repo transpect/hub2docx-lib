@@ -58,7 +58,10 @@
       <xsl:message  terminate="yes" select="'ERROR: element &quot;anchor&quot; must not have any content!'"/>
     </xsl:if>
     <!-- § has to be located within w:p ? -->
-    <w:bookmarkStart  w:id="{generate-id()}"  w:name="{generate-id()}"/>
+    <w:bookmarkStart  w:id="{generate-id()}"  w:name="{(@xml:id, generate-id())[1]}">
+      <!-- GI 2019-11-07: For a lookup in a corresponding docVar, it is important that an existing
+        @xml:id be preserved. https://github.com/basex-gmbh/voktool-LingSoft/issues/311 -->
+    </w:bookmarkStart>
   </xsl:template>
   
   <xsl:key name="by-id" match="*[@xml:id]" use="@xml:id" />
@@ -193,7 +196,10 @@
   <xsl:variable name="link-internal-rstyle" as="xs:string?"
     select="'InternalRef'"/>
   
-  <xsl:template match="link[matches(@xlink:href, '^([a-z][a-z0-9+\-.]*)://')]" mode="hub:default" priority="10">
+  <xsl:template match="link[matches(@xlink:href, '^([a-z][a-z0-9+\-.]*)://')]" mode="hub:default_" priority="10">
+    <!-- GI 2019-11-07: Deactivated because a) redundancy with field code HYPELRINKs that are still being generated
+      inside and b) https://github.com/basex-gmbh/voktool-LingSoft/issues/311 (a VBA macro crashed when processing 
+      HYPERLINKs wrapped in w:hyperlink -->
     <w:hyperlink>
       <xsl:next-match/>
     </w:hyperlink>
@@ -228,7 +234,10 @@
         <xsl:variable name="target" select="($targetNode-corrected/@xml:id, @linkend)[1] | @xlink:href" as="xs:string"/>
         <xsl:variable name="title" select="replace((@xlink:title, ., ' ')[1], '(&quot;)', '\\$1')" as="xs:string"/>
         <xsl:if test="@xml:id">
-          <w:bookmarkStart w:id="{generate-id()}" w:name="{generate-id()}"/>
+          <w:bookmarkStart w:id="{generate-id()}" w:name="{(@xml:id, generate-id())[1]}">
+            <!-- GI 2019-11-07: For a lookup in a corresponding docVar, it is important that an existing
+                  @xml:id be preserved. https://github.com/basex-gmbh/voktool-LingSoft/issues/311 -->
+          </w:bookmarkStart>
         </xsl:if>
         <w:r>
           <w:fldChar w:fldCharType="begin"/>
