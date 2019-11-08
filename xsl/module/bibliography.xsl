@@ -67,7 +67,7 @@
   </xsl:template>
 
   <xsl:template  match="bibliomixed"  mode="hub:default">
-    <xsl:variable  name="bibliomixedId"  select="generate-id()"/>
+    <xsl:variable  name="bibliomixedId"  select="(@xml:id, generate-id())[1]"/>
     <w:bookmarkStart w:id="{$bibliomixedId}" w:name="bm_{$bibliomixedId}_"/>
     <w:p>
       <xsl:call-template name="hub:pPr"/>
