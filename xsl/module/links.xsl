@@ -161,7 +161,7 @@
 
   <xsl:template  match="xref[@role eq 'internal' and @xrefstyle = ('page', 'pagera', 'pagerb')]"  mode="hub:default">
     <xsl:param  name="rPrContent"  as="element(*)*" tunnel="yes"/>
-    <xsl:variable  name="targetNode"  select="key('by-id', @xlink:href, $root)"/>
+    <xsl:variable  name="targetNode"  select="key('by-id', (@xlink:href, @linkend, @linkends)[1], $root)"/>
     <xsl:choose>
       <xsl:when  test="count( $targetNode) ne 1">
         <xsl:message  select="'ERROR: Target node of a link-element does not exist or is ambiguous.'"/>
