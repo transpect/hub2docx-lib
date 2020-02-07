@@ -527,5 +527,9 @@
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </w:rStyle>
   </xsl:template>
+  
+  <xsl:template match="w:rPr/w:rPr" mode="hub:clean">
+    <xsl:apply-templates mode="#current"/>
+  </xsl:template>
 
 </xsl:stylesheet>

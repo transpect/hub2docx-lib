@@ -8,6 +8,7 @@
     xmlns:saxExtFn	= "java:saxonExtensionFunctions"
     xmlns:hub		= "http://transpect.io/hub"
     xmlns:xlink		= "http://www.w3.org/1999/xlink"
+    xmlns:css           = "http://www.w3.org/1996/css"
 
     xmlns:o		= "urn:schemas-microsoft-com:office:office"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -310,6 +311,7 @@
     <w:p>
       <w:pPr>
         <w:pStyle w:val="{if (self::term) then 'deflistterm' else 'deflistdef'}"/>
+        <xsl:apply-templates select="@css:background-color" mode="props"/>
       </w:pPr>
       <xsl:variable name="rPrContent" as="element(*)*">
       </xsl:variable>
@@ -361,6 +363,7 @@
             <w:ind w:left="{tr:calculate-li-ind($lvl)}"/>
           </xsl:otherwise>
         </xsl:choose>
+        <xsl:apply-templates select="@css:background-color" mode="props"/>
       </w:pPr>
       <xsl:apply-templates  select="node()"  mode="hub:default"/>
     </w:p>

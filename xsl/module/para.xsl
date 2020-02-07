@@ -91,6 +91,7 @@
         <xsl:apply-templates  select="node()"  mode="#current">
           <xsl:with-param name="rPrContent" as="element(*)*" tunnel="yes">
              <xsl:apply-templates select="@css:color, 
+                                          @css:background-color,
                                           @css:font-size, 
                                           @css:font-weight, 
                                           @css:font-style, 
