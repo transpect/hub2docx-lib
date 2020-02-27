@@ -72,7 +72,7 @@
       </xsl:apply-templates>
     </w:root>
   </xsl:template>
-
+  
   <xsl:template match="w:document" mode="hub:merge">
     <xsl:param name="document-xml-base-modified" tunnel="yes"/>
     <!-- Works ok with Word 2010. If other apps fail to open the .docx, you might try
@@ -180,8 +180,54 @@
   <xsl:template match="w:numbering" mode="hub:merge">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="hub:merge" />
-      <xsl:apply-templates select="collection()/w:root_converted/w:numbering/node()" mode="#current"/>
+      <xsl:apply-templates select="collection()/w:root_converted/w:numbering/node()" mode="#current">
+        <xsl:with-param name="template-nums" select="xs:string(max(for $i in w:num/@w:numId return number($i)))"/>
+      </xsl:apply-templates>
+      <xsl:if test="not(w:numIdMacAtCleanup) and not(collection()/w:root_converted/w:numbering/w:numIdMacAtCleanup)">
+        <w:numIdMacAtCleanup w:val="{(if (w:num) then max(for $i in w:num/@w:numId return number($i)) else 0) + 
+                                     count(collection()/w:root_converted/w:numbering/w:num)}"/>
+      </xsl:if>
     </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="w:numIdMacAtCleanup" mode="hub:merge">
+    <xsl:copy>
+      <xsl:attribute name="w:val" select="(if (collection()/w:root/w:numbering/w:num) 
+                                           then max(for $i in collection()/w:root/w:numbering/w:num/@w:numId return number($i)) 
+                                           else 0) + 
+                                          count(collection()/w:root_converted/w:numbering/w:num)"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="w:num" mode="hub:merge">
+    <xsl:param name="template-nums" select="'no'"/>
+    <xsl:choose>
+      <xsl:when test="$template-nums='no'">
+        <xsl:next-match/>    
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy>
+          <xsl:attribute name="w:numId" select="count(preceding-sibling::w:num)+1+number($template-nums)"/>
+          <xsl:apply-templates mode="#current"/>
+        </xsl:copy>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="w:numId" mode="hub:merge">
+    <xsl:choose>
+      <xsl:when test="ancestor::w:root_converted/w:numbering/w:num[@w:numId eq current()/@w:val]">
+        <xsl:copy>
+          <xsl:attribute name="w:val" select="(if (collection()/w:root/w:numbering/w:num) 
+                                               then max(for $i in collection()/w:root/w:numbering/w:num/@w:numId return number($i)) 
+                                               else 0) + 
+                                              count(ancestor::w:root_converted/w:numbering/w:num[@w:numId eq current()/@w:val]/preceding-sibling::w:num) +1"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:next-match/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!-- footnote changes/additions -->
