@@ -58,13 +58,13 @@
     <xsl:apply-templates select="primary" mode="#current"/>
     <xsl:if test="secondary">
       <w:r>
-        <w:t>:</w:t>
+        <w:instrText>:</w:instrText>
       </w:r>
       <xsl:apply-templates select="secondary" mode="#current"/>
     </xsl:if>
     <xsl:if test="tertiary">
       <w:r>
-        <w:t>:</w:t>
+        <w:instrText>:</w:instrText>
       </w:r>
       <xsl:apply-templates select="tertiary" mode="#current"/>
     </xsl:if>
@@ -100,6 +100,23 @@
   
   <xsl:template match="primary | secondary | tertiary | see | seealso" mode="hub:default">
     <xsl:apply-templates select="node()" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template  match="text()[ancestor::*[self::primary | self::secondary | self::tertiary | self::see | self::seealso]]"  mode="hub:default" priority="-20">
+    <xsl:param  name="rPrContent"  as="element(*)*" tunnel="yes"/>
+    <w:r>
+      <xsl:if  test="$rPrContent">
+        <w:rPr>
+          <xsl:sequence  select="$rPrContent"/>
+        </w:rPr>
+      </xsl:if>
+      <w:instrText>
+        <xsl:if  test="matches( . , '^\s|\s$') or not(hub:whitespace-is-ignorable(ancestor::*[1]))">
+          <xsl:attribute  name="xml:space"  select="'preserve'"/>
+        </xsl:if>
+        <xsl:value-of  select="." />
+      </w:instrText>
+    </w:r>
   </xsl:template>
   
   <xsl:template match="indexterm//*[not(local-name() = ('subscript', 'superscript'))]
