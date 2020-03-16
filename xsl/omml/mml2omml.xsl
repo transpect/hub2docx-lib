@@ -235,6 +235,7 @@
                       </xsl:call-template>
                     </m:e>
                   </m:nary>
+                  <xsl:apply-templates select="child::*[position() gt 2]" mode="#current"/>
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:apply-templates select="*" mode="#current"/>
