@@ -702,7 +702,7 @@
                         and (not(@mml:mathvariant) or @mml:mathvariant='')
                         and (not(@fontstyle) or @fontstyle='')
                         and (not(@mml:fontstyle) or @mml:fontstyle='')
-                        and (not(@fontweight)or @fontweight='')
+                        and (not(@fontweight) or @fontweight='')
                         and (not(@mml:fontweight) or @mml:fontweight='')
 		              ) 
                       or 
@@ -728,7 +728,7 @@
               ($sFontCur='normal' 
                and ((self::mml:mi 
                      and (not(@mathvariant) or @mathvariant='')
-	                 and (not(@mml:mathvariant) or @mml:mathvariant)
+	                 and (not(@mml:mathvariant) or @mml:mathvariant='')
 	                 and (not(@fontstyle) or @fontstyle='') 
 	                 and (not(@mml:fontstyle) or @mml:fontstyle='')
 	                 and (not(@fontweight) or @fontweight='') 
@@ -737,10 +737,10 @@
 	                 )
 	                or ((self::mml:ms or self::mml:mtext) 
 		                and (not(@mathvariant) or @mathvariant='')
-		                and (not(@mml:mathvariant) or @mml:mathvariant)
-		                and (not(@fontstyle) or @fontstyle)
+		                and (not(@mml:mathvariant) or @mml:mathvariant='')
 		                and (not(@fontstyle) or @fontstyle='')
-		                and (not(@fontweight) or @fontweight)
+		                and (not(@mml:fontstyle) or @mml:fontstyle='')
+		                and (not(@fontweight) or @fontweight='')
 		                and (not(@mml:fontweight) or @mml:fontweight='')
 		                )
 	                )
@@ -1041,7 +1041,7 @@
         </xsl:choose>
       </xsl:if>
     </xsl:variable>
-    <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='') or $mathcolor!=''">
+    <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='') or $mathcolor!='' or $fontweight='normal'">
       <xsl:variable name="w-rPr" as="element(w:rPr)">
         <w:rPr>
           <xsl:choose>
@@ -1054,6 +1054,9 @@
             </xsl:when>
             <xsl:when test="$sFontCur = 'italic'">
               <w:i/>
+            </xsl:when>
+            <xsl:when test="$fontweight='normal'">
+              <w:b w:val="0"/>
             </xsl:when>
           </xsl:choose>
           <xsl:if test="$mathcolor!=''">
