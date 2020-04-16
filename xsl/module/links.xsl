@@ -101,7 +101,7 @@
         <w:fldChar w:fldCharType="begin"/>
       </w:r>
       <w:r>
-        <w:instrText xml:space="preserve"> REF bm_<xsl:value-of select="generate-id()"/>_ \w \h</w:instrText>
+        <w:instrText xml:space="preserve"> REF bm_<xsl:value-of select="generate-id()"/>_ \w \h \* MERGEFORMAT </w:instrText>
       </w:r>
       <w:r>
         <w:fldChar w:fldCharType="separate"/>
