@@ -57,6 +57,11 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:function>
+  
+  <xsl:function name="tr:get-abstractNumId-by-role" as="xs:integer?">
+    <xsl:param name="role" as="xs:string+"/>
+    <xsl:sequence select="(collection()//w:numbering/w:abstractNum[w:lvl/w:pStyle/@w:val = $role]/@w:abstractNumId)[1]"/>
+  </xsl:function>
 
   <xsl:function  name="tr:getAbstractNumId" as="xs:integer">
     <xsl:param  name="list"  as="node()"/>
