@@ -6,7 +6,8 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
   xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  exclude-result-prefixes="w m mml xs saxon">
+  xmlns:tr="http://transpect.io"
+  exclude-result-prefixes="w m mml xs saxon tr">
   
   <xsl:include href="fix-mml.xsl"/>
   
@@ -448,6 +449,16 @@
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:with-param>
+            <xsl:with-param name="mathbackground">
+              <xsl:choose>
+                <xsl:when test="@mathbackground">
+                  <xsl:value-of select="@mathbackground"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="@mml:mathbackground"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:with-param>
             <xsl:with-param name="mathsize">
               <xsl:choose>
                 <xsl:when test="@mathsize">
@@ -508,7 +519,7 @@
     <xsl:param name="fontweight" />
     <xsl:param name="mathsize" />
     <xsl:param name="ndTokenFirst" />
-
+    
     <!--Given mathcolor, color, mstyle's (ancestor) color, and precedence of 
 			said attributes, determine the actual color of the current run-->
     <xsl:variable name="sColorPropCur">
@@ -776,6 +787,7 @@
             <xsl:with-param name="fontstyle" select="$fontstyle" />
             <xsl:with-param name="fontweight" select="$fontweight" />
             <xsl:with-param name="mathcolor" select="$mathcolor" />
+            <xsl:with-param name="mathbackground" select="$mathbackground" />
             <xsl:with-param name="mathsize" select="$mathsize" />
             <xsl:with-param name="color" select="$color" />
             <xsl:with-param name="fontsize" select="$fontsize" />
@@ -834,6 +846,7 @@
             <xsl:with-param name="fontstyle" select="$fontstyle" />
             <xsl:with-param name="fontweight" select="$fontweight" />
             <xsl:with-param name="mathcolor" select="$mathcolor" />
+            <xsl:with-param name="mathbackground" select="$mathbackground" />
             <xsl:with-param name="mathsize" select="$mathsize" />
             <xsl:with-param name="color" select="$color" />
             <xsl:with-param name="fontsize" select="$fontsize" />
@@ -1041,7 +1054,7 @@
         </xsl:choose>
       </xsl:if>
     </xsl:variable>
-    <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='') or $mathcolor!='' or $fontweight='normal'">
+    <xsl:if test="$fNor=1 or ($sFontCur!='italic' and $sFontCur!='') or $mathcolor!='' or $mathbackground!='' or $fontweight='normal'">
       <xsl:variable name="w-rPr" as="element(w:rPr)">
         <w:rPr>
           <xsl:choose>
@@ -1061,6 +1074,9 @@
           </xsl:choose>
           <xsl:if test="$mathcolor!=''">
             <w:color w:val="{$mathcolor}"/>
+          </xsl:if>
+          <xsl:if test="$mathbackground!=''">
+            <w:highlight w:val="{tr:highlight-color($mathbackground)}"/>
           </xsl:if>
         </w:rPr>
       </xsl:variable>
@@ -3367,6 +3383,16 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+    <xsl:variable name="mathbackground">
+      <xsl:choose>
+        <xsl:when test="@mathbackground">
+          <xsl:value-of select="@mathbackground"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@mml:mathbackground"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <xsl:variable name="mathsize">
       <xsl:choose>
         <xsl:when test="@mathsize">
@@ -3416,6 +3442,7 @@
           <xsl:with-param name="fontstyle" select="$fontstyle" />
           <xsl:with-param name="fontweight" select="$fontweight" />
           <xsl:with-param name="mathcolor" select="$mathcolor" />
+          <xsl:with-param name="mathbackground" select="$mathbackground" />
           <xsl:with-param name="mathsize" select="$mathsize" />
           <xsl:with-param name="color" select="$color" />
           <xsl:with-param name="fontsize" select="$fontsize" />
@@ -3456,6 +3483,7 @@
             <xsl:with-param name="fontstyle" select="$fontstyle" />
             <xsl:with-param name="fontweight" select="$fontweight" />
             <xsl:with-param name="mathcolor" select="$mathcolor" />
+            <xsl:with-param name="mathbackground" select="$mathbackground" />
             <xsl:with-param name="mathsize" select="$mathsize" />
             <xsl:with-param name="color" select="$color" />
             <xsl:with-param name="fontsize" select="$fontsize" />
@@ -3491,6 +3519,7 @@
           <xsl:with-param name="fontstyle" select="$fontstyle" />
           <xsl:with-param name="fontweight" select="$fontweight" />
           <xsl:with-param name="mathcolor" select="$mathcolor" />
+          <xsl:with-param name="mathbackground" select="$mathbackground" />
           <xsl:with-param name="mathsize" select="$mathsize" />
           <xsl:with-param name="color" select="$color" />
           <xsl:with-param name="fontsize" select="$fontsize" />
