@@ -105,6 +105,15 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="w:styles" mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:if test="$create-and-map-styles-not-in-template = 'yes'">
+        <xsl:apply-templates select="collection()/w:root_converted/w:styles/node()" mode="#current"/>
+      </xsl:if>
+    </xsl:copy>
+  </xsl:template>
+
   <xsl:template match="ct:Types" mode="hub:merge">
     <xsl:param name="relationIdOffset" tunnel="yes" />
     <xsl:param name="headerIdOffset" tunnel="yes" />

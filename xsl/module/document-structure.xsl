@@ -76,7 +76,11 @@
       <w:containerProps>
         <xsl:apply-templates select="info/keywordset[@role = 'custom-meta']" mode="#current"/>
       </w:containerProps>
-      <w:styles />
+      <w:styles>
+        <xsl:if test="$create-and-map-styles-not-in-template = 'yes'">
+          <xsl:apply-templates select="info/css:rules/css:rule" mode="css2style-props"/>
+        </xsl:if>
+      </w:styles>
       <w:numbering>
         <xsl:apply-templates mode="numbering"/>
       </w:numbering>
@@ -278,6 +282,44 @@
         <w:bookmarkEnd w:id="{generate-id(..)}"/>
       </xsl:if>
     </w:p>
+  </xsl:template>
+
+  <!-- to do: support table, cell, object and layer styles -->
+  <xsl:template match="css:rule[not(@layout-type = ('para', 'inline'))]" mode="css2style-props"/>
+
+  <xsl:template match="css:rule[@layout-type = 'para']" mode="css2style-props">
+    <w:style w:type="paragraph" hub:is-css-style="yes">
+      <xsl:apply-templates select="@name" mode="css2style-props"/>
+      <xsl:apply-templates select="@native-name" mode="css2style-props"/>
+      <xsl:call-template name="hub:pPr"/>
+      <w:rPr>
+        <xsl:apply-templates select="@*[name() = $inline-style-cssa-list]" mode="props"/>
+      </w:rPr>
+    </w:style>
+  </xsl:template>
+
+  <xsl:variable name="inline-style-cssa-list" as="xs:string*"
+    select="('css:color', 'css:background-color', 'css:font-size', 'css:font-weight', 
+             'css:font-style', 'css:font-family', 'css:font-style', 'css:text-transform')"/>
+
+  <xsl:template match="css:rule[@layout-type = 'inline']" mode="css2style-props">
+    <w:style w:type="character" hub:is-css-style="yes">
+      <xsl:apply-templates select="@name" mode="css2style-props"/>
+      <xsl:apply-templates select="@native-name" mode="css2style-props"/>
+      <w:rPr>
+        <xsl:apply-templates select="@*[name() = $inline-style-cssa-list]" mode="props"/>
+      </w:rPr>
+    </w:style>
+  </xsl:template>
+
+  <xsl:template match="css:rule/@name" mode="css2style-props">
+    <xsl:attribute name="w:styleId">
+      <xsl:value-of select="replace(., '[:~]', '_-_')"/>
+    </xsl:attribute>
+  </xsl:template>
+
+  <xsl:template match="css:rule/@native-name" mode="css2style-props">
+    <w:name w:val="{.}"/>
   </xsl:template>
   
   <xsl:template match="w:bookmarkStart/@w:id | w:bookmarkEnd/@w:id" mode="hub:clean">

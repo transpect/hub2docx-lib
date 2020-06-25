@@ -131,9 +131,14 @@
         <xsl:message select="'&#xa;Following para roles are mapped with corresponding format in template:', 
                               distinct-values(.//w:pStyle[@hub:para-role-in-template eq 'yes']/@w:val)"/>
       </xsl:if>
+      <xsl:if test="$create-and-map-styles-not-in-template = 'yes'">
+        <xsl:message select="'&#xa;Total number of newly created styles from css:rules of input:', 
+                              count(.//w:style[@hub:is-css-style eq 'yes'])"/>
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
   <xsl:template  match="*[@hub:default-no-match] | @hub:morerows"  mode="hub:clean" />
   <xsl:template  match="@hub:inline-role-in-template | @hub:para-role-in-template"  mode="hub:clean" />
+  <xsl:template  match="@hub:is-css-style"  mode="hub:clean" />
 
 </xsl:stylesheet>
