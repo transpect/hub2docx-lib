@@ -327,6 +327,8 @@
   <xsl:template match="@css:text-transform[. = 'uppercase']" mode="props">
     <w:caps/>
   </xsl:template>
+
+  <xsl:template match="@css:text-transform[. = 'none']" mode="props"/>
   
   <xsl:template match="@xml:lang[normalize-space(.)]" mode="props">
     <w:lang w:val="{.}"/>
