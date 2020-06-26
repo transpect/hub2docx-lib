@@ -70,7 +70,7 @@
   <!--param create-and-map-styles-not-in-template:
       Create new styles in generated Word file out of given css:rules/css:rule elements in the source Hub XML document.
       All (used) styles listed there will be mapped.-->
-  <xsl:param name="create-and-map-styles-not-in-template" select="'yes'" as="xs:string?"/>
+  <xsl:param name="create-and-map-styles-not-in-template" select="'no'" as="xs:string?"/>
 
   <xsl:variable name="footnote-bookmark-prefix" as="xs:string"
     select="'FN_'"/>
