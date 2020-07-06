@@ -419,7 +419,7 @@
         <xsl:sequence select="'dotted'"/>
       </xsl:when>
       <xsl:when test="$style-val eq 'dashed'">
-        <xsl:sequence select="'dash'"/>
+        <xsl:sequence select="'dashed'"/>
       </xsl:when>
       <xsl:when test="$style-val eq 'double'">
         <xsl:sequence select="'double'"/>
@@ -428,7 +428,7 @@
         <xsl:sequence select="'wave'"/>
       </xsl:when>
       <xsl:when test="$style-val eq 'double-wavy'"><!-- this is a non-CSS property -->
-        <xsl:sequence select="'wavyDouble'"/>
+        <xsl:sequence select="'doubleWave'"/>
       </xsl:when>
       <xsl:when test="$style-val = ('none', 'hidden')">
         <xsl:sequence select="'none'"/>
