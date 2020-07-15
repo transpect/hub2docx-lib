@@ -316,6 +316,9 @@
     <xsl:attribute name="w:styleId">
       <xsl:value-of select="replace(., '[:~]', '_-_')"/>
     </xsl:attribute>
+    <xsl:if test="not(../@native-name)">
+      <w:name w:val="{.}"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="css:rule/@native-name" mode="css2style-props">
