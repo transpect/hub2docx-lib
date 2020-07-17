@@ -511,14 +511,16 @@
     <xsl:variable name="cleaned-props" as="element(*)*">
       <xsl:apply-templates mode="#current"/>
     </xsl:variable>
-    <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:for-each-group select="$cleaned-props" group-by="name()">
-        <xsl:copy copy-namespaces="no">
-          <xsl:sequence select="current-group()/@*, current-group()/node()"/>
-        </xsl:copy>
-      </xsl:for-each-group>
-    </xsl:copy>
+    <xsl:if test="exists($cleaned-props)">
+      <xsl:copy copy-namespaces="no">
+        <xsl:apply-templates select="@*" mode="#current"/>
+        <xsl:for-each-group select="$cleaned-props" group-by="name()">
+          <xsl:copy copy-namespaces="no">
+            <xsl:sequence select="current-group()/@*, current-group()/node()"/>
+          </xsl:copy>
+        </xsl:for-each-group>
+      </xsl:copy>
+    </xsl:if>
   </xsl:template>
   
   <!-- fix for invalid ooxml, may occur when you define para styles 
