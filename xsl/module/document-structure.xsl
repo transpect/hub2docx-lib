@@ -314,10 +314,10 @@
 
   <xsl:template match="css:rule/@name" mode="css2style-props">
     <xsl:attribute name="w:styleId">
-      <xsl:value-of select="replace(., '[:~]', '_-_')"/>
+      <xsl:value-of select="."/>
     </xsl:attribute>
     <xsl:if test="not(../@native-name)">
-      <w:name w:val="{.}"/>
+      <w:name w:val="{replace(., '_[-]_', '~')}"/>
     </xsl:if>
   </xsl:template>
 
