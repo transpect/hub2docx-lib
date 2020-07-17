@@ -273,6 +273,10 @@
     <w:smallCaps w:val="true"/>
   </xsl:template>
 
+  <xsl:template match="@css:font-variant[. = 'normal']" mode="props">
+    <w:smallCaps w:val="0"/>
+  </xsl:template>
+
   <xsl:template match="@css:position[. = 'relative'][../@css:top]" mode="props">
     <w:position w:val="{tr:length-to-unitless-twip(../@css:top) * -1}"/> 
   </xsl:template>
@@ -329,6 +333,8 @@
   </xsl:template>
 
   <xsl:template match="@css:text-transform[. = 'none']" mode="props"/>
+
+  <xsl:template match="@css:letter-spacing[. = '0em']" mode="props"/>
   
   <xsl:template match="@xml:lang[normalize-space(.)]" mode="props">
     <w:lang w:val="{.}"/>
