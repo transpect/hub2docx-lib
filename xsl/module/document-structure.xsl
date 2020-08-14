@@ -299,8 +299,12 @@
   </xsl:template>
 
   <xsl:variable name="inline-style-cssa-list" as="xs:string*"
-    select="('css:color', 'css:background-color', 'css:font-size', 'css:font-weight', 
-             'css:font-style', 'css:font-family', 'css:font-style', 'css:text-transform')"/>
+    select="('xml:lang', 'css:color', 'css:background-color', 'css:font-size', 'css:font-weight', 
+             'css:font-style', 'css:font-family', 'css:font-style', 'css:text-transform',
+             'css:text-decoration-line', 'css:text-decoration', 'css:text-decoration-color',
+             'css:text-decoration-style', 
+             'css:border-top-style', 'css:border-right-style', 'css:border-bottom-style', 'css:border-left-style', 'css:border-top-width', 'css:border-right-width', 'css:border-bottom-width', 'css:border-left-width', 'css:border-top-color', 'css:border-right-color', 'css:border-bottom-color', 'css:border-left-color', 
+             'css:letter-spacing', 'css:vertical-align', 'css:font-variant')"/>
 
   <xsl:template match="css:rule[@layout-type = 'inline']" mode="css2style-props">
     <w:style w:type="character" hub:is-css-style="yes">
