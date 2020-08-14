@@ -109,7 +109,11 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
       <xsl:if test="$create-and-map-styles-not-in-template = 'yes'">
-        <xsl:apply-templates select="collection()/w:root_converted/w:styles/node()" mode="#current"/>
+        <xsl:for-each select="collection()/w:root_converted/w:styles/w:style">
+          <xsl:if test="not(collection()/w:root/w:styles/w:style[@w:type = current()/@w:type and @w:styleId = current()/@w:styleId])">
+            <xsl:apply-templates select="." mode="#current"/>
+          </xsl:if>
+        </xsl:for-each>
       </xsl:if>
     </xsl:copy>
   </xsl:template>
