@@ -255,6 +255,14 @@
     <w:rFonts w:ascii="{.}" w:hAnsi="{.}"/>
   </xsl:template>
 
+  <xsl:template match="@css:vertical-align[. = 'super']" mode="props">
+    <w:vertAlign w:val="superscript"/>
+  </xsl:template>
+
+  <xsl:template match="@css:vertical-align[. = 'sub']" mode="props">
+    <w:vertAlign w:val="subscript"/>
+  </xsl:template>
+
   <xsl:template match="@css:font-style[. = ('italic', 'oblique')]" mode="props">
     <w:i/>
   </xsl:template>
