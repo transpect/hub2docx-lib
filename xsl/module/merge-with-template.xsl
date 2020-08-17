@@ -184,7 +184,7 @@
                                           union
                                           w:docVars
                                         )" mode="#current"/>
-      <xsl:apply-templates select="collection()/w:root/w:document/w:body/w:sectPr" mode="#current"/>
+      <xsl:apply-templates select="collection()/w:root/w:document/w:body//w:sectPr[. is (ancestor::w:body//w:sectPr)[1]]" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
@@ -525,7 +525,7 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="/w:root/w:document/w:body/w:sectPr" mode="hub:merge">
+  <xsl:template match="/w:root/w:document/w:body//w:sectPr" mode="hub:merge">
     <xsl:param name="relationIdOffset" tunnel="yes"/>
     <xsl:variable name="dot" select="."/>
     <xsl:copy>
@@ -549,8 +549,8 @@
        <w:footerReference w:type="default" r:id="rId15ftr"/>
        <w:headerReference w:type="first" r:id="rId15hdr"/> -->
   <xsl:template mode="hub:merge"
-    match="  /w:root/w:document/w:body/w:sectPr/w:headerReference/@r:id
-           | /w:root/w:document/w:body/w:sectPr/w:footerReference/@r:id">
+    match="  /w:root/w:document/w:body//w:sectPr[. is (ancestor::w:body//w:sectPr)[1]]/w:headerReference/@r:id
+    | /w:root/w:document/w:body//w:sectPr[. is (ancestor::w:body//w:sectPr)[1]]/w:footerReference/@r:id">
     <xsl:param name="relationIdOffset" tunnel="yes"/>
 
     <xsl:variable name="ref-name-short" as="xs:string"
