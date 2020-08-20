@@ -91,7 +91,7 @@
   <xsl:function name="tr:getLiNumAsInt" as="xs:integer?">
     <xsl:param name="num" as="xs:string?"/>
     <xsl:param name="numeration" as="xs:string?"><!-- arabic, loweralpha, lowerroman, upperalpha, upperroman --></xsl:param>
-    <xsl:variable name="cleanNum" as="xs:string" select="replace(replace($num, '^[\s\p{Zs}\(]*([^\.\) ]+)[\.\) ]*$', '$1'),
+    <xsl:variable name="cleanNum" as="xs:string" select="replace(replace($num, '^[\s\p{Zs}\[\(]*([^\.\]\) ]+)[\.\]\) ]*$', '$1'),
                                                                  '^(\d+\.)+(\d+\.?)$', '$2')"/>
     <xsl:choose>
       <xsl:when test="not($num)"/>
