@@ -190,7 +190,9 @@
     <xsl:sequence select="if ($li/@override[normalize-space()]) 
                           then  if (tr:isOrdinaryFollower($li))
                                 then $lastOverrideStart
-                                else $currentNumAsInt
+                                else  if(xs:string($currentNumAsInt) != '')
+                                      then $currentNumAsInt
+                                      else $lastOverrideStart
                           else $lastOverrideStart"/>
   </xsl:function>
   
