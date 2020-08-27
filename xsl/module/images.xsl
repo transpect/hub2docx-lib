@@ -148,7 +148,7 @@
   
   <xsl:template match="sidebar[parent::para or parent::title]" mode="hub:default">
     <xsl:variable name="sidebar-style" as="xs:string*">
-      <xsl:for-each select="@css:position|@css:z-index|@css:margin-left|@css:margin-top|descendant-or-self::*/@css:width|descendant-or-self::*/@css:height">
+      <xsl:for-each select="@css:position|@css:z-index|@css:margin-left|@css:margin-top|descendant-or-self::*[not(self::imagedata)]/@css:width|descendant-or-self::*[not(self::imagedata)]/@css:height">
         <xsl:value-of select="concat(local-name(.),':',.)"/>
       </xsl:for-each>
       <xsl:if test="not(descendant-or-self::*/@css:width)">
@@ -157,21 +157,40 @@
       <xsl:if test="not(descendant-or-self::*/@css:height)">
         <xsl:value-of select="'mso-height-percent:250;mso-height-relative:margin-bottom'"/>
       </xsl:if>
+      <xsl:if test="not(descendant-or-self::*[not(self::imagedata)]/@css:width or descendant-or-self::*[not(self::imagedata)]/@css:height)">
+        <xsl:value-of select="'mso-wrap-style:none'"/>  
+      </xsl:if>
     </xsl:variable>
     <xsl:variable name="inset" as="xs:string" select="concat(if (exists(@css:padding-left)) then @css:padding-left else '0.1in',',',if (exists(@css:padding-top)) then @css:padding-top else '0.05in',',',if (exists(@css:padding-right)) then @css:padding-right else '0.1in',',',if (exists(@css:padding-bottom)) then @css:padding-bottom else '0.05in')"/>
     <w:r>
       <w:pict>
         <v:shape coordsize="21600,21600" path="m,l,21600r21600,l21600,xe" o:spt="100">
           <xsl:attribute name="style" select="string-join($sidebar-style,';')"/>
+          <xsl:if test="@css:background-color ne ''">
+            <xsl:attribute name="fillcolor" select="tr:convert-css-color(@css:background-color, 'hex')"/>
+          </xsl:if>
           <xsl:if test="@css:border-style = 'none'">
             <xsl:attribute name="stroked" select="'false'"/>
           </xsl:if>
+          <xsl:if test="@css:border-color">
+            <xsl:attribute name="strokecolor" select="@css:border-color"/>
+          </xsl:if>
+          <xsl:if test="@css:border-width">
+            <xsl:attribute name="strokeweight" select="@css:border-width"/>
+          </xsl:if>
+          <xsl:attribute name="o:allowoverlap" select="'f'"/>
           <v:textbox>
             <xsl:attribute name="inset" select="$inset"/>
+            <xsl:if test="not(descendant-or-self::*[not(self::imagedata)]/@css:width or descendant-or-self::*[not(self::imagedata)]/@css:height)">
+              <xsl:attribute name="style" select="'mso-fit-shape-to-text:t'"/>
+            </xsl:if>
             <w:txbxContent>
               <xsl:apply-templates mode="#current"/>
             </w:txbxContent>
           </v:textbox>
+          <xsl:if test="@css:display='block'">
+            <w10:wrap type="topAndBottom"/>  
+          </xsl:if>
         </v:shape>
       </w:pict>
     </w:r>
