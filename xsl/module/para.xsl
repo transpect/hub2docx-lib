@@ -53,6 +53,7 @@
       <xsl:call-template name="w:ind"/>
       <!-- will typically handle @role (or create a style if no @role is present / depending on context) -->
       <xsl:apply-templates select="." mode="hub:style-name"/>
+      <xsl:apply-templates select="tabs" mode="hub:tabs"/>
       <xsl:sequence select="tr:borders(.)"/>
     </xsl:variable>
     <xsl:variable name="pPr" as="element(*)*">
@@ -69,6 +70,32 @@
         <xsl:sequence  select="$pPr" />
       </w:pPr>
     </xsl:if>
+  </xsl:template>
+  
+  <xsl:template  match="tabs"  mode="hub:tabs">
+    <xsl:if test="tab">
+      <w:tabs>
+        <xsl:apply-templates mode="#current"/>
+      </w:tabs>  
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="tabs/tab" mode="hub:tabs">
+    <w:tab>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </w:tab>
+  </xsl:template>
+  
+  <xsl:template match="tab/@horizontal-position" mode="hub:tabs">
+    <xsl:attribute name="w:pos" select="tr:length-to-unitless-twip(.)"/>
+  </xsl:template>
+  
+  <xsl:template match="tab/@align" mode="hub:tabs">
+    <xsl:attribute name="w:val" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="tab/@leader" mode="hub:tabs">
+    <xsl:attribute name="w:leader" select="."/>
   </xsl:template>
 
   <!-- overwrite me -->
