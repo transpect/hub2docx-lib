@@ -40,7 +40,7 @@
     <xsl:param name="see-prefix" 
                select="if(/*/@xml:lang = 'de') then 'Siehe' else 'See'"/>
     <xsl:if  test="see/*">
-      <xsl:message terminate="yes" select="'ERROR: children of see-elements are not supported yet.'"/>
+      <xsl:message terminate="no" select="'ERROR: children of see-elements are not supported yet.'"/>
     </xsl:if>
     <xsl:if test=".//seealso">
       <xsl:message terminate="no" select="'WARNING: indexterm with seealso element(s). Not supported yet.'"/>
