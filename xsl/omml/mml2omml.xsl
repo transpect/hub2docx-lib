@@ -2741,7 +2741,7 @@
     <m:sub>
       <xsl:call-template name="CreateArgProp" />
       <xsl:apply-templates select="$ndScripts[(position() mod 2) = 1]" mode="#current"/>
-      <xsl:if test="local-name($ndScripts[(position() mod 2) = 1])='none'">
+      <xsl:if test="$ndScripts[(position() mod 2) = 1]/local-name() = 'none'">
         <m:r>
           <m:t>
             <xsl:attribute name="xml:space" select="'preserve'"/>
@@ -2753,7 +2753,7 @@
     <m:sup>
       <xsl:call-template name="CreateArgProp" />
       <xsl:apply-templates select="$ndScripts[(position() mod 2) = 0]" mode="#current"/>
-      <xsl:if test="local-name($ndScripts[(position() mod 2) = 0])='none'">
+      <xsl:if test="$ndScripts[(position() mod 2) = 0]/local-name() = 'none'">
         <m:r>
           <m:t>
             <xsl:attribute name="xml:space" select="'preserve'"/>
