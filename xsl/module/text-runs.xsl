@@ -301,6 +301,9 @@
       <xsl:apply-templates select="../@css:text-decoration-style" mode="props-secondary"/>
     </w:u>
   </xsl:template>
+  <xsl:template match="@css:text-decoration-line[. eq 'none']" mode="props" as="element(w:u)">
+    <w:u w:val="none"/>
+  </xsl:template>
   <xsl:template match="@css:text-decoration-color" mode="props-secondary">
     <xsl:attribute name="w:color" select="substring(tr:convert-css-color(., 'hex'), 2, 6)"/>
   </xsl:template>
