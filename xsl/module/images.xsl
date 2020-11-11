@@ -76,7 +76,7 @@
           <w:pict>
             <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
               <xsl:call-template name="v:shape-border-atts"/>
-              <v:imagedata hub:fileref="{replace(./imageobject/imagedata/@fileref, '^container:word/', '')}" 
+              <v:imagedata hub:fileref="{replace(./imageobject[1]/imagedata/@fileref, '^container:word/', '')}" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}" o:title=""/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
@@ -289,18 +289,18 @@
                  mode="documentRels">
     <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  
-      Target="{./imageobject/imagedata/@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-      <xsl:if test="not(matches(./imageobject/imagedata/@fileref,'^media'))">
+      Target="{./imageobject[1]/imagedata/@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+      <xsl:if test="not(matches(./imageobject[1]/imagedata/@fileref,'^media'))">
         <xsl:attribute name="TargetMode" select="'External'"/>
       </xsl:if>
     </Relationship>
   </xsl:template>
 
-  <xsl:template  match="*[self::inlinemediaobject | self::mediaobject][starts-with(imageobject/imagedata/@fileref, 'container:')]"  
+  <xsl:template  match="*[self::inlinemediaobject | self::mediaobject][starts-with(imageobject[1]/imagedata/@fileref, 'container:')]"  
     mode="documentRels">
     <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  
-      Target="{replace(imageobject/imagedata/@fileref, 'container:word/', '')}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>
+      Target="{replace(imageobject[1]/imagedata/@fileref, 'container:word/', '')}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>
   </xsl:template>
   
 </xsl:stylesheet>
