@@ -72,7 +72,7 @@
     </xsl:if>
   </xsl:template>
   
-  <xsl:template  match="tabs"  mode="hub:tabs">
+  <xsl:template match="tabs" mode="hub:tabs">
     <xsl:if test="tab">
       <w:tabs>
         <xsl:apply-templates mode="#current"/>
@@ -80,9 +80,9 @@
     </xsl:if>
   </xsl:template>
   
-  <xsl:template match="tabs/tab" mode="hub:tabs">
+  <xsl:template match="tab" mode="hub:tabs">
     <w:tab>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
     </w:tab>
   </xsl:template>
   
@@ -94,8 +94,10 @@
     <xsl:attribute name="w:val" select="."/>
   </xsl:template>
   
-  <xsl:template match="tab/@leader" mode="hub:tabs">
-    <xsl:attribute name="w:leader" select="."/>
+  <xsl:template match="tab/@*" mode="hub:tabs" priority="-1">
+    <xsl:if test="$debug eq 'yes'">
+      <xsl:message select="'attribute not mapped:', local-name()"/>
+    </xsl:if>
   </xsl:template>
 
   <!-- overwrite me -->
