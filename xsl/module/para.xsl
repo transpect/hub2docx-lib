@@ -93,6 +93,10 @@
   <xsl:template match="tab/@align" mode="hub:tabs">
     <xsl:attribute name="w:val" select="."/>
   </xsl:template>
+
+  <xsl:template match="tab/@leader" mode="hub:tabs">
+    <xsl:attribute name="w:leader" select="."/>
+  </xsl:template>
   
   <xsl:template match="tab/@*" mode="hub:tabs" priority="-1">
     <xsl:if test="$debug eq 'yes'">
