@@ -148,13 +148,16 @@
     <xsl:param name="rels" as="xs:string*" tunnel="yes"/>
     <xsl:param name="name-to-int-map" as="document-node(element(map))" tunnel="yes"/>
     <xsl:variable name="cols" select="parent::*/@cols"/>
+    <xsl:if test=".//@nameend and (some $flag in .//*[@nameend]/@nameend satisfies empty(key('map', $flag,$name-to-int-map)))">
+      <xsl:message select="'[ERROR]LTX: Unmapped col range:', for $flag in  .//@nameend return $flag[empty(key('map', $flag, $name-to-int-map))]" />
+    </xsl:if>
     <xsl:for-each-group select="*" 
       group-starting-with="*[self::row or self::tr]
                             [sum(
                               for $i in (*[self::entry or self::td or self::th]) 
                               return 
-                                if (exists((@colspan, tr:cals-colspan($name-to-int-map, @namest, @nameend))[1])) 
-                                then (@colspan, tr:cals-colspan($name-to-int-map, @namest, @nameend))[1] 
+                                if (exists(($i/@colspan, tr:cals-colspan($name-to-int-map, $i/@namest, $i/@nameend))[1])) 
+                                then ($i/@colspan, tr:cals-colspan($name-to-int-map, $i/@namest, $i/@nameend))[1] 
                                 else 1
                              ) = $cols]">
       <xsl:choose>
