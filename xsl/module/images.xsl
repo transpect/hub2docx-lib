@@ -39,7 +39,7 @@
  
   <xsl:variable name="MediaIds" as="xs:string*"
     select="for $f 
-            in //*[local-name() = ('mediaobject', 'inlinemediaobject')] 
+            in //*[local-name() = ('mediaobject', 'inlinemediaobject')][./imageobject/imagedata/@fileref != ''] 
             return generate-id($f)" />
 
   <xsl:template match="mediaobject[not(ancestor::para) and not(parent::term)]" mode="hub:default">
@@ -285,7 +285,7 @@
   <!--  mode = "documentRels"-->
   
   <xsl:template  match="inlinemediaobject[not(count(./imageobject/imagedata) eq 1 and matches(./imageobject/imagedata/@fileref, '^container[:]'))] | 
-                        mediaobject[not(count(./imageobject/imagedata) eq 1 and matches(./imageobject/imagedata/@fileref, '^container[:]'))]"  
+                        mediaobject[./imageobject/imagedata/@fileref != ''][not(count(./imageobject/imagedata) eq 1 and matches(./imageobject/imagedata/@fileref, '^container[:]'))]"  
                  mode="documentRels">
     <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  

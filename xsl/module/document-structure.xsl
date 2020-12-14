@@ -68,7 +68,7 @@
     <xsl:message select="'hub2docx root element:', name()"/>
     <!-- speed up the index-of() a little bit -->
     <xsl:variable  name="rels" select="for $f 
-      in (  //*[local-name() = ('mediaobject', 'inlinemediaobject')] 
+      in (  //*[local-name() = ('mediaobject', 'inlinemediaobject')][./imageobject/imagedata/@fileref != '']
       (: | //link[@role eq 'uri' or (not(@role) and @xlink:href)] :)
       ) 
       return generate-id($f)" as="xs:string*"/>

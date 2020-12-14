@@ -128,7 +128,7 @@
         select="@*, *[not(@ContentType = 'application/vnd.openxmlformats-officedocument.custom-properties+xml')]"/>
 
       <xsl:variable name="ct" select="." as="element(ct:Types)"/>
-      <xsl:for-each-group group-by="replace(@Target, '^.+\.', '')" 
+      <xsl:for-each-group group-by="replace(@Target, '^.+\.', '')[. != '']" 
         select="collection()/w:root_converted/w:docRels/rel:Relationships
                              /rel:Relationship[@Type = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image']">
         <xsl:if test="not($ct/ct:Default[@Extension = current-grouping-key()])">
