@@ -410,7 +410,9 @@
     <xsl:param name="targetName" as="xs:string"/>
     <xsl:if test="$targetName = ('w:tcBorders', 'w:pBdr', 'w:tblBorders')">
       <xsl:element name="w:{replace(local-name(), 'border-(.+)-style', '$1')}">
-        <xsl:attribute name="w:val" select="tr:border-style(.)"/>
+        <xsl:attribute name="w:val" select="if(parent::entry) 
+                                            then replace(tr:border-style(.), 'none', 'nil') 
+                                            else tr:border-style(.)"/>
         <xsl:apply-templates select="$width, $color" mode="#current"/>
       </xsl:element>
     </xsl:if>
