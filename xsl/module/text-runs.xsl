@@ -364,7 +364,7 @@
         <xsl:when test="local-name($elt) = ('phrase', 'emphasis')">
           <xsl:sequence select="'w:bdr'"/>
         </xsl:when>
-        <xsl:when test="local-name($elt) = ('entry')">
+        <xsl:when test="local-name($elt) = ('entry', 'td', 'th')">
           <xsl:sequence select="'w:tcBorders'"/>
         </xsl:when>
         <xsl:otherwise>
@@ -410,7 +410,7 @@
     <xsl:param name="targetName" as="xs:string"/>
     <xsl:if test="$targetName = ('w:tcBorders', 'w:pBdr', 'w:tblBorders')">
       <xsl:element name="w:{replace(local-name(), 'border-(.+)-style', '$1')}">
-        <xsl:attribute name="w:val" select="if(parent::entry) 
+        <xsl:attribute name="w:val" select="if(parent::*/local-name() = ('entry', 'td', 'th')) 
                                             then replace(tr:border-style(.), 'none', 'nil') 
                                             else tr:border-style(.)"/>
         <xsl:apply-templates select="$width, $color" mode="#current"/>
