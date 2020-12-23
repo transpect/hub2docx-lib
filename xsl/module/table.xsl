@@ -187,7 +187,15 @@
         </w:tblPrEx>
       </xsl:if>
       <xsl:variable name="trPr" as="element()*">
-        <xsl:apply-templates  select="$cals-rows[1]/(@class | @css:height | @css:min-height | @css:page-break-inside)"  mode="trPr" />
+        <xsl:apply-templates select="$cals-rows[1]/(@class | @css:height | @css:min-height | @css:page-break-inside | 
+                                                    entry[matches(@css:min-height,'^[0-9\.]+[a-z]*$')]
+                                                         [every $m 
+                                                          in parent::*/entry/@css:min-height 
+                                                          satisfies number(replace(@css:min-height,'^([0-9\.]+)[a-z]*$','$1')) ge 
+                                                                    number(replace($m,'^([0-9\.]+)[a-z]*$','$1'))][1]/@css:min-height | 
+                                                    entry[every $h 
+                                                          in parent::*/entry/@css:height 
+                                                          satisfies @css:height eq $h][1]/@css:height)"  mode="trPr" />
         <xsl:if test="$cals-rows[1]/ancestor::thead">
           <w:tblHeader/>
         </xsl:if>
