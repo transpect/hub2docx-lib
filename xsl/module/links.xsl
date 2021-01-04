@@ -288,7 +288,7 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
   <!-- §§ profiling sinnvoll/nötig?! -->
-  <xsl:template  match="link[@role eq 'uri' or @xlink:href]"  mode="documentRels">
+  <xsl:template  match="link[@role eq 'uri' or @xlink:href]"  mode="documentRels footnoteRels">
     <xsl:param name="rels" as="xs:string*" tunnel="yes"/>
     <xsl:if test="matches( ., ' ' )">
       <xsl:message select="'WARNING: space in target replaced with underscore', ."/>

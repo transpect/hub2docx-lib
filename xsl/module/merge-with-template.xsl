@@ -77,6 +77,13 @@
     <xsl:param name="document-xml-base-modified" tunnel="yes"/>
     <!-- Works ok with Word 2010. If other apps fail to open the .docx, you might try
     removing copy-nammespaces="no" -->
+    <xsl:if test="not(../w:footnoteRels)  and 
+      collection()/w:root_converted/w:footnoteRels/node()">
+      <w:footnoteRels>
+        <xsl:attribute name="xml:base" select="replace($document-xml-base-modified, 'document\.xml', '_rels/footnotes.xml.rels')"/>
+        <xsl:apply-templates select="collection()/w:root_converted/w:footnoteRels/node()" mode="#current"/>
+      </w:footnoteRels>
+    </xsl:if>
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="$document-xml-base-modified, collection()/w:root_converted/w:document/node()" mode="#current"/>
     </xsl:copy>
@@ -382,6 +389,12 @@
     <xsl:attribute name="r:{local-name(.)}" select="concat('rId', $relationIdOffset + number(replace(., '\D', '')))"/>
   </xsl:template>
   
+  <xsl:template match="w:footnoteRels/*:Relationships" mode="hub:merge">
+    <xsl:element name="{local-name()}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+      <xsl:apply-templates mode="#current" select="@*, node()"/>
+    </xsl:element>
+  </xsl:template>
+  
   <xsl:template 
     mode="hub:merge"
     match="w:docRels/rel:Relationships">
@@ -622,11 +635,11 @@
     <xsl:param name="relationIdOffset" tunnel="yes"/>
     <xsl:variable name="rel-element" as="element(rel:Relationship)?"
       select="collection()/w:root
-                /w:*[local-name() = ('docRels', 'headerRels', 'footerRels')]
+                /w:*[local-name() = ('footnoteRels', 'docRels', 'headerRels', 'footerRels')]
                   /rel:Relationships/rel:Relationship[@Target eq current()]"/>
     <xsl:variable name="rel-converted-element" as="element(rel:Relationship)?"
       select="collection()/w:root_converted
-                /w:*[local-name() = ('docRels', 'headerRels', 'footerRels')]
+      /w:*[local-name() = ('footnoteRels', 'docRels', 'headerRels', 'footerRels')]
                   /rel:Relationships/rel:Relationship[@Target eq current()][1]"/>
     <xsl:choose>
       <!-- referenced file will be placed in a header or footer -->

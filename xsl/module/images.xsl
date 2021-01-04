@@ -286,7 +286,7 @@
   
   <xsl:template  match="inlinemediaobject[not(count(./imageobject/imagedata) eq 1 and matches(./imageobject/imagedata/@fileref, '^container[:]'))] | 
                         mediaobject[./imageobject/imagedata/@fileref != ''][not(count(./imageobject/imagedata) eq 1 and matches(./imageobject/imagedata/@fileref, '^container[:]'))]"  
-                 mode="documentRels">
+                 mode="documentRels footnoteRels">
     <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  
       Target="{./imageobject[1]/imagedata/@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
@@ -297,7 +297,7 @@
   </xsl:template>
 
   <xsl:template  match="*[self::inlinemediaobject | self::mediaobject][starts-with(imageobject[1]/imagedata/@fileref, 'container:')]"  
-    mode="documentRels">
+    mode="documentRels footnoteRels">
     <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  
       Target="{replace(imageobject[1]/imagedata/@fileref, 'container:word/', '')}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>

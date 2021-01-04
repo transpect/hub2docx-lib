@@ -68,8 +68,12 @@
     <xsl:message select="'hub2docx root element:', name()"/>
     <!-- speed up the index-of() a little bit -->
     <xsl:variable  name="rels" select="for $f 
-      in (  //*[local-name() = ('mediaobject', 'inlinemediaobject')][./imageobject/imagedata/@fileref != '']
+      in (  //*[local-name() = ('mediaobject', 'inlinemediaobject')][./imageobject/imagedata/@fileref != ''][not(ancestor::footnote)]
       (: | //link[@role eq 'uri' or (not(@role) and @xlink:href)] :)
+      ) 
+      return generate-id($f)" as="xs:string*"/>
+    <xsl:variable  name="footnote-rels" select="for $f 
+      in (  //footnote//*[local-name() = ('mediaobject', 'inlinemediaobject')][./imageobject/imagedata/@fileref != '']
       ) 
       return generate-id($f)" as="xs:string*"/>
     <w:root_converted>
@@ -85,7 +89,9 @@
         <xsl:apply-templates mode="numbering"/>
       </w:numbering>
       <w:footnotes>
-        <xsl:apply-templates select="//footnote" mode="footnotes"/>
+        <xsl:apply-templates select="//footnote" mode="footnotes">
+          <xsl:with-param name="rels" select="$footnote-rels" as="xs:string*" tunnel="yes"/>
+        </xsl:apply-templates>
       </w:footnotes>
       <w:endnotes />
       <w:settings >
@@ -102,6 +108,15 @@
           </xsl:apply-templates>
         </rel:Relationships>
       </w:docRels>
+      <xsl:if test="//footnote//*[matches(local-name(),'mediaobject')]">
+        <w:footnoteRels>
+          <rel:Relationships>
+            <xsl:apply-templates select="key('by-genid', $footnote-rels, $root)" mode="footnoteRels">
+              <xsl:with-param name="rels" select="$footnote-rels" as="xs:string*" tunnel="yes"/>
+            </xsl:apply-templates>
+          </rel:Relationships>
+        </w:footnoteRels>
+      </xsl:if>
       <w:header>
         <xsl:for-each select="//*[not(parent::css:page)][@css:page][tr:is-header(.)]">
           <xsl:apply-templates select="." mode="header"/>
