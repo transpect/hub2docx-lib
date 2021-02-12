@@ -510,9 +510,11 @@
 
   <xsl:template  match="dbk:tabs"  mode="hub:default" />
   <xsl:template  match="dbk:tab"  mode="hub:default">
-    <w:r>
-      <w:tab/>
-    </w:r>
+    <xsl:if test="not(parent::dbk:tabs)">
+      <w:r>
+        <w:tab/>
+      </w:r>
+    </xsl:if>
   </xsl:template>
 
   <!-- The innermost / last style wins when something is derived from nested phrases: -->
