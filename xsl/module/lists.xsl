@@ -82,7 +82,7 @@
                            else if ( $list[ self::bibliodiv ] )			then 38
                            else error( (), concat(   'ERROR: list type could not be determined. Please enlighten tr:getAbstractNumId() how to guess it.&#x0A;'
                                                    , 'list element name: ', $list/local-name(), '&#x0A;'
-                                                   , for $attr in $list/@* return concat( 'attribut @', $attr/local-name(), ' = ', $attr, '', '&#x0A;')
+                                                   , for $attr in $list/@* return concat( 'attribute @', $attr/local-name(), ' = ', $attr, '', '&#x0A;')
                                                  ))
                           "/>
   </xsl:function>
