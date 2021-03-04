@@ -199,7 +199,7 @@
   <!-- This function selects the ilvl value. -->
   <xsl:function name="tr:getIlvl" as="xs:integer">
     <xsl:param name="elt" as="element()"/>
-    <xsl:value-of select="count($elt/ancestor-or-self::*[local-name() = $hub:list-element-names]) - 1"/>
+    <xsl:sequence select="count($elt/ancestor-or-self::*[local-name() = $hub:list-element-names]) - 1"/>
   </xsl:function>
   
   <!-- This function calculates the numId for a single listitem or para. -->
@@ -382,7 +382,7 @@
   
   <xsl:function name="tr:calculate-li-ind" as="xs:integer">
     <xsl:param name="lvl" as="xs:integer"/>
-    <xsl:value-of select="$lvl * $ind"/>
+    <xsl:sequence select="$lvl * $ind"/>
   </xsl:function>
 
 
