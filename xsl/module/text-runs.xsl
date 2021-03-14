@@ -429,33 +429,37 @@
   </xsl:template>
   
   <xsl:function name="tr:border-style" as="xs:string">
-    <xsl:param name="style-val" as="xs:string"/>
+    <xsl:param name="style-att" as="attribute(*)"/>
     <xsl:choose>
-      <xsl:when test="$style-val eq 'solid'">
+      <xsl:when test="$style-att = 'solid'">
         <xsl:sequence select="'single'"/>
       </xsl:when>
-      <xsl:when test="$style-val eq 'dotted'">
+      <xsl:when test="$style-att = 'dotted'">
         <xsl:sequence select="'dotted'"/>
       </xsl:when>
-      <xsl:when test="$style-val eq 'dashed'">
-        <xsl:sequence select="'dashed'"/>
+      <xsl:when test="$style-att = 'dashed'">
+        <xsl:sequence select="if (name($style-att) = 'css:text-decoration-style')
+                              then 'dash'
+                              else 'dashed'"/>
       </xsl:when>
-      <xsl:when test="$style-val eq 'double'">
+      <xsl:when test="$style-att = 'double'">
         <xsl:sequence select="'double'"/>
       </xsl:when>
-      <xsl:when test="$style-val eq 'wavy'">
+      <xsl:when test="$style-att = 'wavy'">
         <xsl:sequence select="'wave'"/>
       </xsl:when>
-      <xsl:when test="$style-val eq 'double-wavy'"><!-- this is a non-CSS property -->
-        <xsl:sequence select="'doubleWave'"/>
+      <xsl:when test="$style-att = 'double-wavy'"><!-- this is a non-CSS property -->
+        <xsl:sequence select="if (name($style-att) = 'css:text-decoration-style')
+                              then 'wavyDouble' 
+                              else 'doubleWave'"/>
       </xsl:when>
-      <xsl:when test="$style-val = ('none', 'hidden')">
+      <xsl:when test="$style-att = ('none', 'hidden')">
         <xsl:sequence select="'none'"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:sequence select="'single'"/>
         <xsl:message
-          select="'Border style: unimplemented value', $style-val, ' – falling back to solid.'"
+          select="'Border style: unimplemented value', string($style-att), ' – falling back to solid.'"
         />
       </xsl:otherwise>
     </xsl:choose>
