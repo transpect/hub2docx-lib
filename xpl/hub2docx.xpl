@@ -39,19 +39,29 @@
   <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
 
-  <p:split-sequence name="split" test="position() = 1" initial-only="true"/>
+  <p:split-sequence name="split" test="position() = 1" initial-only="true">
+    <p:documentation>Why is this split here, and why has the source port sequence=true?</p:documentation>
+  </p:split-sequence>
 
   <p:sink/>
-
-  <tr:xslt-mode name="transformed-hub" msg="yes" mode="hub:default" prefix="hub2docx/10">
-    <p:input port="models"><p:empty/></p:input>
-    <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
+  
+  <p:identity name="matched-and-not-matched">
     <p:input port="source">
       <p:pipe step="split" port="not-matched"/>
       <p:pipe step="split" port="matched"/>
     </p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+  </p:identity>
+
+  <tr:store-debug pipeline-step="hub2docx/5-split-sequence">
+    <p:with-option name="active" select="$debug"><p:empty/></p:with-option>
+    <p:with-option name="base-uri" select="$debug-dir-uri"><p:empty/></p:with-option>
+  </tr:store-debug>
+
+  <tr:xslt-mode name="transformed-hub" msg="yes" mode="hub:default" prefix="hub2docx/10">
+    <p:input port="models"><p:empty/></p:input>
+    <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
+    <p:with-option name="debug" select="$debug"><p:empty></p:empty></p:with-option>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"><p:empty/></p:with-option>
   </tr:xslt-mode>
   
   <p:sink/>
