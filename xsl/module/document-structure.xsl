@@ -132,6 +132,14 @@
           <xsl:next-match>
             <xsl:with-param name="rels" select="$rels" as="xs:string*" tunnel="yes"/>
           </xsl:next-match>
+          <xsl:if test="exists(info/itermset)">
+            <w:p>
+              <w:pPr>
+                <w:pStyle w:val="itermset"/>
+              </w:pPr>
+              <xsl:apply-templates select="info/itermset" mode="#current"/>
+            </w:p>
+          </xsl:if>
           <xsl:if test="$render-index-list eq 'yes' and exists(//indexterm)">
             <xsl:call-template name="create-index-list">
               <xsl:with-param name="indexterms" select="//indexterm" as="element(indexterm)*"/>
@@ -146,6 +154,10 @@
       <xsl:message 
         select="'Info: There are one or more emphasis elements without a role attribute - falling back to &quot;italic&quot;'"/>
     </xsl:if>
+  </xsl:template>
+  
+  <xsl:template match="itermset" mode="hub:default">
+    <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
   <xsl:template  match="book | Body | hub"  mode="hub:default">
@@ -209,7 +221,7 @@
   </xsl:function>
   
   <xsl:template  match="info"  mode="hub:default">
-    <xsl:apply-templates  select="node()[not(. instance of text())]"  mode="#current" />
+    <xsl:apply-templates  select="node()[not(. instance of text())] except itermset"  mode="#current" />
   </xsl:template>
   
   <xsl:template match="*[local-name() = $structure-elements]/title
@@ -343,6 +355,8 @@
   <xsl:template match="css:rule/@native-name" mode="css2style-props">
     <w:name w:val="{.}"/>
   </xsl:template>
+  
+  <xsl:template match="css:attic" mode="hub:default"/>
   
   <xsl:template match="w:bookmarkStart/@w:id | w:bookmarkEnd/@w:id" mode="hub:clean">
     <xsl:param name="bookmark-ids" as="xs:string+" tunnel="yes"/>
