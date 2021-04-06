@@ -70,7 +70,7 @@
     <!-- §§§ This assignment is source data specific and has to be adapted according to the list types occuring.
              Please note that is very easy to adapt the style-information related to this abstractNumIds by running Microbugs Office 2007 Word. -->
     <!-- § I use values starting from 10 here, because the current template contains <w:multiLevelType w:val="hybridMultilevel"/>-lists there. -->
-    <xsl:value-of  select="if      ( $list[ self::itemizedlist[ not( @mark) ] ] )			then 14 
+    <xsl:sequence  select="if      ( $list[ self::itemizedlist[ not( @mark) ] ] )			then 14 
                            else if ( $list[ self::itemizedlist[ @mark eq 'nomark' ] ] )			then 11
                            else if ( $list[ self::itemizedlist[ @mark eq 'note' ] ] )			then 12
                            else if ( $list[ self::itemizedlist[ @mark eq 'thumb' ] ] )			then 36
