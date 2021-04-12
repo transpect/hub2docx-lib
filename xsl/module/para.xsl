@@ -55,6 +55,16 @@
       <xsl:apply-templates select="." mode="hub:style-name"/>
       <xsl:apply-templates select="tabs" mode="hub:tabs"/>
       <xsl:sequence select="tr:borders(.)"/>
+      <xsl:if test="empty(parent::biblioentry | parent::listitem)
+                    and exists(phrase[@role = 'hub:identifier'][following-sibling::*[1]/self::tab])
+                    and exists(key('styleId', @role, $docx-template)/w:pPr/w:numPr)">
+        <!-- Explicit numbering in a para that has numbering properties but is not contained in a proper list -->
+        <w:numPr>
+<!--          <w:ilvl w:val="0"/>-->
+          <w:numId w:val="0"/>
+        </w:numPr>
+        <xsl:copy-of select="key('styleId', @role, $docx-template)/w:pPr/w:ind"/>
+      </xsl:if>
     </xsl:variable>
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:perform-sort>
