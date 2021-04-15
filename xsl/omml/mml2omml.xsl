@@ -3233,7 +3233,7 @@
                       <xsl:value-of select="$cMaxElmtsInRow" />
                     </xsl:attribute>
                   </m:count>
-                  <m:mcJc m:val="center" />
+                  <m:mcJc m:val="left" />
                 </m:mcPr>
               </m:mc>
             </m:mcs>
