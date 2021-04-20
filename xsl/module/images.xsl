@@ -76,7 +76,7 @@
           <w:pict>
             <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
               <xsl:call-template name="v:shape-border-atts"/>
-              <v:imagedata hub:fileref="{replace(./imageobject[1]/imagedata/@fileref, '^container:word/', '')}" 
+              <v:imagedata hub:fileref="{replace((imageobject[1]/imagedata/@hub:target-fileref, imageobject[1]/imagedata/@fileref)[1], '^container:word/', '')}" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}" o:title=""/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
@@ -91,7 +91,7 @@
           <w:pict>
             <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
               <xsl:call-template name="v:shape-border-atts"/>
-              <v:imagedata hub:fileref="{./imageobject/imagedata/@fileref}" o:title="" 
+              <v:imagedata hub:fileref="{(imageobject[1]/imagedata/@hub:target-fileref, imageobject[1]/imagedata/@fileref)[1]}" o:title="" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}"/>
               <xsl:if test="@annotation='anchor'">
                 <w10:anchorlock/>
@@ -284,14 +284,31 @@
 
   <!--  mode = "documentRels"-->
   
-  <xsl:template  match="inlinemediaobject[not(count(./imageobject/imagedata) eq 1 and matches(./imageobject/imagedata/@fileref, '^container[:]'))] | 
-                        mediaobject[./imageobject/imagedata/@fileref != ''][not(count(./imageobject/imagedata) eq 1 and matches(./imageobject/imagedata/@fileref, '^container[:]'))]"  
+  <xsl:template  match="inlinemediaobject[not(count(imageobject/imagedata) eq 1 
+                                              and 
+                                              matches(imageobject/imagedata/@fileref, '^container[:]')
+                                             )] 
+                        | 
+                        mediaobject[imageobject/imagedata/@fileref != '']
+                                   [not(count(imageobject/imagedata) eq 1 
+                                        and 
+                                        matches(imageobject/imagedata/@fileref, '^container[:]')
+                                       )]"  
                  mode="documentRels footnoteRels">
     <xsl:param name="rels" as="xs:string+" tunnel="yes"/>
     <Relationship Id="{index-of($rels, generate-id(.))}"  Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"  
-      Target="{./imageobject[1]/imagedata/@fileref}" xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-      <xsl:if test="not(matches(./imageobject[1]/imagedata/@fileref,'^media'))">
+      Target="{(imageobject[1]/imagedata/@hub:target-fileref, imageobject[1]/imagedata/@fileref)[1]}" 
+      xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+      <xsl:if test="not(matches(imageobject[1]/imagedata/@fileref,'^media'))
+                    and
+                    empty(imageobject[1]/imagedata/@hub:target-fileref)">
+        <!-- Contrary to the use of 'External' in the spec and in actual docx files, this is not treated as an external link.
+          It rather serves as an instruction for mode docx2hub:export to mark the files for inclusion into the patched zip
+          manifest. -->
         <xsl:attribute name="TargetMode" select="'External'"/>
+      </xsl:if>
+      <xsl:if test="exists(imageobject[1]/imagedata/@hub:target-fileref)">
+        <xsl:attribute name="hub:copied" select="'true'"/>
       </xsl:if>
     </Relationship>
   </xsl:template>

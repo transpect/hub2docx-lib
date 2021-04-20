@@ -20,11 +20,16 @@
     source document.
     The file option will probably not be used here, so declare it obsolete?</p:documentation>
   </p:option>
+  <p:option name="copy-media" required="false" select="'false'">
+    <p:documentation>Whether to copy resources with absolute file: URIs to word/media in the target docx directory</p:documentation>
+  </p:option>
   <p:option name="debug" required="false" select="'no'"/>
   <p:option name="debug-dir-uri" required="false" select="resolve-uri('debug')"/>
+  <p:option name="status-dir-uri" required="false" select="'debug/status?enabled=false'"/>
   
   <p:input port="source" primary="true" sequence="true">
-    <p:documentation>A Hub XML document (version 1.2 or newer).
+    <p:documentation>Document 1: Single tree of the template docx file. (?)
+      Document 2: A Hub XML document (version 1.2 or newer).
     Please note that the following mapping will occur:
     - keywordset[@role='custom-meta'] will map to {http://schemas.openxmlformats.org/officeDocument/2006/custom-properties}Properties in docProps/custom.xml (editable in the Word UI)
     - keywordset[@role='docVars'] will map to w:docVars in word/settings.xml</p:documentation>
@@ -38,9 +43,10 @@
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl" />
   <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
+  <p:import href="http://transpect.io/xproc-util/copy-files/xpl/copy-files.xpl"/>
 
   <p:split-sequence name="split" test="position() = 1" initial-only="true">
-    <p:documentation>Why is this split here, and why has the source port sequence=true?</p:documentation>
+    <p:documentation>The first one (matched port) is the single tree</p:documentation>
   </p:split-sequence>
 
   <p:sink/>
@@ -52,15 +58,53 @@
     </p:input>
   </p:identity>
 
-  <tr:store-debug pipeline-step="hub2docx/5-split-sequence">
+  <tr:store-debug pipeline-step="hub2docx/5.split-sequence">
     <p:with-option name="active" select="$debug"><p:empty/></p:with-option>
     <p:with-option name="base-uri" select="$debug-dir-uri"><p:empty/></p:with-option>
   </tr:store-debug>
 
+  <p:sink/>
+
+  <p:choose name="conditionally-copy-media">
+    <p:when test="$copy-media = 'true'">
+      <p:output port="result" primary="true"/>
+      <tr:copy-files>
+        <p:input port="source">
+          <p:pipe port="not-matched" step="split"/>
+        </p:input>
+        <p:with-option name="fileref-attribute-value-regex" select="'^file:/'"/>
+        <p:with-option name="target-dir-uri" select="concat(/*/@extract-dir-uri, 'word/media')">
+          <p:pipe port="matched" step="split"/>
+        </p:with-option>
+        <p:with-option name="debug" select="$debug"><p:empty/></p:with-option>
+        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"><p:empty/></p:with-option>
+        <p:with-option name="status-dir-uri" select="$status-dir-uri"><p:empty/></p:with-option>
+      </tr:copy-files>
+      <tr:store-debug pipeline-step="hub2docx/7.copy-files">
+        <p:with-option name="active" select="$debug"><p:empty/></p:with-option>
+        <p:with-option name="base-uri" select="$debug-dir-uri"><p:empty/></p:with-option>
+      </tr:store-debug>
+    </p:when>
+    <p:otherwise>
+      <p:output port="result" primary="true"/>
+      <p:identity>
+        <p:input port="source">
+          <p:pipe port="not-matched" step="split"/>
+        </p:input>
+      </p:identity>
+    </p:otherwise>
+  </p:choose>
+
+  <p:sink/>
+
   <tr:xslt-mode name="transformed-hub" msg="yes" mode="hub:default" prefix="hub2docx/10">
+    <p:input port="source">
+      <p:pipe port="result" step="conditionally-copy-media"/>
+      <p:pipe step="split" port="matched"/>
+    </p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:input port="stylesheet"><p:pipe port="stylesheet" step="hub2docx"/></p:input>
-    <p:with-option name="debug" select="$debug"><p:empty></p:empty></p:with-option>
+    <p:with-option name="debug" select="$debug"><p:empty/></p:with-option>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"><p:empty/></p:with-option>
   </tr:xslt-mode>
   
