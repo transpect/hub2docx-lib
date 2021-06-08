@@ -58,8 +58,6 @@
     </p:input>
   </p:identity>
 
-  <p:wrap-sequence wrapper="tmp"/>
-
   <tr:store-debug pipeline-step="hub2docx/5.split-sequence">
     <p:with-option name="active" select="$debug"><p:empty/></p:with-option>
     <p:with-option name="base-uri" select="$debug-dir-uri"><p:empty/></p:with-option>
