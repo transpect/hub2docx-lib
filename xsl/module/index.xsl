@@ -38,12 +38,11 @@
 
   <xsl:template  match="indexterm[ not(@class) or @class ne 'endofrange' ]"  mode="hub:default">
     <xsl:param name="see-prefix" 
-               select="if(/*/@xml:lang = 'de') then 'Siehe' else 'See'"/>
+               select="if(tokenize(/*/@xml:lang, '[-_]')[1] = 'de') then 'Siehe' else 'See'"/>
+    <xsl:param name="seealso-prefix" 
+               select="if(tokenize(/*/@xml:lang, '[-_]')[1] = 'de') then 'Siehe auch' else 'See also'"/>
     <xsl:if  test="see/*">
-      <xsl:message terminate="no" select="'ERROR: children of see-elements are not supported yet.'"/>
-    </xsl:if>
-    <xsl:if test=".//seealso">
-      <xsl:message terminate="no" select="'WARNING: indexterm with seealso element(s). Not supported yet.'"/>
+      <xsl:message terminate="no" select="'ERROR: children of see elements are not supported yet.'"/>
     </xsl:if>
     <w:r w:rsidR="">
       <w:fldChar w:fldCharType="begin"/>
@@ -78,9 +77,15 @@
       </w:r>
     </xsl:if>    
     <!-- the \t-switch determines the text rendered in an index for this indexentry -->
-    <xsl:if test="see">
+    <xsl:if test="see | .//seealso">
       <w:r>
-        <w:t xml:space="preserve"> \t &#x22;<xsl:if test="$see-prefix and $see-prefix ne ''"><xsl:value-of select="$see-prefix"/> </xsl:if><xsl:value-of select="see"/>&#x22;</w:t>
+        <w:t xml:space="preserve"> \t &#x22;<xsl:if 
+          test="see"><xsl:if test="$see-prefix and $see-prefix ne ''"><xsl:value-of 
+            select="$see-prefix"/> </xsl:if><xsl:value-of select="see"/><xsl:if 
+              test=".//seealso">; </xsl:if></xsl:if><xsl:if 
+          test=".//seealso"><xsl:if test="$seealso-prefix and $seealso-prefix ne ''"><xsl:value-of 
+            select="$seealso-prefix"/> </xsl:if><xsl:value-of 
+              select="string-join(.//seealso, '; ')"/></xsl:if>&#x22;</w:t>
       </w:r>
     </xsl:if>
     
