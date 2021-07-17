@@ -16,10 +16,11 @@
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xmlns:mml="http://www.w3.org/1998/Math/MathML"
+    xmlns:css           = "http://www.w3.org/1996/css"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
-    exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn hub xlink o w m omml wp r mml"
+    exclude-result-prefixes = "xsl xs xsldoc saxon saxExtFn hub xlink o w m omml wp r mml css"
 >
 
   <xsl:import href="../omml/office16/MML2OMML.XSL" use-when="system-property('mml2omml') = 'office16'"/>
@@ -37,6 +38,26 @@
     <xsl:apply-templates select="node()[not(self::text()[matches(., '^\s*$')])]" mode="#current">
       <xsl:with-param name="rPrContent" select="$rPrContent" as="element(*)+" tunnel="yes" />
     </xsl:apply-templates>
+  </xsl:template>
+  
+  <xsl:template match="para[count(child::node())=1]
+                           [phrase]/phrase[@* and (every $a in @* 
+                                                   satisfies $a/name() =('css:color', 'css:background-color', 'css:font-size', 'css:font-weight', 'css:font-style', 'css:font-family', 'css:text-transform'))]
+                                          [count(child::node())=1]
+                                          [inlineequation]/inlineequation[count(child::node())=1]
+                                                                         [m:math]" mode="hub:default">
+    <m:oMathPara xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">
+      <w:rPr>
+        <xsl:apply-templates select="parent::*/(@css:color, 
+          @css:background-color,
+          @css:font-size, 
+          @css:font-weight, 
+          @css:font-style, 
+          @css:font-family, 
+          @css:text-transform)"  mode="props"/>        
+      </w:rPr>
+      <xsl:apply-templates mode="#current"/>
+    </m:oMathPara>
   </xsl:template>
 
   <xsl:template  match="mathphrase"  mode="hub:default">

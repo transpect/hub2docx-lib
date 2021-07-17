@@ -66,6 +66,23 @@
         <xsl:copy-of select="key('styleId', @role, $docx-template)/w:pPr/w:ind"/>
       </xsl:if>
     </xsl:variable>
+    <xsl:variable name="rPr">
+      <xsl:if test="@css:color, 
+        @css:font-size, 
+        @css:font-weight, 
+        @css:font-style, 
+        @css:font-family, 
+        @css:text-transform">
+        <w:rPr>
+          <xsl:apply-templates select="@css:color, 
+            @css:font-size, 
+            @css:font-weight, 
+            @css:font-style, 
+            @css:font-family, 
+            @css:text-transform"  mode="props"/>
+        </w:rPr>        
+      </xsl:if>
+    </xsl:variable>
     <xsl:variable name="pPr" as="element(*)*">
       <xsl:perform-sort>
         <xsl:sort data-type="number" order="ascending">
@@ -75,9 +92,9 @@
         <xsl:sequence select="$default-pPrs[not(name() = $unsorted/name())]"/>
       </xsl:perform-sort>
     </xsl:variable>
-    <xsl:if  test="$pPr">
+    <xsl:if test="$pPr or $rPr">
       <w:pPr>
-        <xsl:sequence  select="$pPr" />
+        <xsl:sequence  select="$pPr, $rPr" />
       </w:pPr>
     </xsl:if>
   </xsl:template>
@@ -139,7 +156,6 @@
                                           @css:font-weight, 
                                           @css:font-style, 
                                           @css:font-family, 
-                                          @css:font-style, 
                                           @css:text-transform"  mode="props"/>
           </xsl:with-param>
         </xsl:apply-templates>
