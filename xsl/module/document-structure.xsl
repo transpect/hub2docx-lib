@@ -297,19 +297,42 @@
       <xsl:variable name="rPrContent" as="element(*)*">
         <xsl:apply-templates select="@css:color, @css:font-size" mode="props"/>
       </xsl:variable>
-      <xsl:if test="../@xml:id">
-        <w:bookmarkStart w:id="{generate-id(..)}" w:name="bm_{generate-id(..)}_"/>
-      </xsl:if>
-
+      <xsl:apply-templates select="../@xml:id" mode="hub:bookmark-start"/>
       <xsl:apply-templates mode="#current">
         <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
       </xsl:apply-templates>
-
-      <xsl:if test="../@xml:id">
-        <w:bookmarkEnd w:id="{generate-id(..)}"/>
-      </xsl:if>
+      <xsl:apply-templates select="../@xml:id" mode="hub:bookmark-end"/>
     </w:p>
   </xsl:template>
+
+  <!-- You might need to overwrite these in specific stylesheets (for ex., bibliography.xsl)
+    or in your importing stylesheet in order to retain the original ID in @w:name -->
+
+  <xsl:template match="@xml:id" mode="hub:bookmark-start">
+    <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
+  </xsl:template>
+  
+  <xsl:template match="@xml:id" mode="hub:bookmark-end">
+    <w:bookmarkEnd w:id="{generate-id(..)}"/>
+  </xsl:template>
+
+  <xsl:template match="*[@xml:id]" mode="hub:bookmark-start">
+    <w:bookmarkStart  w:id="{generate-id()}"  w:name="bm_{generate-id()}_"/>
+  </xsl:template>
+  
+  <xsl:template match="*[empty(@xml:id)]" mode="hub:bookmark-start">
+    <w:bookmarkStart  w:id="{generate-id()}"  w:name="bm_{generate-id()}_"/>
+  </xsl:template>
+  
+  <xsl:template match="*" mode="hub:bookmark-end">
+    <w:bookmarkEnd w:id="{generate-id()}"/>
+  </xsl:template>
+  
+  <xsl:template match="tgroup[../@xml:id]" mode="hub:bookmark-start">
+    <xsl:apply-templates select=".." mode="#current"/>
+  </xsl:template>
+  
+
 
   <!-- to do: support table, cell, object and layer styles -->
   <xsl:template match="css:rule[not(@layout-type = ('para', 'inline'))]" mode="css2style-props"/>

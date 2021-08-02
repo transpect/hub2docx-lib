@@ -71,14 +71,8 @@
   <xsl:template name="create-table" as="element(*)+">
     <xsl:param name="tblPrContent" as="element(*)*" tunnel="yes" />
     <w:tbl>
-      <xsl:if test="self::tgroup/parent::*/@xml:id">
-        <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
-        <w:bookmarkEnd    w:id="{generate-id(..)}"/>
-      </xsl:if>
-      <xsl:if test="(self::informaltable or self::table) and not(tgroup)">
-        <w:bookmarkStart  w:id="{generate-id(.)}"  w:name="bm_{generate-id(.)}_"/>
-        <w:bookmarkEnd    w:id="{generate-id(.)}"/>
-      </xsl:if>
+      <xsl:apply-templates select="." mode="hub:bookmark-start"/>
+      <xsl:apply-templates select="." mode="hub:bookmark-end"/>
       <xsl:variable name="default-tblPrContent" as="element(*)+">
         <w:tblW w:w="0" w:type="auto"/>
         <!--<w:tblBorders>

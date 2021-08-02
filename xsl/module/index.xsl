@@ -49,6 +49,9 @@
     </w:r>
     <!-- mark the startofrange/endofrange-range with a bookmark and then reference that bookmark by use of the \r-switch of the XE field -->
     <xsl:if test="@class eq 'startofrange'">
+      <!-- haven’t changed it to mode hub:bookmark-start yet since
+        there seems to be no bookmarkEnd, and the \r switch below
+        refers to exactly this generated name: --> 
       <w:bookmarkStart  w:id="{generate-id()}"  w:name="bm_{generate-id()}_"/>
     </xsl:if>
     <w:r>

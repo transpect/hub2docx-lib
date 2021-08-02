@@ -144,9 +144,7 @@
   <xsl:template  match="para[ not( parent::listitem) ] | author[parent::authorgroup] | simpara[not(parent::footnote)] | attribution"  mode="hub:default">
     <w:p origin="{if(self::para) then 'default_p_parentnotlistitem' else if(self::simpara) then 'default_simpara' else 'attribution'}">
       <xsl:call-template name="hub:pPr"/>
-      <xsl:if test="@xml:id">
-        <w:bookmarkStart w:id="{generate-id()}"  w:name="bm_{generate-id(.)}_"/>
-      </xsl:if>
+      <xsl:apply-templates select="@xml:id" mode="hub:bookmark-start"/>
       <xsl:variable name="content" as="node()*">
         <xsl:apply-templates  select="node()"  mode="#current">
           <xsl:with-param name="rPrContent" as="element(*)*" tunnel="yes">
@@ -196,9 +194,7 @@
           <xsl:sequence select="$content"/>
         </xsl:otherwise>
       </xsl:choose>
-      <xsl:if test="@xml:id">
-        <w:bookmarkEnd w:id="{generate-id()}"/>
-      </xsl:if>
+      <xsl:apply-templates select="@xml:id" mode="hub:bookmark-end"/>
       <xsl:if test="@css:page-break-after = 'always'">
         <w:r>
           <w:br w:type="page"/>

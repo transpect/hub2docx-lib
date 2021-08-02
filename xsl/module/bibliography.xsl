@@ -68,12 +68,20 @@
 
   <xsl:template  match="bibliomixed"  mode="hub:default">
     <xsl:variable  name="bibliomixedId"  select="(@xml:id, generate-id())[1]"/>
-    <w:bookmarkStart w:id="{$bibliomixedId}" w:name="bm_{$bibliomixedId}_"/>
+    <xsl:apply-templates select="." mode="hub:bookmark-start"/>
     <w:p>
       <xsl:call-template name="hub:pPr"/>
       <xsl:apply-templates  select="node()"  mode="#current" />
     </w:p>
-    <w:bookmarkEnd w:id="{$bibliomixedId}"/>
+    <xsl:apply-templates select="." mode="hub:bookmark-end"/>
+  </xsl:template>
+  
+  <xsl:template match="bibliomixed[@xml:id]" mode="hub:bookmark-start">
+    <w:bookmarkStart w:id="{@xml:id}"  w:name="bm_{@xml:id}_"/>
+  </xsl:template>
+  
+  <xsl:template match="bibliomixed[@xml:id]" mode="hub:bookmark-end">
+    <w:bookmarkEnd w:id="{@xml:id}"/>
   </xsl:template>
   
   <xsl:template  match="bibliomixed"  mode="hub:style-name">

@@ -101,7 +101,10 @@
         <w:fldChar w:fldCharType="begin"/>
       </w:r>
       <w:r>
-        <w:instrText xml:space="preserve"> REF bm_<xsl:value-of select="generate-id()"/>_ \w \h \* MERGEFORMAT </w:instrText>
+        <xsl:variable name="bm" as="element(w:bookmarkStart)">
+          <xsl:apply-templates select="." mode="hub:bookmark-start"/>
+        </xsl:variable>
+        <w:instrText xml:space="preserve"> REF <xsl:value-of select="$bm/@w:name"/> \w \h \* MERGEFORMAT </w:instrText>
       </w:r>
       <w:r>
         <w:fldChar w:fldCharType="separate"/>
@@ -148,7 +151,10 @@
               else string-join(($targetNode/title)[1]//text()[not(ancestor::*[self::footnote or self::indexterm])], '')"/>
     <w:r><w:fldChar w:fldCharType="begin"/></w:r>
     <w:r>
-      <w:instrText xml:space="preserve"> HYPERLINK \l bm_<xsl:value-of  select="$targetNode/generate-id()"/>_ \o "<xsl:value-of  select="replace($linktext, '(&quot;)', '\\$1')"/>"</w:instrText>
+      <xsl:variable name="bm" as="element(w:bookmarkStart)">
+        <xsl:apply-templates select="$targetNode" mode="hub:bookmark-start"/>
+      </xsl:variable>
+      <w:instrText xml:space="preserve"> HYPERLINK \l <xsl:value-of  select="$bm/@w:name"/> \o "<xsl:value-of  select="replace($linktext, '(&quot;)', '\\$1')"/>"</w:instrText>
     </w:r>
     <w:r><w:fldChar w:fldCharType="separate"/></w:r>
     <w:r>
@@ -183,7 +189,10 @@
       <xsl:otherwise>
         <w:r><w:t>p.&#x2009;</w:t></w:r>
         <w:r><w:fldChar w:fldCharType="begin"/></w:r>
-        <w:r><w:instrText xml:space="preserve"> PAGEREF bm_<xsl:value-of  select="$targetNode/generate-id()"/>_ \h </w:instrText></w:r>
+        <xsl:variable name="bm" as="element(w:bookmarkStart)">
+          <xsl:apply-templates select="$targetNode" mode="hub:bookmark-start"/>
+        </xsl:variable>
+        <w:r><w:instrText xml:space="preserve"> PAGEREF <xsl:value-of  select="$bm/@w:name"/> \h </w:instrText></w:r>
         <w:r><w:fldChar w:fldCharType="separate"/></w:r>
         <w:r><w:rPr><w:noProof/></w:rPr><w:t>??</w:t></w:r>
         <w:r><w:fldChar w:fldCharType="end"/></w:r>
@@ -207,10 +216,12 @@
 
   <xsl:template match="link" mode="hub:default">
     <xsl:param name="rPrContent" as="element(*)*" tunnel="yes"/>
-    <xsl:variable name="targetNode" 
+    <xsl:variable name="targetNode" as="element(*)?"
       select="$root//*[ @xml:id eq current()/(@xlink:href, @linkend)]"/>
-    <xsl:variable name="targetNode-corrected" 
-      select="if($targetNode/self::tgroup) then $targetNode/ancestor::table[1] else $targetNode"/>
+    <xsl:variable name="targetNode-corrected" as="element(*)?"
+      select="if($targetNode/self::tgroup) 
+              then $targetNode/(ancestor::table[1] | ancestor::informaltable[1]) 
+              else $targetNode"/>
     <xsl:choose>
       <xsl:when test="not(@xlink:href) and count( $targetNode-corrected) ne 1">
         <xsl:message select="'ERROR: Target node of a link-element does not exist or is ambiguous. Target:', (@xlink:href, @linkend)"/>
@@ -230,7 +241,6 @@
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
-        
         <xsl:variable name="target" select="($targetNode-corrected/@xml:id, @linkend)[1] | @xlink:href" as="xs:string"/>
         <xsl:variable name="title" select="replace((@xlink:title, ., ' ')[1], '(&quot;)', '\\$1')" as="xs:string"/>
         <xsl:if test="@xml:id">
@@ -247,8 +257,19 @@
             <xsl:when test="@xlink:href">
               <w:instrText xml:space="preserve"> HYPERLINK <xsl:value-of select="$target"/> \o "<xsl:value-of select="$title"/>"</w:instrText>
             </xsl:when>
+            <!--<xsl:when test="@role = ('internal', 'bibref')">
+              <w:instrText xml:space="preserve"> HYPERLINK \l bm_<xsl:value-of select="$targetNode-corrected/generate-id()"/>_ \o "<xsl:value-of select="$title"/>"</w:instrText>              
+            </xsl:when>-->
             <xsl:otherwise>
-              <w:instrText xml:space="preserve"> HYPERLINK \l bm_<xsl:value-of select="$targetNode-corrected/generate-id()"/>_ \o "<xsl:value-of select="$title"/>"</w:instrText>
+              <!-- reverted from bm_<xsl:value-of select="$targetNode-corrected/generate-id()"/>_ because of
+                a regression reported in https://github.com/basex-gmbh/voktool-LingSoft/issues/320 
+              The bookmark IDs and corresponding docVars need to start with 'token_', otherwise a VBA 
+              tool and other (complex) pipelines won’t work. -->
+              -->
+              <xsl:variable name="bm" as="element(w:bookmarkStart)">
+                <xsl:apply-templates select="$targetNode-corrected" mode="hub:bookmark-start"/>
+              </xsl:variable>
+              <w:instrText xml:space="preserve"> HYPERLINK \l <xsl:value-of  select="$bm/@w:name"/> \o "<xsl:value-of select="$title"/>"</w:instrText>
             </xsl:otherwise>
           </xsl:choose>
         </w:r>

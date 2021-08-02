@@ -324,15 +324,11 @@
       </w:pPr>
       <xsl:variable name="rPrContent" as="element(*)*">
       </xsl:variable>
-      <xsl:if test="../@xml:id">
-        <w:bookmarkStart  w:id="{generate-id(..)}"  w:name="bm_{generate-id(..)}_"/>
-      </xsl:if>
+      <xsl:apply-templates select="../@xml:id" mode="hub:bookmark-start"/>
       <xsl:apply-templates  select="node()"  mode="#current">
         <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
       </xsl:apply-templates>
-      <xsl:if test="../@xml:id">
-        <w:bookmarkEnd    w:id="{generate-id(..)}"/>
-      </xsl:if>
+      <xsl:apply-templates select="../@xml:id" mode="hub:bookmark-start"/>
     </w:p>
   </xsl:template>
 
