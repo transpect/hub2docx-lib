@@ -265,7 +265,6 @@
                 a regression reported in https://github.com/basex-gmbh/voktool-LingSoft/issues/320 
               The bookmark IDs and corresponding docVars need to start with 'token_', otherwise a VBA 
               tool and other (complex) pipelines won’t work. -->
-              -->
               <xsl:variable name="bm" as="element(w:bookmarkStart)">
                 <xsl:apply-templates select="$targetNode-corrected" mode="hub:bookmark-start"/>
               </xsl:variable>
