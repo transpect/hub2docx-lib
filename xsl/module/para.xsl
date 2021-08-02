@@ -27,7 +27,7 @@
   <xsl:key name="styleId" match="w:style" use="@w:styleId"/>
 
   <xsl:variable name="docx-template" as="element(w:root)"
-    select="collection()/w:root"/>
+    select="collection($collection-uri)/w:root"/>
 
 
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->

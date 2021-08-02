@@ -61,8 +61,8 @@
   <xsl:function name="tr:get-abstractNumId-by-role" as="xs:integer?">
     <xsl:param name="role" as="xs:string+"/>
     <xsl:sequence 
-      select="(collection()//w:numbering/w:num[@w:numId = (collection()//w:styles/w:style[@w:styleId = $role]/w:pPr/w:numPr/w:numId/@w:val)[1]]/w:abstractNumId/@w:val,
-               (collection()//w:numbering/w:abstractNum[w:lvl/w:pStyle/@w:val = $role]/@w:abstractNumId)[1])[1]"/>
+      select="(collection($collection-uri)//w:numbering/w:num[@w:numId = (collection($collection-uri)//w:styles/w:style[@w:styleId = $role]/w:pPr/w:numPr/w:numId/@w:val)[1]]/w:abstractNumId/@w:val,
+               (collection($collection-uri)//w:numbering/w:abstractNum[w:lvl/w:pStyle/@w:val = $role]/@w:abstractNumId)[1])[1]"/>
   </xsl:function>
 
   <xsl:function  name="tr:getAbstractNumId" as="xs:integer">

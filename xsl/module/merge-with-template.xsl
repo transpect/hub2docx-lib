@@ -35,8 +35,8 @@
   version="2.0">
 
   <!-- mode merge:
-       collection()/w:root_converted: converted hub (see mode hub:default)
-       collection()/w:root: docx template w:root
+       collection($collection-uri)/w:root_converted: converted hub (see mode hub:default)
+       collection($collection-uri)/w:root: docx template w:root
   -->
 
   <!-- "initial" template:
@@ -47,26 +47,26 @@
       <xsl:apply-templates select="/*/w:document/@xml:base" mode="docx2hub:modify"/>
     </xsl:variable>
     <w:root>
-      <xsl:apply-templates select="collection()/w:root/*" mode="#current">
+      <xsl:apply-templates select="collection($collection-uri)/w:root/*" mode="#current">
         <xsl:with-param name="document-xml-base-modified" tunnel="yes"
           select="$document-xml-base-modified" />
         <xsl:with-param name="footnoteIdOffset" tunnel="yes"
-          select="(xs:integer(max(collection()/w:root/w:footnotes/w:footnote/@w:id)), 0)[1]" />
+          select="(xs:integer(max(collection($collection-uri)/w:root/w:footnotes/w:footnote/@w:id)), 0)[1]" />
         <!--<xsl:with-param name="commentIdOffset" tunnel="yes"
-          select="(xs:integer(max(collection()/w:root/w:comments/w:comment/@w:id)), 0)[1]" />-->
+          select="(xs:integer(max(collection($collection-uri)/w:root/w:comments/w:comment/@w:id)), 0)[1]" />-->
         <!-- they’ll all be generated, so no need to count offsets from existing comments? -->
         <xsl:with-param name="commentIdOffset" tunnel="yes"
           select="0" />
         <xsl:with-param name="relationIdOffset" tunnel="yes"
-          select="max( for $rId in collection()/w:root/w:docRels/rel:Relationships/rel:Relationship/@Id
+          select="max( for $rId in collection($collection-uri)/w:root/w:docRels/rel:Relationships/rel:Relationship/@Id
                        return number( substring( $rId, 4))
                   )" />
         <xsl:with-param name="headerIdOffset" tunnel="yes"
-          select="max( (0, for $i in collection()/w:root/w:header/w:hdr/@xml:base 
+          select="max( (0, for $i in collection($collection-uri)/w:root/w:header/w:hdr/@xml:base 
                        return number(replace(tokenize($i, '/')[last()], '^header(\d+)\.xml$', '$1')))
                   )"/>
         <xsl:with-param name="footerIdOffset" tunnel="yes"
-          select="max( (0, for $i in collection()/w:root/w:footer/w:ftr/@xml:base 
+          select="max( (0, for $i in collection($collection-uri)/w:root/w:footer/w:ftr/@xml:base 
                        return number(replace(tokenize($i, '/')[last()], '^footer(\d+)\.xml$', '$1')))
                   )"/>
       </xsl:apply-templates>
@@ -78,36 +78,36 @@
     <!-- Works ok with Word 2010. If other apps fail to open the .docx, you might try
     removing copy-nammespaces="no" -->
     <xsl:if test="not(../w:footnoteRels)  and 
-      collection()/w:root_converted/w:footnoteRels/node()">
+      collection($collection-uri)/w:root_converted/w:footnoteRels/node()">
       <w:footnoteRels>
         <xsl:attribute name="xml:base" select="replace($document-xml-base-modified, 'document\.xml', '_rels/footnotes.xml.rels')"/>
-        <xsl:apply-templates select="collection()/w:root_converted/w:footnoteRels/node()" mode="#current"/>
+        <xsl:apply-templates select="collection($collection-uri)/w:root_converted/w:footnoteRels/node()" mode="#current"/>
       </w:footnoteRels>
     </xsl:if>
     <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="$document-xml-base-modified, collection()/w:root_converted/w:document/node()" mode="#current"/>
+      <xsl:apply-templates select="$document-xml-base-modified, collection($collection-uri)/w:root_converted/w:document/node()" mode="#current"/>
     </xsl:copy>
 
     <!-- no footnotes in template: create the footnote root element separately for converted hub footnotes -->
     <xsl:if test="not(../w:footnotes)  and 
-                  collection()/w:root_converted/w:footnotes/node()">
+                  collection($collection-uri)/w:root_converted/w:footnotes/node()">
       <w:footnotes>
         <xsl:attribute name="xml:base" select="replace($document-xml-base-modified, 'document\.xml', 'footnotes.xml')"/>
-        <xsl:apply-templates select="collection()/w:root_converted/w:footnotes/node()" mode="#current"/>
+        <xsl:apply-templates select="collection($collection-uri)/w:root_converted/w:footnotes/node()" mode="#current"/>
       </w:footnotes>
     </xsl:if>
     <xsl:if test="not(../w:endnotes)  and 
-                  collection()/w:root_converted/w:endnotes/node()">
+                  collection($collection-uri)/w:root_converted/w:endnotes/node()">
       <w:endnotes>
         <xsl:attribute name="xml:base" select="replace($document-xml-base-modified, 'document\.xml', 'endnotes.xml')"/>
-        <xsl:apply-templates select="collection()/w:root_converted/w:endnotes/node()" mode="#current"/>
+        <xsl:apply-templates select="collection($collection-uri)/w:root_converted/w:endnotes/node()" mode="#current"/>
       </w:endnotes>
     </xsl:if>
     <xsl:if test="not(../w:comments)  and
-                  collection()/w:root_converted/w:comments/node()">
+                  collection($collection-uri)/w:root_converted/w:comments/node()">
       <w:comments>
         <xsl:attribute name="xml:base" select="replace($document-xml-base-modified, 'document\.xml', 'comments.xml')"/>
-        <xsl:apply-templates select="collection()/w:root_converted/w:comments/node()" mode="#current"/>
+        <xsl:apply-templates select="collection($collection-uri)/w:root_converted/w:comments/node()" mode="#current"/>
       </w:comments>
     </xsl:if>
   </xsl:template>
@@ -116,8 +116,8 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
       <xsl:if test="$create-and-map-styles-not-in-template = 'yes'">
-        <xsl:for-each select="collection()/w:root_converted/w:styles/w:style">
-          <xsl:if test="not(collection()/w:root/w:styles/w:style[@w:type = current()/@w:type and @w:styleId = current()/@w:styleId])">
+        <xsl:for-each select="collection($collection-uri)/w:root_converted/w:styles/w:style">
+          <xsl:if test="not(collection($collection-uri)/w:root/w:styles/w:style[@w:type = current()/@w:type and @w:styleId = current()/@w:styleId])">
             <xsl:apply-templates select="." mode="#current"/>
           </xsl:if>
         </xsl:for-each>
@@ -136,7 +136,7 @@
 
       <xsl:variable name="ct" select="." as="element(ct:Types)"/>
       <xsl:for-each-group group-by="replace(@Target, '^.+\.', '')[. != '']" 
-        select="collection()/w:root_converted/w:docRels/rel:Relationships
+        select="collection($collection-uri)/w:root_converted/w:docRels/rel:Relationships
                              /rel:Relationship[@Type = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image']">
         <xsl:if test="not($ct/ct:Default[@Extension = current-grouping-key()])">
           <Default xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
@@ -145,21 +145,21 @@
       </xsl:for-each-group>
 
       <xsl:if test="not(ct:Override[@PartName eq '/word/comments.xml'])  and  
-                    collection()/w:root_converted/w:comments/node()">
+                    collection($collection-uri)/w:root_converted/w:comments/node()">
         <Override PartName="/word/comments.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
           ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml"/>
       </xsl:if>
       <xsl:if test="not(ct:Override[@PartName eq '/word/endnotes.xml'])  and  
-                    collection()/w:root_converted/w:endnotes/node()">
+                    collection($collection-uri)/w:root_converted/w:endnotes/node()">
         <Override PartName="/word/endnotes.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
           ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml"/>
       </xsl:if>
       <xsl:if test="not(ct:Override[@PartName eq '/word/footnotes.xml'])  and  
-                    collection()/w:root_converted/w:footnotes/node()">
+                    collection($collection-uri)/w:root_converted/w:footnotes/node()">
         <Override PartName="/word/footnotes.xml" xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
           ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml"/>
       </xsl:if>
-      <xsl:for-each select="collection()/w:root_converted/*/w:hdr">
+      <xsl:for-each select="collection($collection-uri)/w:root_converted/*/w:hdr">
         <xsl:variable name="number" select="$headerIdOffset + @hub:offset"/>
         <xsl:if test="not($Overrides[@PartName eq concat('/word/header',$number,'.xml')])">
           <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
@@ -167,7 +167,7 @@
             ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>
         </xsl:if>
       </xsl:for-each>
-      <xsl:for-each select="collection()/w:root_converted/*/w:ftr">
+      <xsl:for-each select="collection($collection-uri)/w:root_converted/*/w:ftr">
         <xsl:variable name="number" select="$footerIdOffset + @hub:offset"/>
         <xsl:if test="not($Overrides[@PartName eq concat('/word/footer',$number,'.xml')])">
           <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types"
@@ -175,7 +175,7 @@
             ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
         </xsl:if>
       </xsl:for-each>
-      <xsl:if test="collection()/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
+      <xsl:if test="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
         <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types" 
           PartName="/docProps/custom.xml"
           ContentType="application/vnd.openxmlformats-officedocument.custom-properties+xml"/>
@@ -191,7 +191,7 @@
                                           union
                                           w:docVars
                                         )" mode="#current"/>
-      <xsl:apply-templates select="collection()/w:root/w:document/w:body//w:sectPr[. is (ancestor::w:body//w:sectPr)[1]]" mode="#current"/>
+      <xsl:apply-templates select="collection($collection-uri)/w:root/w:document/w:body//w:sectPr[. is (ancestor::w:body//w:sectPr)[1]]" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
@@ -200,22 +200,22 @@
   <xsl:template match="w:numbering" mode="hub:merge">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="hub:merge" />
-      <xsl:apply-templates select="collection()/w:root_converted/w:numbering/node()" mode="#current">
+      <xsl:apply-templates select="collection($collection-uri)/w:root_converted/w:numbering/node()" mode="#current">
         <xsl:with-param name="template-nums" select="xs:string(max(for $i in w:num/@w:numId return number($i)))"/>
       </xsl:apply-templates>
-      <xsl:if test="not(w:numIdMacAtCleanup) and not(collection()/w:root_converted/w:numbering/w:numIdMacAtCleanup)">
+      <xsl:if test="not(w:numIdMacAtCleanup) and not(collection($collection-uri)/w:root_converted/w:numbering/w:numIdMacAtCleanup)">
         <w:numIdMacAtCleanup w:val="{(if (w:num) then max(for $i in w:num/@w:numId return number($i)) else 0) + 
-                                     count(collection()/w:root_converted/w:numbering/w:num)}"/>
+                                     count(collection($collection-uri)/w:root_converted/w:numbering/w:num)}"/>
       </xsl:if>
     </xsl:copy>
   </xsl:template>
   
   <xsl:template match="w:numIdMacAtCleanup" mode="hub:merge">
     <xsl:copy>
-      <xsl:attribute name="w:val" select="(if (collection()/w:root/w:numbering/w:num) 
-                                           then max(for $i in collection()/w:root/w:numbering/w:num/@w:numId return number($i)) 
+      <xsl:attribute name="w:val" select="(if (collection($collection-uri)/w:root/w:numbering/w:num) 
+                                           then max(for $i in collection($collection-uri)/w:root/w:numbering/w:num/@w:numId return number($i)) 
                                            else 0) + 
-                                          count(collection()/w:root_converted/w:numbering/w:num)"/>
+                                          count(collection($collection-uri)/w:root_converted/w:numbering/w:num)"/>
     </xsl:copy>
   </xsl:template>
   
@@ -238,8 +238,8 @@
     <xsl:choose>
       <xsl:when test="ancestor::w:root_converted/w:numbering/w:num[@w:numId eq current()/@w:val]">
         <xsl:copy>
-          <xsl:attribute name="w:val" select="(if (collection()/w:root/w:numbering/w:num) 
-                                               then max(for $i in collection()/w:root/w:numbering/w:num/@w:numId return number($i)) 
+          <xsl:attribute name="w:val" select="(if (collection($collection-uri)/w:root/w:numbering/w:num) 
+                                               then max(for $i in collection($collection-uri)/w:root/w:numbering/w:num/@w:numId return number($i)) 
                                                else 0) + 
                                               count(ancestor::w:root_converted/w:numbering/w:num[@w:numId eq current()/@w:val]/preceding-sibling::w:num) +1"/>
         </xsl:copy>
@@ -255,7 +255,7 @@
   <xsl:template match="w:footnotes" mode="hub:merge">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="hub:merge" />
-      <xsl:apply-templates select="collection()/w:root_converted/w:footnotes/node()" mode="#current"/>
+      <xsl:apply-templates select="collection($collection-uri)/w:root_converted/w:footnotes/node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
@@ -304,19 +304,19 @@
 
   <xsl:template match="w:comments" mode="hub:merge">
     <xsl:copy>
-      <xsl:apply-templates select="@*, collection()/w:root_converted/w:comments/node()" mode="#current"/>
+      <xsl:apply-templates select="@*, collection($collection-uri)/w:root_converted/w:comments/node()" mode="#current"/>
     </xsl:copy>
   </xsl:template>
   
   <xsl:template match="w:settings" mode="hub:merge">
     <xsl:copy>
       <xsl:apply-templates select="@*, * except w:docVars" mode="#current"/>
-      <xsl:if test="exists(collection()/w:root_converted/w:settings/w:docVars/w:docVar)">
+      <xsl:if test="exists(collection($collection-uri)/w:root_converted/w:settings/w:docVars/w:docVar)">
         <w:docVars>
-          <xsl:sequence select="collection()/w:root_converted/w:settings/w:docVars/w:docVar"/>
+          <xsl:sequence select="collection($collection-uri)/w:root_converted/w:settings/w:docVars/w:docVar"/>
         </w:docVars>
       </xsl:if>
-      <xsl:if test="not(w:evenAndOddHeaders) and collection()/w:root_converted/w:header/w:hdr[@hub:header-even[.='true']]">
+      <xsl:if test="not(w:evenAndOddHeaders) and collection($collection-uri)/w:root_converted/w:header/w:hdr[@hub:header-even[.='true']]">
         <w:evenAndOddHeaders/>
       </xsl:if>
     </xsl:copy>
@@ -339,7 +339,7 @@
     <xsl:copy>
       <xsl:apply-templates  mode="#current"
         select="@*, $other-rels"/>
-      <xsl:if test="collection()/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
+      <xsl:if test="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
         <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships" 
           Id="rId{$rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties" Target="docProps/custom.xml"/>
       </xsl:if>
@@ -349,7 +349,7 @@
   <xsl:template mode="hub:merge" match="w:containerProps">
     <xsl:copy>
       <xsl:apply-templates  mode="#current" select="* except customProps:Properties"/>
-      <xsl:if test="collection()/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
+      <xsl:if test="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
         <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties">
           <xsl:if test="*[1]/@xml:base">
             <xsl:variable name="prelim" as="attribute(xml:base)">
@@ -358,7 +358,7 @@
             <xsl:apply-templates select="$prelim" mode="docx2hub:modify"/><!-- out dir -->
           </xsl:if>
           <xsl:apply-templates  mode="#current"
-            select="collection()/w:root_converted/w:containerProps/customProps:Properties/customProps:property"/>
+            select="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property"/>
         </Properties>
       </xsl:if>
     </xsl:copy>
@@ -403,23 +403,23 @@
     <xsl:param name="footerIdOffset" tunnel="yes" />
     <xsl:copy>
       <xsl:apply-templates  mode="#current"
-        select="@*, *[not(@Target = collection()/w:root_converted/w:docRels/rel:Relationships/*/@Target)]"/>
-      <xsl:apply-templates select="collection()/w:root_converted/w:docRels/rel:Relationships/*" mode="#current"/>
-      <xsl:if test="not(collection()/w:root/w:comments) and
-                    collection()/w:root_converted/w:comments/node()">
+        select="@*, *[not(@Target = collection($collection-uri)/w:root_converted/w:docRels/rel:Relationships/*/@Target)]"/>
+      <xsl:apply-templates select="collection($collection-uri)/w:root_converted/w:docRels/rel:Relationships/*" mode="#current"/>
+      <xsl:if test="not(collection($collection-uri)/w:root/w:comments) and
+                    collection($collection-uri)/w:root_converted/w:comments/node()">
         <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
           Id="rId{$relationIdOffset}c" 
           Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" 
           Target="comments.xml" />
       </xsl:if>
-      <xsl:if test="not(collection()/w:root/w:footnotes) and
-                    collection()/w:root_converted/w:footnotes/node()">
+      <xsl:if test="not(collection($collection-uri)/w:root/w:footnotes) and
+                    collection($collection-uri)/w:root_converted/w:footnotes/node()">
         <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
           Id="rId{$relationIdOffset}c" 
           Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes" 
           Target="footnotes.xml" />
       </xsl:if>
-      <xsl:for-each select="collection()/w:root_converted/*/w:*[local-name() = ('ftr', 'hdr')]">
+      <xsl:for-each select="collection($collection-uri)/w:root_converted/*/w:*[local-name() = ('ftr', 'hdr')]">
         <xsl:variable name="type" select="if (local-name() eq 'ftr') then 'footer' else 'header'" as="xs:string"/>
         <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
           Id="rId{$relationIdOffset + @hub:offset}{local-name()}" 
@@ -445,8 +445,8 @@
 
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
-      <xsl:if test="collection()/w:root_converted/w:*[local-name() eq $ref-name-long]/w:*//@hub:fileref">
-        <xsl:for-each select="collection()/w:root_converted/w:*[local-name() eq $ref-name-long]/w:*[.//@hub:fileref]">
+      <xsl:if test="collection($collection-uri)/w:root_converted/w:*[local-name() eq $ref-name-long]/w:*//@hub:fileref">
+        <xsl:for-each select="collection($collection-uri)/w:root_converted/w:*[local-name() eq $ref-name-long]/w:*[.//@hub:fileref]">
           <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
             <xsl:attribute name="xml:base" 
               select="replace(
@@ -454,7 +454,7 @@
                         concat('/(', $ref-name-long, '\d+\.xml)'), 
                         '/_rels/$1.rels'
                       )"/>
-            <xsl:for-each select="collection()/w:root_converted/w:*[local-name() eq $ref-name-long]/w:*//@hub:fileref">
+            <xsl:for-each select="collection($collection-uri)/w:root_converted/w:*[local-name() eq $ref-name-long]/w:*//@hub:fileref">
               <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships"
                 Id="rId{../@id}{local-name(ancestor::w:*[local-name() = ('hdr', 'ftr')])}" 
                 Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" 
@@ -485,12 +485,12 @@
 
   <xsl:template match="w:header" mode="hub:merge">
     <xsl:apply-templates mode="#current"/>
-    <xsl:apply-templates select="collection()/w:root_converted/w:header/w:hdr" mode="#current" />
+    <xsl:apply-templates select="collection($collection-uri)/w:root_converted/w:header/w:hdr" mode="#current" />
   </xsl:template>
 
   <xsl:template match="w:footer" mode="hub:merge">
     <xsl:apply-templates mode="#current"/>
-    <xsl:apply-templates select="collection()/w:root_converted/w:footer/w:ftr" mode="#current" />
+    <xsl:apply-templates select="collection($collection-uri)/w:root_converted/w:footer/w:ftr" mode="#current" />
   </xsl:template>
 
   <xsl:function name="tr:get-new-xml-base" as="xs:string">
@@ -544,12 +544,12 @@
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:apply-templates mode="#current"/>
-      <xsl:for-each select="collection()/w:root_converted/w:header/w:hdr[not(following-sibling::w:hdr/@hub:*[matches(local-name(.),'^header\-(even|default|first)$')] = @hub:*[matches(local-name(.),'^header\-(even|default|first)$')])]/@hub:*[matches(local-name(.),'^header\-(even|default|first)$')][.='true']">
+      <xsl:for-each select="collection($collection-uri)/w:root_converted/w:header/w:hdr[not(following-sibling::w:hdr/@hub:*[matches(local-name(.),'^header\-(even|default|first)$')] = @hub:*[matches(local-name(.),'^header\-(even|default|first)$')])]/@hub:*[matches(local-name(.),'^header\-(even|default|first)$')][.='true']">
         <xsl:if test="not($dot/w:headerReference[@w:type=replace(current()/local-name(),'^header\-(even|default|first)$','$1')])">
           <w:headerReference r:id="rId{parent::*/@hub:offset + $relationIdOffset}hdr" w:type="{replace(./local-name(),'^header\-(even|default|first)$','$1')}"/>  
         </xsl:if>
       </xsl:for-each>
-      <xsl:for-each select="collection()/w:root_converted/w:footer/w:ftr[not(following-sibling::w:ftr/@hub:*[matches(local-name(.),'^footer\-(even|default|first)$')] = @hub:*[matches(local-name(.),'^footer\-(even|default|first)$')])]/@hub:*[matches(local-name(.),'^footer\-(even|default|first)$')][.='true']">
+      <xsl:for-each select="collection($collection-uri)/w:root_converted/w:footer/w:ftr[not(following-sibling::w:ftr/@hub:*[matches(local-name(.),'^footer\-(even|default|first)$')] = @hub:*[matches(local-name(.),'^footer\-(even|default|first)$')])]/@hub:*[matches(local-name(.),'^footer\-(even|default|first)$')][.='true']">
         <xsl:if test="not($dot/w:footerReference[@w:type=replace(current()/local-name(),'^footer\-(even|default|first)$','$1')])">
           <w:footerReference r:id="rId{parent::*/@hub:offset + $relationIdOffset}ftr" w:type="{replace(./local-name(),'^footer\-(even|default|first)$','$1')}"/>  
         </xsl:if>
@@ -571,7 +571,7 @@
     <xsl:variable name="ref-name-long" as="xs:string"
       select="if ($ref-name-short eq 'hdr') then 'header' else 'footer'"/>
     <xsl:variable name="corresponding-converted-margin-element" as="element(*)*"
-      select="collection()/w:root_converted
+      select="collection($collection-uri)/w:root_converted
                 /w:*[local-name() eq $ref-name-long]
                   /w:*[local-name() eq $ref-name-short][
                     @hub:*[
@@ -610,7 +610,7 @@
     mode="hub:merge"
     match="//w:root_converted//w:pStyle[@hub:val]">
     <xsl:choose>
-      <xsl:when test="@hub:val = collection()//w:styles/w:style[@w:type eq 'paragraph']/w:name/@w:val or @hub:val = $word-builtin-pStyles">
+      <xsl:when test="@hub:val = collection($collection-uri)//w:styles/w:style[@w:type eq 'paragraph']/w:name/@w:val or @hub:val = $word-builtin-pStyles">
         <w:pStyle w:val="{@hub:val}"/>
       </xsl:when>
       <xsl:otherwise>
@@ -622,7 +622,7 @@
 
   <!-- character changes/additions -->
 
-  <xsl:template match="w:rStyle/@hub:val[. = collection()//w:styles/w:style[@w:type eq 'character']/w:name/@w:val]">
+  <xsl:template match="w:rStyle/@hub:val[. = collection($collection-uri)//w:styles/w:style[@w:type eq 'character']/w:name/@w:val]">
     <xsl:attribute name="w:val" select="."/>
   </xsl:template>
 
@@ -634,11 +634,11 @@
   <xsl:template match="@hub:fileref" mode="hub:merge">
     <xsl:param name="relationIdOffset" tunnel="yes"/>
     <xsl:variable name="rel-element" as="element(rel:Relationship)?"
-      select="collection()/w:root
+      select="collection($collection-uri)/w:root
                 /w:*[local-name() = ('footnoteRels', 'docRels', 'headerRels', 'footerRels')]
                   /rel:Relationships/rel:Relationship[@Target eq current()]"/>
     <xsl:variable name="rel-converted-element" as="element(rel:Relationship)?"
-      select="collection()/w:root_converted
+      select="collection($collection-uri)/w:root_converted
       /w:*[local-name() = ('footnoteRels', 'docRels', 'headerRels', 'footerRels')]
                   /rel:Relationships/rel:Relationship[@Target eq current()][1]"/>
     <xsl:choose>
@@ -663,7 +663,7 @@
   
   <xsl:template match="w:pPr/w:pStyle/@w:val[matches(., '^berschrift\d+$')]" mode="hub:merge">
     <xsl:choose>
-      <xsl:when test="collection()/w:root/w:styles/w:style[@w:type = 'paragraph'][@w:styleId = current()]">
+      <xsl:when test="collection($collection-uri)/w:root/w:styles/w:style[@w:type = 'paragraph'][@w:styleId = current()]">
         <xsl:next-match/>
       </xsl:when>
       <xsl:otherwise>

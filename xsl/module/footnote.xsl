@@ -34,7 +34,7 @@
     <w:bookmarkStart w:id="{tr:fn-bm-id(.)}" w:name="{tr:fn-bookmark(.)}"/>
     <w:r>
       <w:rPr>
-        <w:rStyle w:val="{(collection()//w:styles/w:style[w:name/@w:val = 'footnote reference']/@w:styleId, 'FootnoteReference')[1]}"/>
+        <w:rStyle w:val="{(collection($collection-uri)//w:styles/w:style[w:name/@w:val = 'footnote reference']/@w:styleId, 'FootnoteReference')[1]}"/>
         <xsl:if test="matches(@label, '[&#xF000;-&#xF7FF;]')">
           <w:rFonts w:ascii="Wingdings" w:hAnsi="Wingdings" w:hint="default"/>
         </xsl:if>
@@ -117,7 +117,7 @@
       <xsl:apply-templates select="*[self::para or self::simpara][1]" mode="#current" />
       <xsl:apply-templates select="*[self::para or self::simpara][position() gt 1]" mode="hub:default">
         <xsl:with-param name="pPrContent">
-          <w:pStyle w:val="{(collection()//w:styles/w:style[w:name/@w:val = 'footnote text']/@w:styleId, 'FootnoteText')[1]}"/>
+          <w:pStyle w:val="{(collection($collection-uri)//w:styles/w:style[w:name/@w:val = 'footnote text']/@w:styleId, 'FootnoteText')[1]}"/>
         </xsl:with-param>
       </xsl:apply-templates>
     </w:footnote>
@@ -128,11 +128,11 @@
   <xsl:template match="footnote/para | footnote/simpara" mode="footnotes">
     <w:p>
       <w:pPr>
-        <w:pStyle w:val="{(collection()//w:styles/w:style[w:name/@w:val = 'footnote text']/@w:styleId, 'FootnoteText')[1]}"/>
+        <w:pStyle w:val="{(collection($collection-uri)//w:styles/w:style[w:name/@w:val = 'footnote text']/@w:styleId, 'FootnoteText')[1]}"/>
       </w:pPr>
       <w:r>
         <w:rPr>
-          <w:rStyle w:val="{(collection()//w:styles/w:style[w:name/@w:val = 'footnote reference']/@w:styleId, 'FootnoteReference')[1]}"/>
+          <w:rStyle w:val="{(collection($collection-uri)//w:styles/w:style[w:name/@w:val = 'footnote reference']/@w:styleId, 'FootnoteReference')[1]}"/>
         </w:rPr>
         <xsl:choose>
           <xsl:when test="../@label">
