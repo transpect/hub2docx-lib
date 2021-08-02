@@ -328,7 +328,7 @@
     <w:bookmarkEnd w:id="{generate-id()}"/>
   </xsl:template>
   
-  <xsl:template match="tgroup[../@xml:id]" mode="hub:bookmark-start">
+  <xsl:template match="tgroup[../@xml:id]" mode="hub:bookmark-start hub:bookmark-end" priority="1">
     <xsl:apply-templates select=".." mode="#current"/>
   </xsl:template>
   
