@@ -3140,12 +3140,12 @@
         <!-- At this point we have some mathml structure (fraction, nary, non-grouping element, etc.) -->
         <!-- If this mathml structure has alignment groups or marks as children, then extract those since
 				     omml can't handle that. -->
-        <xsl:when test="descendant::mml:maligngroup or descendant::mml:malignmark">
+        <xsl:when test="descendant::mml:maligngroup[ancestor::mml:mtr[1]/generate-id()=$ndCur/ancestor-or-self::mml:mtr[1]/generate-id()] or descendant::mml:malignmark[ancestor::mml:mtr[1]/generate-id()=$ndCur/ancestor-or-self::mml:mtr[1]/generate-id()]">
           <xsl:variable name="cMalignGroups">
-            <xsl:value-of select="count(descendant::mml:maligngroup)" />
+            <xsl:value-of select="count(descendant::mml:maligngroup[ancestor::mml:mtr[1]/generate-id()=$ndCur/ancestor-or-self::mml:mtr[1]/generate-id()])" />
           </xsl:variable>
           <xsl:variable name="cMalignMarks">
-            <xsl:value-of select="count(descendant::mml:malignmark)" />
+            <xsl:value-of select="count(descendant::mml:malignmark[ancestor::mml:mtr[1]/generate-id()=$ndCur/ancestor-or-self::mml:mtr[1]/generate-id()])" />
           </xsl:variable>
           <!-- Output all maligngroups and malignmarks as '&' -->
           <xsl:if test="$cMalignGroups + $cMalignMarks &gt; 0">
