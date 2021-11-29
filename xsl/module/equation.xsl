@@ -95,7 +95,7 @@
     <xsl:element name="m:oMathPara" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
       <xsl:for-each select="m:mtable/m:mtr">
         <xsl:element name="m:oMath" namespace="http://schemas.openxmlformats.org/officeDocument/2006/math">
-          <xsl:variable name="mml" as="node()">
+          <xsl:variable name="mml" as="node()*">
             <xsl:apply-templates select="node()" mode="m-to-mml"/>
           </xsl:variable>
           <xsl:call-template name="hub:mml2omml">
