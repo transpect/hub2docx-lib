@@ -48,6 +48,7 @@
                         lineage |
                         honorific | 
                         personname | 
+                        othername |
                         surname | 
                         firstname | 
                         seriesvolnums | 
