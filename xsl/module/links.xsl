@@ -242,7 +242,7 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="target" select="($targetNode-corrected/@xml:id, @linkend)[1] | @xlink:href" as="xs:string"/>
-        <xsl:variable name="title" select="replace((@xlink:title, ., ' ')[1], '(&quot;)', '\\$1')" as="xs:string"/>
+        <xsl:variable name="title" select="replace((@xlink:title, ., ' ')[1], '([&quot;»«])', '\\$1')" as="xs:string"/>
         <xsl:if test="@xml:id">
           <w:bookmarkStart w:id="{generate-id()}" w:name="{(@xml:id, generate-id())[1]}">
             <!-- GI 2019-11-07: For a lookup in a corresponding docVar, it is important that an existing
