@@ -229,9 +229,11 @@
       | book/subtitle
       | book/info/subtitle
       | part/subtitle
+      | part/info/subtitle
       | chapter/subtitle
+      | chapter/info/subtitle
       | section/subtitle
-      | book/info/subtitle
+      | section/info/subtitle
       | bridgehead"
     mode="hub:style-name">
     <w:pStyle>
@@ -287,9 +289,12 @@
       | *[local-name() = $structure-elements]/info/title
       | book/subtitle
       | book/info/subtitle
+      | part/subtitle
+      | part/info/subtitle
       | chapter/subtitle
+      | chapter/info/subtitle
       | section/subtitle
-      | book/info/subtitle
+      | section/info/subtitle
       | bridgehead"
     mode="hub:default" priority="3">
     <w:p origin="default_docstruct_title">
@@ -297,11 +302,11 @@
       <xsl:variable name="rPrContent" as="element(*)*">
         <xsl:apply-templates select="@css:color, @css:font-size" mode="props"/>
       </xsl:variable>
-      <xsl:apply-templates select="../@xml:id" mode="hub:bookmark-start"/>
+      <xsl:apply-templates select="if (..[self::info]) then ../../@xml:id else ../@xml:id" mode="hub:bookmark-start"/>
       <xsl:apply-templates mode="#current">
         <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
       </xsl:apply-templates>
-      <xsl:apply-templates select="../@xml:id" mode="hub:bookmark-end"/>
+      <xsl:apply-templates select="if (..[self::info]) then ../../@xml:id else ../@xml:id" mode="hub:bookmark-end"/>
     </w:p>
   </xsl:template>
 
