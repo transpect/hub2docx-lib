@@ -74,6 +74,7 @@
   
   <xsl:variable name="footnote-bookmark-prefix" as="xs:string"
     select="'FN_'"/>
+  <xsl:param name="create-title-bookmarks" select="'yes'" as="xs:string"/>
 
   <!-- remove header and footer from inner word document: see modules header.xsl and footer.xsl -->
   <xsl:template match="*[@css:page][not(parent::css:page)][tr:is-header(.)]" mode="hub:default" priority="2000"/>

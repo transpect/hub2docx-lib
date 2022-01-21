@@ -25,6 +25,8 @@
   <!-- ================================================================================ -->
 
   <xsl:param name="render-index-list" select="'no'" as="xs:string"/>
+  
+  <xsl:param name="create-title-bookmarks" select="'yes'" as="xs:string"/>
 
   <xsl:key name="by-genid" match="*" use="generate-id()"/>
 
@@ -299,14 +301,21 @@
     mode="hub:default" priority="3">
     <w:p origin="default_docstruct_title">
       <xsl:call-template name="hub:pPr"/>
+      <xsl:if test="descendant::processing-instruction()">
+      <xsl:apply-templates select="descendant::processing-instruction()" mode="#current"></xsl:apply-templates>
+    </xsl:if>
       <xsl:variable name="rPrContent" as="element(*)*">
         <xsl:apply-templates select="@css:color, @css:font-size" mode="props"/>
       </xsl:variable>
-      <xsl:apply-templates select="if (..[self::info]) then ../../@xml:id else ../@xml:id" mode="hub:bookmark-start"/>
+      <xsl:if test="$create-title-bookmarks='yes'">
+        <xsl:apply-templates select="if (..[self::info]) then ../../@xml:id else ../@xml:id" mode="hub:bookmark-start"/>
+      </xsl:if>
       <xsl:apply-templates mode="#current">
         <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
       </xsl:apply-templates>
-      <xsl:apply-templates select="if (..[self::info]) then ../../@xml:id else ../@xml:id" mode="hub:bookmark-end"/>
+      <xsl:if test="$create-title-bookmarks='yes'">
+        <xsl:apply-templates select="if (..[self::info]) then ../../@xml:id else ../@xml:id" mode="hub:bookmark-end"/>
+      </xsl:if>
     </w:p>
   </xsl:template>
 
