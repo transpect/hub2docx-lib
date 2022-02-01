@@ -102,7 +102,7 @@
         <xsl:message select="'tr:getLiNumAsInt: Value', $num, 'cleaned as ', $cleanNum, 'may not be cast to integer'"/>        
       </xsl:when>
       <xsl:when test="$numeration = ('loweralpha', 'upperalpha')">
-        <xsl:sequence select="tr:letters-to-number($cleanNum)"/>
+        <xsl:sequence select="tr:letters-to-number($cleanNum,2)"/>
       </xsl:when>
       <xsl:when test="$numeration = ('lowerroman', 'upperroman')">
         <xsl:sequence select="tr:roman-to-int($cleanNum)"/>
