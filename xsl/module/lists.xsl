@@ -159,6 +159,31 @@
     <xsl:sequence select="boolean(($currentNum - $precedingNum) = 1)"/>
   </xsl:function>
   
+  <!--  This function examines whether there exists a subordinated list with a style superordinated in the same abstractNum, which would unvoluntarily reset the counter -->
+  <xsl:function name="tr:checkSubordinatedLists" as="xs:boolean">
+    <xsl:param name="li" as="element(listitem)"/>
+    <xsl:sequence select="exists($li/preceding-sibling::listitem) 
+                          and 
+                          (some $sub-listitem 
+                           in $li/preceding-sibling::listitem[1]/*[ local-name() = $hub:list-element-names]/listitem 
+                           satisfies (tr:get-abstractNumId-by-role(tr:get-listitem-pStyle($sub-listitem)) =  
+                                      tr:get-abstractNumId-by-role(tr:get-listitem-pStyle($li)) 
+                                      and 
+                                      tr:li-ilvl($sub-listitem) lt tr:li-ilvl($li)))"/>
+  </xsl:function>
+  
+  <xsl:function name="tr:get-listitem-pStyle" as="xs:string">
+    <xsl:param name="li" as="element(listitem)"/>
+    <xsl:variable name="in-blockquote" select="if ($li/ancestor::blockquote) then 'Bq' else ''" as="xs:string" />
+    <xsl:variable name="continued-list-para" select="if (count($li/preceding-sibling::para) eq 0) then '' else 'Cont'" as="xs:string" />
+    <xsl:sequence select="concat(if ($template-lang = 'de') then 'Listenabsatz' else 'ListParagraph', $in-blockquote, $continued-list-para)"/>
+  </xsl:function>
+  
+  <xsl:function name="tr:li-ilvl" as="xs:integer">
+    <xsl:param name="li" as="element(listitem)"/>
+    <xsl:sequence select="count( $li/ancestor::*[self::*[ local-name() = $hub:list-element-names]]) - 1"/>
+  </xsl:function>
+  
   <!-- This function calculates new starting numbers within lists as a sequence of integer values. 
        For example: 'b)', 'd)' will return '2 4'. -->
   <xsl:function name="tr:getOverrideStarts" as="xs:integer*">
@@ -171,7 +196,7 @@
         <xsl:variable name="numeration" as="xs:string" select="tr:getNumerationType($list)"/>
         <xsl:variable name="numbers" as="xs:integer*" 
           select="for $li in $list/* return (if ($li/@override[normalize-space()]) 
-                                             then if (not(tr:isOrdinaryFollower($li)))
+                                             then if (not(tr:isOrdinaryFollower($li)) or tr:checkSubordinatedLists($li))
                                                   then tr:getLiNumAsInt($li/@override, $numeration)
                                                   else 1
                                              else ())"/>
@@ -188,7 +213,7 @@
       select="($li/preceding-sibling::*[not(tr:isOrdinaryFollower(.))][1]/tr:getLiNumAsInt(@override, $numeration), 1)[1]"/>
     <xsl:variable name="currentNumAsInt" as="xs:integer?" select="tr:getLiNumAsInt($li/@override, $numeration)"/>
     <xsl:sequence select="if ($li/@override[normalize-space()]) 
-                          then  if (tr:isOrdinaryFollower($li))
+                          then  if (tr:isOrdinaryFollower($li) and not(tr:checkSubordinatedLists($li)))
                                 then $lastOverrideStart
                                 else  if(xs:string($currentNumAsInt) != '')
                                       then $currentNumAsInt
@@ -337,24 +362,21 @@
   <xsl:template  match="*[ local-name() = $hub:list-element-names]/listitem/para"  mode="hub:default">
     <xsl:param name="continued-list" as="element(*)?" tunnel="yes"/>
     <xsl:param name="continues" tunnel="yes"/>
-    <xsl:variable name="ilvl"  select="count( ancestor::*[self::*[ local-name() = $hub:list-element-names]]) - 1" as="xs:integer"/>
     <!-- if list doesn't start here but somewhere else before-->
     <xsl:variable name="numId" select="if (parent::listitem/parent::orderedlist) 
                                        then tr:getLiNumId(., tr:getLastOverrideStart(.)) 
                                        else tr:getLiNumId(., 1)" />
     <!-- §§ should we consider scoping? -->
-    <xsl:variable name="in-blockquote" select="if (ancestor::blockquote) then 'Bq' else ''" as="xs:string" />
     <xsl:variable name="continued-list-para" select="if (count(preceding-sibling::para) eq 0) then '' else 'Cont'" as="xs:string" />
-    <xsl:variable name="pStyle" select="concat(if ($template-lang = 'de') then 'Listenabsatz' else 'ListParagraph', $in-blockquote, $continued-list-para)"/>
     <xsl:variable name="lvl" as="xs:integer" select="count(ancestor::*[ local-name() = ('itemizedlist','orderedlist')])"/>
     <w:p>
       <w:pPr>
-        <w:pStyle w:val="{$pStyle}"/>
+        <w:pStyle w:val="{tr:get-listitem-pStyle(parent::listitem)}"/>
         <xsl:choose>
           <xsl:when test="count(preceding-sibling::*)=0">
             <xsl:if test="$continued-list-para eq ''">
               <w:numPr>
-                <w:ilvl w:val="{$ilvl}"/>
+                <w:ilvl w:val="{tr:li-ilvl(parent::listitem)}"/>
                 <w:numId w:val="{$numId}"/>
               </w:numPr>
               <w:ind w:left="{tr:calculate-li-ind($lvl)}"/>
