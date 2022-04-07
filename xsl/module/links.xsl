@@ -71,7 +71,10 @@
      <xsl:apply-templates select="@xml:id" mode="hub:bookmark-start"/>
   </xsl:template>
   
-  <xsl:template match="anchor[not(@role)][@xml:id][not(key('by-id',concat(@xml:id,'_end')))]"  mode="hub:default">
+  <xsl:template match="anchor[not(@role)]
+                             [@xml:id]
+                             [not(matches(@xml:id,'^comment_'))]
+                             [not(key('by-id',concat(@xml:id,'_end')))]"  mode="hub:default">
     <xsl:apply-templates select="@xml:id" mode="hub:bookmark-start"/>
     <xsl:apply-templates select="@xml:id" mode="hub:bookmark-end"/>
   </xsl:template>
