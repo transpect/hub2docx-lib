@@ -18,6 +18,7 @@
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xmlns:mml = "http://www.w3.org/1998/Math/MathML"
+    xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
 
     xpath-default-namespace = "http://docbook.org/ns/docbook"
 
@@ -143,10 +144,11 @@
   
   <xsl:template  match="para[ not( parent::listitem) ] | author[parent::authorgroup] | simpara[not(parent::footnote)] | attribution"  mode="hub:default">
     <w:p origin="{if(self::para) then 'default_p_parentnotlistitem' else if(self::simpara) then 'default_simpara' else 'attribution'}">
+      <xsl:apply-templates select="anchor[@role=('w14:paraId','w14:textId')]" mode="#current"/>
       <xsl:call-template name="hub:pPr"/>
       <xsl:apply-templates select="@xml:id" mode="hub:bookmark-start"/>
       <xsl:variable name="content" as="node()*">
-        <xsl:apply-templates  select="node()"  mode="#current">
+        <xsl:apply-templates  select="node() except anchor[@role=('w14:paraId','w14:textId')]"  mode="#current">
           <xsl:with-param name="rPrContent" as="element(*)*" tunnel="yes">
              <xsl:apply-templates select="@css:color, 
                                           @css:background-color,

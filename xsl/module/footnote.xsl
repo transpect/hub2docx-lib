@@ -127,6 +127,7 @@
 
   <xsl:template match="footnote/para | footnote/simpara" mode="footnotes">
     <w:p>
+      <xsl:apply-templates select="anchor[@role=('w14:paraId','w14:textId')]" mode="hub:default"/>
       <w:pPr>
         <w:pStyle w:val="{(collection($collection-uri)//w:styles/w:style[w:name/@w:val = 'footnote text']/@w:styleId, 'FootnoteText')[1]}"/>
       </w:pPr>
@@ -148,7 +149,7 @@
       <w:r>
         <w:t xml:space="preserve"> </w:t>
       </w:r>
-      <xsl:apply-templates select="node() except *[self::itemizedlist or self::orderedlist]" mode="hub:default" />
+      <xsl:apply-templates select="node() except *[self::itemizedlist or self::orderedlist or self::anchor[@role=('w14:paraId','w14:textId')]]" mode="hub:default" />
     </w:p>
     <xsl:apply-templates select="itemizedlist union orderedlist" mode="hub:default" />
   </xsl:template>

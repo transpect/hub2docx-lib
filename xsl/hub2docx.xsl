@@ -24,6 +24,7 @@
   xmlns:css = "http://www.w3.org/1996/css"
   xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
+  xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
   xpath-default-namespace = "http://docbook.org/ns/docbook"
   exclude-result-prefixes="xs docx2hub hub tr rel mml"
   version="2.0">
@@ -106,5 +107,9 @@
   </xsl:template>
   
   <xsl:template match="@srcpath" mode="hub:merge"/>
+  
+  <xsl:template match="anchor[@role=('w14:paraId','w14:textId')]" mode="hub:default">
+    <xsl:attribute name="{@role}" select="replace(@xml:id,'(text|para)Id_','')"/>
+  </xsl:template>
 
 </xsl:stylesheet>

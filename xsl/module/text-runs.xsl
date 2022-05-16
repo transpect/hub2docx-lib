@@ -102,7 +102,7 @@
                         | phrase[@role = ('hub:foreign', 'hub:identifier')]"  mode="hub:default">
     <xsl:param  name="rPrContent" as="element(*)*" tunnel="yes"/>
     <xsl:variable name="try-wr" as="node()*">
-      <xsl:apply-templates mode="#current">
+      <xsl:apply-templates select="node() except anchor[@role=('w14:paraId','w14:textId')]" mode="#current">
         <xsl:with-param name="rPrContent" select="$rPrContent" as="element(*)*" tunnel="yes"/>
       </xsl:apply-templates>
     </xsl:variable>

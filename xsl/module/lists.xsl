@@ -343,6 +343,7 @@
 
   <xsl:template  match="varlistentry/term | varlistentry/listitem/para | varlistentry/listitem/simpara"  mode="hub:default" priority="2">
     <w:p>
+      <xsl:apply-templates select="anchor[@role=('w14:paraId','w14:textId')]" mode="#current"/>
       <w:pPr>
         <w:pStyle w:val="{if (self::term) then 'deflistterm' else 'deflistdef'}"/>
         <xsl:apply-templates select="@css:background-color" mode="props"/>
@@ -370,6 +371,7 @@
     <xsl:variable name="continued-list-para" select="if (count(preceding-sibling::para) eq 0) then '' else 'Cont'" as="xs:string" />
     <xsl:variable name="lvl" as="xs:integer" select="count(ancestor::*[ local-name() = ('itemizedlist','orderedlist')])"/>
     <w:p>
+      <xsl:apply-templates select="anchor[@role=('w14:paraId','w14:textId')]" mode="#current"/>
       <w:pPr>
         <w:pStyle w:val="{tr:get-listitem-pStyle(parent::listitem)}"/>
         <xsl:choose>
