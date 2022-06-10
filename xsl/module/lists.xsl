@@ -414,7 +414,7 @@
 
   <xsl:template  match="*[ local-name() = $hub:list-element-names]"  mode="numbering">
     <xsl:variable name="list" as="element()" select="."/>
-    <xsl:variable name="ilvl"  select="tr:getIlvl(.)" as="xs:integer"/>
+    <xsl:variable name="ilvl"  select="if(starts-with($list/local-name(), 'biblio')) then 0 else tr:getIlvl(.)" as="xs:integer"/>
     <xsl:variable name="getOverrideStarts" as="xs:integer*" select="distinct-values(tr:getOverrideStarts(.))"/>
     <xsl:variable name="numbers" as="xs:integer+" select="if (count($getOverrideStarts) gt 0) then $getOverrideStarts else 1"/>
     <xsl:for-each select="$numbers">
@@ -422,9 +422,15 @@
       <w:num>
         <xsl:attribute  name="w:numId"  select="tr:getLiNumId($list, .)"/>
         <w:abstractNumId w:val="{tr:getAbstractNumId($list)}"/>
-        <w:lvlOverride w:ilvl="{if(starts-with($list/local-name(), 'biblio')) then 0 else $ilvl}">
-          <w:startOverride w:val="{.}" />
-        </w:lvlOverride> 
+        <xsl:variable name="current-number" select="."/>
+        <!-- for Office 365 compatibility create lvlOverride for every level -->
+        <xsl:for-each select="0 to $ilvl">
+          <w:lvlOverride w:ilvl="{.}">
+            <xsl:if test=".=$ilvl">
+              <w:startOverride w:val="{$current-number}" />  
+            </xsl:if>
+          </w:lvlOverride>
+        </xsl:for-each>
       </w:num>
     </xsl:for-each>
     <xsl:apply-templates  mode="#current"/>
