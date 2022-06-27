@@ -663,7 +663,7 @@
     <w:shd w:val="clear" w:color="auto" w:fill="{substring(tr:convert-css-color(., 'hex'), 2, 6)}"/>
   </xsl:template>
 
-  <xsl:template match="@css:writing-mode[. = 'bt-lr']" mode="tcPr">
+  <xsl:template match="@css:writing-mode[. = ('bt-lr','vertical-lr')]" mode="tcPr">
     <w:textDirection w:val="btLr"/>
   </xsl:template>
 
