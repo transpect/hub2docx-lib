@@ -38,12 +38,12 @@
   <!-- See also lists.xsl (preprocesses paras that contain lists)
        -->
 
-  <xsl:template name="hub:pPr" as="element(w:pPr)?">
+  <xsl:template name="hub:pPr">
     <xsl:param name="default-pPrs" as="element(*)*" tunnel="yes"/>
     <xsl:variable name="unsorted" as="element(*)*">
       <xsl:apply-templates select="@css:page-break-after, 
                                    @css:page-break-inside, 
-                                   @css:page-break-before, 
+                                   @css:page-break-before[not(parent::para/parent::entry[not(ancestor::thead)])], 
                                    (@css:widows, @css:orphans)[1], 
                                    @css:background-color,
                                    @css:margin-bottom, 
@@ -98,6 +98,11 @@
         <xsl:sequence  select="$pPr, $rPr" />
       </w:pPr>
     </xsl:if>
+    <!--<xsl:if test="@css:page-break-before[parent::para/parent::entry[not(ancestor::thead)]]">
+      <w:r>
+        <w:br w:type="page"/>
+      </w:r>
+    </xsl:if>-->
   </xsl:template>
   
   <xsl:template match="tabs" mode="hub:tabs">
