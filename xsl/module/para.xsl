@@ -131,9 +131,14 @@
     <xsl:attribute name="w:leader" select="."/>
   </xsl:template>
   
+  <xsl:template match="tab/@xml:lang" mode="hub:tabs">
+    <!-- GI 2023-01-16: noticed while debugging https://github.com/basex-gmbh/voktool-LingSoft/issues/334
+         I think that @xml:lang on tab is meaningless. Why is it created by docx2hub in the first place? -->
+  </xsl:template>
+  
   <xsl:template match="tab/@*" mode="hub:tabs" priority="-1">
     <xsl:if test="$debug eq 'yes'">
-      <xsl:message select="'attribute not mapped:', local-name()"/>
+      <xsl:message select="'attribute not mapped:', name()"/>
     </xsl:if>
   </xsl:template>
 
