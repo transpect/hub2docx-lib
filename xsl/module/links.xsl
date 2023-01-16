@@ -67,19 +67,19 @@
   <xsl:key name="by-id" match="*[@xml:id]" use="@xml:id" />
   
   <!--  keep 'start' and 'end' anchors from earlier docx conversion -->
-   <xsl:template match="anchor[@role='start'][@xml:id]"  mode="hub:default">
+   <xsl:template match="anchor[@role='start'][@xml:id]"  mode="hub:default" priority="1">
      <xsl:apply-templates select="@xml:id" mode="hub:bookmark-start"/>
   </xsl:template>
   
   <xsl:template match="anchor[not(@role)]
                              [@xml:id]
                              [not(matches(@xml:id,'^comment_'))]
-                             [not(key('by-id',concat(@xml:id,'_end')))]"  mode="hub:default">
+                             [not(key('by-id',concat(@xml:id,'_end')))]"  mode="hub:default" priority="0.75">
     <xsl:apply-templates select="@xml:id" mode="hub:bookmark-start"/>
     <xsl:apply-templates select="@xml:id" mode="hub:bookmark-end"/>
   </xsl:template>
   
-  <xsl:template match="anchor[@role='end'][@xml:id]"  mode="hub:default">
+  <xsl:template match="anchor[@role='end'][@xml:id]"  mode="hub:default" priority="1">
     <xsl:apply-templates select="@xml:id" mode="hub:bookmark-end"/>
   </xsl:template>
   
