@@ -288,6 +288,10 @@
   <xsl:template match="@css:position[. = 'relative'][../@css:top]" mode="props">
     <w:position w:val="{tr:length-to-unitless-twip(../@css:top) * -1}"/> 
   </xsl:template>
+  
+  <xsl:template match="@css:top[../@css:position[. = 'relative']]" mode="props">
+    <xsl:apply-templates select="../@css:position" mode="#current"/> 
+  </xsl:template>
 
   <xsl:template match="@css:text-decoration[. eq 'underline']" mode="props" as="element(w:u)">
     <w:u w:val="single">
