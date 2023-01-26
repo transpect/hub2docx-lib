@@ -1777,7 +1777,9 @@
                     <xsl:with-param name="ndCur" select="$ndCur/*[1]"/>
                   </xsl:call-template>
                 </xsl:variable>
-                <xsl:apply-templates select="if ($fNary='true') then $ndCur else $ndCur/*" mode="#current" />
+                <xsl:apply-templates select="if ($fNary='true') then $ndCur else $ndCur/*" mode="#current">
+                  <xsl:with-param name="display-in-nary" select="true()"/>
+                </xsl:apply-templates>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:otherwise>
@@ -1788,7 +1790,9 @@
       </xsl:when>
       <xsl:otherwise>
         <!-- https://github.com/transpect/hub2docx-lib/issues/4 -->
-        <xsl:apply-templates select="$ndCur" mode="#current" />
+        <xsl:apply-templates select="$ndCur" mode="#current" >
+          <xsl:with-param name="display-in-nary" select="true()"/>
+        </xsl:apply-templates>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -1974,12 +1978,19 @@
   <!-- %%Template: match munder
 	-->
   <xsl:template match="mml:munder" mode="mml">
+    <xsl:param name="display-in-nary" select="false()" as="xs:boolean"/>
+    <xsl:variable name="FIsNaryArgument">
+      <xsl:call-template name="FIsNaryArgument">
+        <xsl:with-param name="ndCur" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
       </xsl:call-template>
     </xsl:variable>
     <xsl:choose>
+      <xsl:when test="$FIsNaryArgument='1' and not($display-in-nary)"/>
       <xsl:when test="$fNary='true'">
         <m:nary>
           <xsl:call-template name="CreateNaryProp">
@@ -2173,12 +2184,19 @@
   <!-- %%Template: match mover
 	-->
   <xsl:template match="mml:mover" mode="mml">
+    <xsl:param name="display-in-nary" select="false()" as="xs:boolean"/>
+    <xsl:variable name="FIsNaryArgument">
+      <xsl:call-template name="FIsNaryArgument">
+        <xsl:with-param name="ndCur" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
       </xsl:call-template>
     </xsl:variable>
     <xsl:choose>
+      <xsl:when test="$FIsNaryArgument='1' and not($display-in-nary)"/>
       <xsl:when test="$fNary='true'">
         <m:nary>
           <xsl:call-template name="CreateNaryProp">
@@ -2308,12 +2326,19 @@
   <!-- %%Template: match munderover
 	-->
   <xsl:template match="mml:munderover" mode="mml">
+    <xsl:param name="display-in-nary" select="false()" as="xs:boolean"/>
+    <xsl:variable name="FIsNaryArgument">
+      <xsl:call-template name="FIsNaryArgument">
+        <xsl:with-param name="ndCur" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
       </xsl:call-template>
     </xsl:variable>
     <xsl:choose>
+      <xsl:when test="$FIsNaryArgument='1' and not($display-in-nary)"/>
       <xsl:when test="$fNary='true'">
         <m:nary>
           <xsl:call-template name="CreateNaryProp">
@@ -2576,12 +2601,19 @@
   <!-- %%Template: match msub
 	-->
   <xsl:template match="mml:msub" mode="mml">
+    <xsl:param name="display-in-nary" select="false()" as="xs:boolean"/>
+    <xsl:variable name="FIsNaryArgument">
+      <xsl:call-template name="FIsNaryArgument">
+        <xsl:with-param name="ndCur" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
       </xsl:call-template>
     </xsl:variable>
     <xsl:choose>
+      <xsl:when test="$FIsNaryArgument='1' and not($display-in-nary)"/>
       <xsl:when test="$fNary='true'">
         <m:nary>
           <xsl:call-template name="CreateNaryProp">
@@ -2626,12 +2658,19 @@
   <!-- %%Template: match msup
 	-->
   <xsl:template match="mml:msup" mode="mml">
+    <xsl:param name="display-in-nary" select="false()" as="xs:boolean"/>
+    <xsl:variable name="FIsNaryArgument">
+      <xsl:call-template name="FIsNaryArgument">
+        <xsl:with-param name="ndCur" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
       </xsl:call-template>
     </xsl:variable>
     <xsl:choose>
+      <xsl:when test="$FIsNaryArgument='1' and not($display-in-nary)"/>
       <xsl:when test="$fNary='true'">
         <m:nary>
           <xsl:call-template name="CreateNaryProp">
@@ -2676,12 +2715,19 @@
   <!-- %%Template: match msubsup
 	-->
   <xsl:template match="mml:msubsup" mode="mml">
+    <xsl:param name="display-in-nary" select="false()" as="xs:boolean"/>
+    <xsl:variable name="FIsNaryArgument">
+      <xsl:call-template name="FIsNaryArgument">
+        <xsl:with-param name="ndCur" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:variable name="fNary">
       <xsl:call-template name="isNary">
         <xsl:with-param name="ndCur" select="child::*[1]" />
       </xsl:call-template>
     </xsl:variable>
     <xsl:choose>
+      <xsl:when test="$FIsNaryArgument='1' and not($display-in-nary)"/>
       <xsl:when test="$fNary='true'">
         <m:nary>
           <xsl:call-template name="CreateNaryProp">
