@@ -351,7 +351,7 @@
       <xsl:variable name="rPrContent" as="element(*)*">
       </xsl:variable>
       <xsl:apply-templates select="../@xml:id" mode="hub:bookmark-start"/>
-      <xsl:apply-templates  select="node()"  mode="#current">
+      <xsl:apply-templates  select="node() except anchor[@role=('w14:paraId','w14:textId')]"  mode="#current">
         <xsl:with-param name="rPrContent" select="$rPrContent" tunnel="yes" as="element(*)*"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="../@xml:id" mode="hub:bookmark-start"/>
@@ -394,7 +394,7 @@
         </xsl:choose>
         <xsl:apply-templates select="@css:background-color" mode="props"/>
       </w:pPr>
-      <xsl:apply-templates  select="node()"  mode="hub:default"/>
+      <xsl:apply-templates  select="node() except anchor[@role=('w14:paraId','w14:textId')]"  mode="hub:default"/>
     </w:p>
   </xsl:template>
   
