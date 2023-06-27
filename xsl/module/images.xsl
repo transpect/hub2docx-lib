@@ -273,12 +273,13 @@
       </w:pStyle>
     </xsl:variable>
     <w:p origin="default_i_figtitle">
+      <xsl:apply-templates select="anchor[@role=('w14:paraId','w14:textId')]" mode="#current"/>
       <xsl:if  test="$pPr">
         <w:pPr>
           <xsl:sequence  select="$pPr" />
         </w:pPr>
       </xsl:if>
-      <xsl:apply-templates mode="#current"/>
+      <xsl:apply-templates select="node() except anchor[@role=('w14:paraId','w14:textId')]" mode="#current"/>
     </w:p>
   </xsl:template>
 
