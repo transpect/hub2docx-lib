@@ -114,4 +114,18 @@
     <xsl:apply-templates  mode="#current"/>
   </xsl:template>
 
+  <xsl:template match="processing-instruction()[name() = 'tr'][contains(., 'w:permStart')]" mode="hub:default" priority="3">
+    <xsl:element name="w:permStart">
+      <xsl:for-each select="tokenize(replace(., '^[\S]+\s', ''), '\s+')[normalize-space()]">
+        <xsl:attribute name="{substring-before(current(), '=')}" select="substring-after(current(), '=')"/>
+      </xsl:for-each>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="processing-instruction()[name() = 'tr'][contains(., 'w:permEnd')]" mode="hub:default" priority="3">
+    <xsl:element name="w:permEnd">
+      <xsl:attribute name="w:id" select="substring-after(., '=')"/>
+    </xsl:element>
+  </xsl:template>
+
 </xsl:stylesheet>
