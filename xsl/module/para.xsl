@@ -152,8 +152,8 @@
     <xsl:apply-templates mode="#current"/>
   </xsl:template>
   
-  <xsl:template  match="para[ not( parent::listitem) ] | author[parent::authorgroup] | simpara[not(parent::footnote)] | attribution"  mode="hub:default">
-    <w:p origin="{if(self::para) then 'default_p_parentnotlistitem' else if(self::simpara) then 'default_simpara' else 'attribution'}">
+  <xsl:template name="create-para" match="para[ not( parent::listitem) ] | author[parent::authorgroup] | simpara[not(parent::footnote)] | attribution"  mode="hub:default">
+    <w:p origin="{if(self::para) then 'default_p_parentnotlistitem' else if(self::simpara) then 'default_simpara' else local-name()}">
       <xsl:apply-templates select="anchor[@role=('w14:paraId','w14:textId')]" mode="#current"/>
       <xsl:call-template name="hub:pPr"/>
       <xsl:apply-templates select="@xml:id" mode="hub:bookmark-start"/>

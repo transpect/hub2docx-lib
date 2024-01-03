@@ -407,6 +407,7 @@
 
   <xsl:template  match="title"  mode="hub:default"  priority="-1">
     <xsl:message  terminate="no" select="concat( 'ERROR: title parent not expected: ', parent::*/name())"/>
+    <xsl:call-template name="create-para"/>
   </xsl:template>
 
 </xsl:stylesheet>
