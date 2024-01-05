@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<x:description xmlns:x="http://www.jenitennison.com/xslt/xspec"
+  xmlns:w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:m ="http://schemas.openxmlformats.org/officeDocument/2006/math"
+  xmlns:hub = "http://transpect.io/hub"
+  stylesheet="../xsl/omml/mml2omml.xsl">
+  <x:scenario label="Given munder">
+    <x:scenario label="with no special char">
+      <x:scenario label="and no following sibling">
+        <x:context mode="mml">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <munder accentunder="true">
+              <mrow>
+                <mi>a</mi>
+              </mrow>
+              <mrow>
+                <mi>b</mi>
+              </mrow>
+            </munder>
+          </math>
+        </x:context>
+        <x:expect label="munder">
+          <m:limLow>
+            <m:e>
+              <m:r>
+                <m:t xml:space="preserve">a</m:t>
+              </m:r>
+            </m:e>
+            <m:lim>
+              <m:r>
+                <m:t xml:space="preserve">b</m:t>
+              </m:r>
+            </m:lim>
+          </m:limLow>
+        </x:expect>
+      </x:scenario>
+      <x:scenario label="and a following sibling">
+        <x:context mode="mml">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <munder accentunder="true">
+              <mrow>
+                <mi>a</mi>
+              </mrow>
+              <mrow>
+                <mi>b</mi>
+              </mrow>
+            </munder>
+            <mi>c</mi>
+          </math>
+        </x:context>
+        <x:expect label="follow munder">
+          <m:limLow>
+            <m:e>
+              <m:r>
+                <m:t xml:space="preserve">a</m:t>
+              </m:r>
+            </m:e>
+            <m:lim>
+              <m:r>
+                <m:t xml:space="preserve">b</m:t>
+              </m:r>
+            </m:lim>
+          </m:limLow>
+          <m:r>
+            <m:t xml:space="preserve">c</m:t>
+          </m:r>
+        </x:expect>
+      </x:scenario>
+    </x:scenario>
+    <x:scenario label="with &#x005f; as second child">
+      <x:scenario label="using mode mml">
+        <x:context mode="mml">
+          <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+            <munder accentunder="true">
+              <mrow>
+                <msub>
+                  <mi>U</mi>
+                </msub>
+              </mrow>
+              <mo stretchy="true">_</mo>
+            </munder>
+          </math>
+        </x:context>
+        <x:expect label="a m:bar should be generated">
+          <m:bar >
+            <m:barPr>
+             <m:pos m:val="bot"/>
+            </m:barPr>
+            <m:e>
+              <m:sSub>
+                <m:sSubPr>
+                  <m:ctrlPr/>
+                </m:sSubPr>
+                <m:e>
+                  <m:r>
+                    <m:t xml:space="preserve">U</m:t>
+                  </m:r>
+                </m:e>
+                <m:sub/>
+              </m:sSub>
+            </m:e>
+          </m:bar>
+        </x:expect>
+      </x:scenario>
+      <x:scenario label="using named template FIsBar">
+        <x:call template="FIsBar">
+          <x:param name="ndCur">
+            <munder xmlns="http://www.w3.org/1998/Math/MathML" accentunder="true">
+              <mrow>
+                <msub>
+                  <mi>U</mi>
+                </msub>
+              </mrow>
+              <mo stretchy="true">_</mo>
+            </munder>
+          </x:param>
+        </x:call>
+        <x:expect label="1 should be returned">1</x:expect>
+      </x:scenario>
+    </x:scenario>
+  </x:scenario>
+  <x:scenario label="Given a sum">
+    <x:scenario label="as munder">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML"> 
+        <mrow>
+          <munder>
+            <mo>∑</mo>
+            <mrow>
+              <mi>j</mi>
+              <mo>=</mo>
+              <mn>1</mn>
+            </mrow>
+          </munder>
+          <mrow>
+            <mi>j</mi>
+          </mrow>
+          <mrow>
+            <mi>x</mi>
+          </mrow>
+        </mrow>
+      </x:context>
+      <x:expect label="first following element becomes m:e">
+        <m:nary>
+          <m:naryPr>
+            <m:chr m:val="∑"/>
+            <m:limLoc m:val="undOvr"/>
+            <m:grow m:val="1"/>
+            <m:subHide m:val="off"/>
+            <m:supHide m:val="on"/>
+          </m:naryPr>
+          <m:sub>
+            <m:r>
+              <m:t xml:space="preserve">j=1</m:t>
+            </m:r>
+          </m:sub>
+          <m:sup/>
+          <m:e>
+            <m:r>
+              <m:t xml:space="preserve">j</m:t>
+            </m:r>
+          </m:e>
+        </m:nary>
+        <m:r>
+          <m:t xml:space="preserve">x</m:t>
+        </m:r>
+      </x:expect>
+    </x:scenario>
+    <x:scenario label="as munderover">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow>
+          <munderover>
+            <mo>∑</mo>
+            <mrow>
+              <mi>j</mi>
+              <mo>=</mo>
+              <mn>1</mn>
+            </mrow>
+            <mrow>
+              <mi>n</mi>
+            </mrow>
+          </munderover>
+          <mrow>
+            <mi>j</mi>
+          </mrow>
+          <mrow>
+            <mi>x</mi>
+          </mrow>
+        </mrow>
+      </x:context>
+      <x:expect label="first following element becomes m:e">
+        <m:nary>
+          <m:naryPr>
+            <m:chr m:val="∑"/>
+            <m:limLoc m:val="undOvr"/>
+            <m:grow m:val="1"/>
+            <m:subHide m:val="off"/>
+            <m:supHide m:val="off"/>
+          </m:naryPr>
+          <m:sub>
+            <m:r>
+              <m:t xml:space="preserve">j=1</m:t>
+            </m:r>
+          </m:sub>
+          <m:sup>
+            <m:r>
+              <m:t xml:space="preserve">n</m:t>
+            </m:r>
+          </m:sup>
+          <m:e>
+            <m:r>
+              <m:t xml:space="preserve">j</m:t>
+            </m:r>
+          </m:e>
+        </m:nary>
+        <m:r>
+          <m:t xml:space="preserve">x</m:t>
+        </m:r>
+      </x:expect>
+    </x:scenario>
+    <x:scenario label="as msub">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow>
+          <msub>
+            <mo>∑</mo>
+            <mrow>
+              <mi>j</mi>
+              <mo>=</mo>
+              <mn>1</mn>
+            </mrow>
+          </msub>
+          <mrow>
+            <mi>j</mi>
+          </mrow>
+          <mrow>
+            <mi>x</mi>
+          </mrow>
+        </mrow>
+      </x:context>
+      <x:expect label="first following element becomes m:e">
+        <m:nary>
+          <m:naryPr>
+            <m:chr m:val="∑"/>
+            <m:limLoc m:val="subSup"/>
+            <m:grow m:val="1"/>
+            <m:subHide m:val="off"/>
+            <m:supHide m:val="on"/>
+          </m:naryPr>
+          <m:sub>
+            <m:r>
+              <m:t xml:space="preserve">j=1</m:t>
+            </m:r>
+          </m:sub>
+          <m:sup/>
+          <m:e>
+            <m:r>
+              <m:t xml:space="preserve">j</m:t>
+            </m:r>
+          </m:e>
+        </m:nary>
+        <m:r>
+          <m:t xml:space="preserve">x</m:t>
+        </m:r>
+      </x:expect>
+    </x:scenario>
+    <x:scenario label="as msubsup">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <mrow>
+          <msubsup>
+            <mo>∑</mo>
+            <mrow>
+              <mi>j</mi>
+              <mo>=</mo>
+              <mn>1</mn>
+            </mrow>
+            <mrow>
+              <mi>n</mi>
+            </mrow>
+          </msubsup>
+          <mrow>
+            <mi>j</mi>
+          </mrow>
+          <mrow>
+            <mi>x</mi>
+          </mrow>
+        </mrow>
+      </x:context>
+      <x:expect label="first following element becomes m:e">
+        <m:nary>
+          <m:naryPr>
+            <m:chr m:val="∑"/>
+            <m:limLoc m:val="subSup"/>
+            <m:grow m:val="1"/>
+            <m:subHide m:val="off"/>
+            <m:supHide m:val="off"/>
+          </m:naryPr>
+          <m:sub>
+            <m:r>
+              <m:t xml:space="preserve">j=1</m:t>
+            </m:r>
+          </m:sub>
+          <m:sup>
+            <m:r>
+             <m:t xml:space="preserve">n</m:t>
+            </m:r>
+          </m:sup>
+          <m:e>
+            <m:r>
+              <m:t xml:space="preserve">j</m:t>
+            </m:r>
+          </m:e>
+        </m:nary>
+        <m:r>
+          <m:t xml:space="preserve">x</m:t>
+        </m:r>
+      </x:expect>
+    </x:scenario>
+  </x:scenario>
+  <x:scenario label="Given mroot">
+    <x:scenario label="with exponent empty">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mroot>
+            <mrow/>
+            <mrow/>
+          </mroot>
+        </math>
+      </x:context>
+      <x:expect label="degHide is on" xmlns="http://schemas.openxmlformats.org/officeDocument/2006/math">
+        <rad>
+          <radPr>
+            <degHide m:val="on"/>
+          </radPr>
+          <deg/>
+          <m:e/>
+        </rad>
+      </x:expect>
+    </x:scenario>
+    <x:scenario label="with exponent 3">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mroot>
+            <mrow/>
+            <mrow>
+              <mn>3</mn>
+            </mrow>
+          </mroot>
+        </math>
+      </x:context>
+      <x:expect label="degHide is off" xmlns="http://schemas.openxmlformats.org/officeDocument/2006/math">
+        <rad>
+          <radPr>
+            <degHide m:val="off"/>
+          </radPr>
+          <deg>
+            <r>
+            <t xml:space="preserve">3</t>
+          </r>
+          </deg>
+          <m:e/>
+        </rad>
+      </x:expect>
+    </x:scenario>
+  </x:scenario>
+  <x:scenario label="Given mtext">
+    <x:scenario label="with @mathvariant='italic'">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mtext mathvariant="italic">ß</mtext>
+        </math>
+      </x:context>
+      <x:expect label="w:rPr/w:i is generated">
+        <m:r>
+          <w:rPr>
+            <w:i/>
+          </w:rPr>
+          <m:rPr>
+            <m:nor/>
+          </m:rPr>
+          <m:t xml:space="preserve">ß</m:t>
+        </m:r>
+      </x:expect>
+    </x:scenario>
+    <x:scenario label="with @mathvariant='bold'">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mtext mathvariant="bold">ß</mtext>
+        </math>
+      </x:context>
+      <x:expect label="w:rPr/w:i is generated">
+        <m:r>
+          <w:rPr>
+            <w:b/>
+          </w:rPr>
+          <m:rPr>
+            <m:nor/>
+            <m:sty m:val="b"/>
+          </m:rPr>
+          <m:t xml:space="preserve">ß</m:t>
+        </m:r>
+      </x:expect>
+    </x:scenario>
+    <x:scenario label="with @mathvariant='bold-italic'">
+      <x:context mode="mml" xmlns="http://www.w3.org/1998/Math/MathML">
+        <math>
+          <mtext mathvariant="bold-italic">ß</mtext>
+        </math>
+      </x:context>
+      <x:expect label="w:rPr/w:i is generated">
+        <m:r>
+          <w:rPr>
+            <w:b/>
+            <w:i/>
+          </w:rPr>
+          <m:rPr>
+            <m:nor/>
+            <m:sty m:val="bi" />
+          </m:rPr>
+          <m:t xml:space="preserve">ß</m:t>
+        </m:r>
+      </x:expect>
+    </x:scenario>
+  </x:scenario>
+</x:description>
