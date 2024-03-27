@@ -460,8 +460,4 @@
     <xsl:sequence select="143"/>
   </xsl:template>
   
-  <xsl:template match="w:p/w:p" mode="hub:clean">
-    <xsl:apply-templates select="node() except w:pPr" mode="#current"/>
-  </xsl:template>
-  
 </xsl:stylesheet>
