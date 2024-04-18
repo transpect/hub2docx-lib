@@ -104,12 +104,12 @@
 
   <!-- dissolve w:p that include other w:p or w:tbl (because there were tables in paras, for example)
     Preprocessing these paras might be a better alternative, but … -->
-  <xsl:template match="w:p[w:tbl][every $c in * satisfies ($c/local-name() = ('pPr', 'p', 'tbl')) (: no text runs :)]" 
+  <xsl:template match="w:p[w:p | w:tbl][every $c in * satisfies ($c/local-name() = ('pPr', 'p', 'tbl')) (: no text runs :)]" 
     mode="hub:clean">
     <xsl:apply-templates select="* except w:pPr" mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="w:p/w:p" mode="hub:clean" priority="-1">
+  <xsl:template match="w:p[not(every $c in * satisfies ($c/local-name() = ('pPr', 'p', 'tbl')))]/w:p" mode="hub:clean" priority="-1">
     <xsl:apply-templates select="node() except w:pPr" mode="#current"/>
   </xsl:template>
 
