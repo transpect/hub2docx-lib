@@ -1828,14 +1828,14 @@
           <!-- Should we write an underbar? -->
           <xsl:when test="$fUnder = 1">
             <xsl:choose>
-              <xsl:when test="$sOperator = '&#x0332;' or $sOperator = '&#x005F;'">1</xsl:when>
+              <xsl:when test="$ndCur/@accentunder='true' or $sOperator = ('&#x0332;','&#x005F;','&#x0305;','&#x00AF;')">1</xsl:when>
               <xsl:otherwise>0</xsl:otherwise>
             </xsl:choose>
           </xsl:when>
           <!-- Should we write an overbar? -->
           <xsl:otherwise>
             <xsl:choose>
-              <xsl:when test="$sOperator = '&#x0305;' or $sOperator = '&#x00AF;'">1</xsl:when>
+              <xsl:when test="$ndCur/@accentover='true' or $sOperator = ('&#x0332;','&#x005F;','&#x0305;','&#x00AF;')">1</xsl:when>
               <xsl:otherwise>0</xsl:otherwise>
             </xsl:choose>
           </xsl:otherwise>
