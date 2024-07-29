@@ -29,7 +29,8 @@
   xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
   xmlns:customProps = "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
-  
+  xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
   xpath-default-namespace = "http://docbook.org/ns/docbook"
   exclude-result-prefixes="xs docx2hub hub hub2docx tr dbk rel"
   version="2.0">
@@ -189,7 +190,7 @@
                                         except (
                                           customProps:Properties
                                           union
-                                          w:docVars
+                                          w:docVars union cp:coreProperties
                                         )" mode="#current"/>
       <xsl:apply-templates select="collection($collection-uri)/w:root/w:document/w:body//w:sectPr[. is (ancestor::w:body//w:sectPr)[1]]" mode="#current"/>
     </xsl:copy>
@@ -319,6 +320,9 @@
       <xsl:if test="not(w:evenAndOddHeaders) and collection($collection-uri)/w:root_converted/w:header/w:hdr[@hub:header-even[.='true']]">
         <w:evenAndOddHeaders/>
       </xsl:if>
+      <xsl:if test="exists(collection($collection-uri)/w:root_converted/w:settings/w:trackRevisions)">
+        <w:trackRevisions/>
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
 
@@ -371,6 +375,15 @@
       <xsl:apply-templates select="*" mode="#current"/>
     </xsl:copy>
     
+  </xsl:template>
+  
+  <xsl:template match="cp:coreProperties" mode="hub:merge">
+    <xsl:copy>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:for-each-group select="(collection($collection-uri)/w:root_converted/w:containerProps/cp:coreProperties/*[self::dc:* or self::cp:*], *)" group-by="local-name()">
+        <xsl:apply-templates select="current-group()[1]" mode="#current"/>
+      </xsl:for-each-group>
+    </xsl:copy>
   </xsl:template>
   
   <!-- relationship changes/additions -->

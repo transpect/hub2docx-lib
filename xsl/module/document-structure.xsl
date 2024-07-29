@@ -17,6 +17,8 @@
     xmlns:wp		= "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
     xmlns:r		= "http://schemas.openxmlformats.org/package/2006/relationships"
     xmlns:rel		= "http://schemas.openxmlformats.org/package/2006/relationships"
+    xmlns:cp     = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+    xmlns:dc     = "http://purl.org/dc/elements/1.1/"
     xpath-default-namespace = "http://docbook.org/ns/docbook"
     exclude-result-prefixes = "xsl xs xsldoc saxon tr saxExtFn css xlink o w m wp r vt hub">
 
@@ -80,7 +82,7 @@
       return generate-id($f)" as="xs:string*"/>
     <w:root_converted>
       <w:containerProps>
-        <xsl:apply-templates select="info/keywordset[@role = 'custom-meta']" mode="#current"/>
+        <xsl:apply-templates select="info/keywordset[@role = ('docProps','custom-meta')]" mode="#current"/>
       </w:containerProps>
       <w:styles>
         <xsl:if test="$create-and-map-styles-not-in-template = 'yes'">
@@ -97,7 +99,7 @@
       </w:footnotes>
       <w:endnotes />
       <w:settings >
-        <xsl:apply-templates select="info/keywordset[@role = 'docVars']" mode="#current"/>
+        <xsl:apply-templates select="info/keywordset[@role = 'docVars'], info/keywordset[@role = 'docProps']/keyword[@role='trackRevisions']" mode="#current"/>
       </w:settings>
       <w:comments>
         <xsl:apply-templates select="//annotation" mode="comments"/>
@@ -171,7 +173,7 @@
       <xsl:apply-templates mode="#current"/>
     </Properties>
   </xsl:template>
-
+  
   <xsl:template match="keywordset[@role = 'custom-meta']/keyword" mode="hub:default">
     <property xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
       fmtid="{{D5CDD505-2E9C-101B-9397-08002B2CF9AE}}" pid="fill-me-with-an-int" name="{@role}"> 
@@ -179,6 +181,22 @@
         <xsl:value-of select="."/>
       </vt:lpwstr>
     </property>
+  </xsl:template>
+  
+  <xsl:template match="keywordset[@role = 'docProps']" mode="hub:default">
+    <cp:coreProperties xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"> 
+      <xsl:apply-templates mode="#current"/>
+    </cp:coreProperties>
+  </xsl:template>
+  
+  <xsl:template match="keywordset[@role = 'docProps']/keyword[matches(@role,'^(cp|dc):')]" mode="hub:default">
+   <xsl:element name="{@role}">
+     <xsl:value-of select="."/>
+   </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="keywordset[@role = 'docProps']/keyword[matches(@role,'trackRevisions')]" mode="hub:default">
+   <w:trackRevisions/>
   </xsl:template>
   
   <xsl:template match="keywordset[@role = 'docVars']" mode="hub:default">
