@@ -65,4 +65,100 @@
     </w:ftr>
   </xsl:template>
 
+  <xsl:template match="phrase[@role='hub:page-number']" mode="hub:default">
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:fldChar w:fldCharType="begin"/>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:instrText>PAGE  \* Arabic  \* MERGEFORMAT</w:instrText>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:fldChar w:fldCharType="separate"/>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:t>1</w:t>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:fldChar w:fldCharType="end"/>
+    </w:r>  
+  </xsl:template>
+  
+  <xsl:template match="phrase[@role='hub:page-count']" mode="hub:default">
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:fldChar w:fldCharType="begin"/>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:instrText>NUMPAGES  \* Arabic  \* MERGEFORMAT</w:instrText>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:fldChar w:fldCharType="separate"/>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:t>1</w:t>
+    </w:r>
+    <w:r>
+      <w:rPr>
+        <w:color w:val="auto"/>
+        <w:sz w:val="{if (ancestor-or-self::*/@css:font-size) 
+                      then round(tr:length-to-unitless-twip(ancestor-or-self::*[@css:font-size][1]/@css:font-size) idiv 10) 
+                      else '20'}"/>
+      </w:rPr>
+      <w:fldChar w:fldCharType="end"/>
+    </w:r>
+  </xsl:template>
+
 </xsl:stylesheet>
