@@ -1786,7 +1786,9 @@
         </xsl:choose>
       </xsl:when>
       <xsl:when test="$ndCur[self::mml:mstyle]">
-        <xsl:apply-templates select="$ndCur/*" mode="#current" />
+        <xsl:apply-templates select="$ndCur/*" mode="#current" >
+          <xsl:with-param name="display-in-nary" select="true()"/>
+        </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <!-- https://github.com/transpect/hub2docx-lib/issues/4 -->
@@ -2389,85 +2391,93 @@
 
   <!-- %%Template: match mfenced -->
   <xsl:template match="mml:mfenced" mode="mml">
-    <m:d>
-      <xsl:call-template name="CreateDelimProp">
-        <xsl:with-param name="fChOpenValid">
-          <xsl:choose>
-            <xsl:when test="@open">
-              <xsl:value-of select="1"/>
-            </xsl:when>
-            <xsl:when test="@mml:open">
-              <xsl:value-of select="1"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="0"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:with-param>
-        <xsl:with-param name="chOpen">
-          <xsl:choose>
-            <xsl:when test="@open">
-              <xsl:value-of select="@open"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="@mml:open"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:with-param>
-        <xsl:with-param name="fChSeparatorsValid">
-          <xsl:choose>
-            <xsl:when test="@separators">
-              <xsl:value-of select="1"/>
-            </xsl:when>
-            <xsl:when test="@mml:separators">
-              <xsl:value-of select="1"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="0"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:with-param>
-        <xsl:with-param name="chSeparators">
-          <xsl:choose>
-            <xsl:when test="@separators">
-              <xsl:value-of select="@separators"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="@mml:separators"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:with-param>
-        <xsl:with-param name="fChCloseValid">
-          <xsl:choose>
-            <xsl:when test="@close">
-              <xsl:value-of select="1"/>
-            </xsl:when>
-            <xsl:when test="@mml:close">
-              <xsl:value-of select="1"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="0"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:with-param>
-        <xsl:with-param name="chClose">
-          <xsl:choose>
-            <xsl:when test="@close">
-              <xsl:value-of select="@close"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="@mml:close"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:with-param>
+    <xsl:param name="display-in-nary" select="false()" as="xs:boolean"/>
+    <xsl:variable name="FIsNaryArgument">
+      <xsl:call-template name="FIsNaryArgument">
+        <xsl:with-param name="ndCur" select="."/>
       </xsl:call-template>
-      <xsl:for-each select="*">
-        <m:e>
-          <xsl:call-template name="CreateArgProp" />
-          <xsl:apply-templates select="." mode="#current"/>
-        </m:e>
-      </xsl:for-each>
-    </m:d>
+    </xsl:variable>
+    <xsl:if test="not($FIsNaryArgument='1' and not($display-in-nary))">
+      <m:d>
+        <xsl:call-template name="CreateDelimProp">
+          <xsl:with-param name="fChOpenValid">
+            <xsl:choose>
+              <xsl:when test="@open">
+                <xsl:value-of select="1"/>
+              </xsl:when>
+              <xsl:when test="@mml:open">
+                <xsl:value-of select="1"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="0"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:with-param>
+          <xsl:with-param name="chOpen">
+            <xsl:choose>
+              <xsl:when test="@open">
+                <xsl:value-of select="@open"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="@mml:open"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:with-param>
+          <xsl:with-param name="fChSeparatorsValid">
+            <xsl:choose>
+              <xsl:when test="@separators">
+                <xsl:value-of select="1"/>
+              </xsl:when>
+              <xsl:when test="@mml:separators">
+                <xsl:value-of select="1"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="0"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:with-param>
+          <xsl:with-param name="chSeparators">
+            <xsl:choose>
+              <xsl:when test="@separators">
+                <xsl:value-of select="@separators"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="@mml:separators"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:with-param>
+          <xsl:with-param name="fChCloseValid">
+            <xsl:choose>
+              <xsl:when test="@close">
+                <xsl:value-of select="1"/>
+              </xsl:when>
+              <xsl:when test="@mml:close">
+                <xsl:value-of select="1"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="0"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:with-param>
+          <xsl:with-param name="chClose">
+            <xsl:choose>
+              <xsl:when test="@close">
+                <xsl:value-of select="@close"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="@mml:close"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:with-param>
+        </xsl:call-template>
+        <xsl:for-each select="*">
+          <m:e>
+            <xsl:call-template name="CreateArgProp" />
+            <xsl:apply-templates select="." mode="#current"/>
+          </m:e>
+        </xsl:for-each>
+      </m:d>  
+    </xsl:if>
   </xsl:template>
 
   <!-- %%Template: CreateDelimProp
