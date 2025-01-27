@@ -38,9 +38,9 @@
 
   <xsl:template  match="indexterm[ not(@class) or @class ne 'endofrange' ]"  mode="hub:default">
     <xsl:param name="see-prefix" 
-               select="if(tokenize(/*/@xml:lang, '[-_]')[1] = 'de') then 'Siehe' else 'See'"/>
+               select="if(tokenize((ancestor-or-self::*/@xml:lang)[1], '[-_]')[1] = 'de') then 'Siehe' else 'See'"/>
     <xsl:param name="seealso-prefix" 
-               select="if(tokenize(/*/@xml:lang, '[-_]')[1] = 'de') then 'Siehe auch' else 'See also'"/>
+               select="if(tokenize((ancestor-or-self::*/@xml:lang)[1], '[-_]')[1] = 'de') then 'Siehe auch' else 'See also'"/>
     <xsl:if  test="see/*">
       <xsl:message terminate="no" select="'ERROR: children of see elements are not supported yet.'"/>
     </xsl:if>
