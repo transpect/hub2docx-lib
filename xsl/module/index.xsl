@@ -78,7 +78,12 @@
       <w:r>
         <w:t xml:space="preserve"> \f <xsl:value-of select="@type"/></w:t>
       </w:r>
-    </xsl:if>    
+    </xsl:if>  
+    <xsl:if test="@role[matches(., 'hub:page-num-(bold|italic|bolditalic)')]">
+      <w:r>
+        <w:t xml:space="preserve"><xsl:value-of select="replace(@role, '(b)old|(i)talic', ' \\$1$2')"/></w:t>
+      </w:r>
+    </xsl:if> 
     <!-- the \t-switch determines the text rendered in an index for this indexentry -->
     <xsl:if test="see | .//seealso">
       <w:r>
