@@ -42,13 +42,13 @@
       <!-- The possible values for this attribute (w:id) are defined by the ST_DecimalNumber simple type
            (§17.18.10). -->
       <w:footnoteReference w:id="{tr:fn-id(.)}">
-        <xsl:if test="@label">
+        <xsl:if test="@label or para/phrase[@role='hub:identifier']/@xreflabel">
           <xsl:attribute name="w:customMarkFollows" select="'1'" />
         </xsl:if>
       </w:footnoteReference>
-      <xsl:if test="@label">
+      <xsl:if test="@label or para/phrase[@role='hub:identifier']/@xreflabel">
         <w:t>
-          <xsl:value-of select="@label"/>
+          <xsl:value-of select="(@label, para/phrase[@role='hub:identifier']/@xreflabel)[1]"/>
         </w:t>
       </xsl:if>
     </w:r>
@@ -136,9 +136,9 @@
           <w:rStyle w:val="{(collection($collection-uri)//w:styles/w:style[w:name/@w:val = 'footnote reference']/@w:styleId, 'FootnoteReference')[1]}"/>
         </w:rPr>
         <xsl:choose>
-          <xsl:when test="../@label">
+          <xsl:when test="../@label or phrase[@role='hub:identifier']/@xreflabel">
             <w:t>
-              <xsl:value-of select="../@label"/>
+              <xsl:value-of select="(../@label, phrase[@role='hub:identifier']/@xreflabel)[1]"/>
             </w:t>
           </xsl:when>
           <xsl:otherwise>
@@ -146,9 +146,11 @@
           </xsl:otherwise>
         </xsl:choose>
       </w:r>
-      <w:r>
-        <w:t xml:space="preserve"> </w:t>
-      </w:r>
+      <xsl:if test="not(matches(string-join(text(),''),'^\p{Zs}'))">
+        <w:r>
+          <w:t xml:space="preserve"> </w:t>
+        </w:r>
+      </xsl:if>
       <xsl:apply-templates select="node() except *[self::itemizedlist or self::orderedlist or self::anchor[@role=('w14:paraId','w14:textId')]]" mode="hub:default" />
     </w:p>
     <xsl:apply-templates select="itemizedlist union orderedlist" mode="hub:default" />
