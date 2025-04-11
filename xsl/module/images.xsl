@@ -75,6 +75,7 @@
         <w:r>
           <w:pict>
             <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
+              <xsl:if test="alt"><xsl:attribute name="alt" select="alt"/></xsl:if>
               <xsl:call-template name="v:shape-border-atts"/>
               <v:imagedata hub:fileref="{replace((imageobject[1]/imagedata/@hub:target-fileref, imageobject[1]/imagedata/@fileref)[1], '^container:word/', '')}" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}" o:title=""/>
@@ -90,6 +91,7 @@
         <w:r>
           <w:pict>
             <v:shape id="h2d_img{$media-id}" style="{string-join($pictstyle,';')}">
+              <xsl:if test="alt"><xsl:attribute name="alt" select="alt"/></xsl:if>
               <xsl:call-template name="v:shape-border-atts"/>
               <v:imagedata hub:fileref="{(imageobject[1]/imagedata/@hub:target-fileref, imageobject[1]/imagedata/@fileref)[1]}" o:title="" 
                 r:id="{index-of($rels, generate-id(.))}" id="img{$media-id}"/>
