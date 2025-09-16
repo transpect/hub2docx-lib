@@ -169,8 +169,19 @@
       <!-- https://github.com/transpect/hub2docx-lib/issues/4 -->
       <xsl:when test="parent::mml:mfrac">0</xsl:when>
       <xsl:when test="preceding-sibling::*[1][self::mml:munder or self::mml:mover or self::mml:munderover or
-                                                    self::mml:msub or self::mml:msup or self::mml:msubsup or self::mml:mrow]
+                                                    self::mml:msub or self::mml:msup or self::mml:msubsup]
 							      and $fNary='true'">1</xsl:when>
+      <xsl:when test="parent::mml:mrow">
+        <xsl:variable name="parentIsNary">
+          <xsl:call-template name="isNary">
+            <xsl:with-param name="ndCur" select="parent::*" />
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:choose>
+          <xsl:when test="$parentIsNary='true' and $fNary='true'">1</xsl:when>
+          <xsl:otherwise>0</xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
       <xsl:otherwise>0</xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -253,7 +264,6 @@
 	                     mml:mo[not(child::mml:mglyph)] | 
 	                     mml:ms[not(child::mml:mglyph)] |
                        mml:mtext[not(child::mml:mglyph)]" mode="mml">
-
     <!-- tokens with mglyphs as children are tranformed
 			 in a different manner than "normal" token elements.  
 			 Where normal token elements are token elements that
@@ -2826,7 +2836,6 @@
 		that is considered a script (as opposed to a pre-script), but it need not be present.
 	-->
   <xsl:template match="mml:mmultiscripts" mode="mml">
-
     <!-- count the nodes. Everything that comes after a mml:mprescripts is considered a pre-script;
 			Everything that does not have an mml:mprescript as a preceding-sibling (and is not itself 
 			mml:mprescript) is a script, except for the first child which is always the base.
@@ -2857,7 +2866,6 @@
     <!-- Count of all scripts including mml:none.  This is essentially all nodes before the 
 		first mml:mprescripts except the base. -->
     <xsl:variable name="cndScript" select="count(*[not(preceding-sibling::mml:mprescripts) and not(self::mml:mprescripts)]) - 1" />
-
     <xsl:choose>
       <!-- The easy case first. No prescripts, and no script ... just a base -->
       <xsl:when test="$cndPrescriptStrict &lt;= 0 and $cndScriptStrict &lt;= 0">
@@ -3541,7 +3549,6 @@
         <xsl:with-param name="ndCur" select="." />
       </xsl:call-template>
     </xsl:variable>
-
     <!-- Output MS Left Quote (if need be) -->
     <xsl:if test="self::mml:ms">
       <xsl:variable name="chLquote">
