@@ -2,6 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:mml="http://www.w3.org/1998/Math/MathML"
+  xmlns:tr="http://transpect.io"
   exclude-result-prefixes="xs"
   version="2.0">
   
@@ -94,13 +95,8 @@
   </xsl:template>
   
   <xsl:template match="*[not(self::*:mrow)][preceding-sibling::*[1][self::*:munderover or self::*:munder]]" mode="fix-mml">
-    <xsl:variable name="fNary">
-      <xsl:call-template name="isNary">
-        <xsl:with-param name="ndCur" select="preceding-sibling::*[1]/child::*[1]" />
-      </xsl:call-template>
-    </xsl:variable>
     <xsl:choose>
-      <xsl:when test="$fNary='true'">
+      <xsl:when test="tr:isNary(preceding-sibling::*[1]/child::*[1])">
         <mml:mrow>
           <xsl:next-match/>
         </mml:mrow>
