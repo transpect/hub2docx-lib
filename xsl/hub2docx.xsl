@@ -109,7 +109,13 @@
   <xsl:template match="@srcpath" mode="hub:merge"/>
   
   <xsl:template match="anchor[@role=('w14:paraId','w14:textId')]" mode="hub:default">
-    <xsl:attribute name="{@role}" select="replace(@xml:id,'(text|para)Id_','')"/>
+    <xsl:param name="suppress-paraId" as="xs:boolean?" tunnel="yes"/>
+    <xsl:choose>
+      <xsl:when test="$suppress-paraId"/>
+      <xsl:otherwise>
+        <xsl:attribute name="{@role}" select="replace(@xml:id,'(text|para)Id_','')"/>    
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>
