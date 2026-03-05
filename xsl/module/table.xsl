@@ -764,7 +764,7 @@
        -->
   <xsl:template  match="caption/para"  mode="hub:default">
     <w:p>
-      <xsl:apply-templates select="anchor[@role=('w14:paraId','w14:textId')] " mode="#current"/>
+      <xsl:apply-templates select="(. | phrase[@role='hub:caption-text'])/anchor[@role=('w14:paraId','w14:textId')]" mode="#current"/>
       <w:pPr>
         <w:pStyle>
           <xsl:attribute name="w:val" select="if (@role) 
@@ -775,13 +775,15 @@
                                                   else 'Legende'"/>
         </w:pStyle>
       </w:pPr>
-      <xsl:apply-templates select="node() except anchor[@role=('w14:paraId','w14:textId')] " mode="#current"/>
+      <xsl:apply-templates select="node() except anchor[@role=('w14:paraId','w14:textId')]" mode="#current">
+        <xsl:with-param name="suppress-paraId" as="xs:boolean" select="true()" tunnel="yes"/>
+      </xsl:apply-templates>
     </w:p>
   </xsl:template>
   
   <xsl:template  match="*[self::table or self::informaltable or self::table-group]/title"  mode="hub:default">
     <w:p origin="default_p_title">
-     <xsl:apply-templates select="anchor[@role=('w14:paraId','w14:textId')] " mode="#current"/>
+      <xsl:apply-templates select="(. | phrase[@role='hub:caption-text'])/anchor[@role=('w14:paraId','w14:textId')]" mode="#current"/>
       <w:pPr>
         <w:pStyle>
           <xsl:attribute name="w:val" select="if (@role) 
@@ -792,7 +794,9 @@
                                                  else 'Tabellenlegende'"/>
         </w:pStyle>
       </w:pPr>
-     <xsl:apply-templates select="node() except anchor[@role=('w14:paraId','w14:textId')] " mode="#current"/>
+     <xsl:apply-templates select="node() except anchor[@role=('w14:paraId','w14:textId')]" mode="#current">
+        <xsl:with-param name="suppress-paraId" as="xs:boolean" select="true()" tunnel="yes"/>
+      </xsl:apply-templates>
     </w:p>
   </xsl:template>
 
