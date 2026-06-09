@@ -176,7 +176,8 @@
             ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>
         </xsl:if>
       </xsl:for-each>
-      <xsl:if test="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
+      <xsl:if test="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property 
+                    or $use-template-custom">
         <Override xmlns="http://schemas.openxmlformats.org/package/2006/content-types" 
           PartName="/docProps/custom.xml"
           ContentType="application/vnd.openxmlformats-officedocument.custom-properties+xml"/>
@@ -343,7 +344,9 @@
     <xsl:copy>
       <xsl:apply-templates  mode="#current"
         select="@*, $other-rels"/>
-      <xsl:if test="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
+      <xsl:if test="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property  
+                    or $use-template-custom">
+        <xsl:variable name="rid_new" select="if ($use-template-custom) then ($rid + 1) else $rid"/>
         <Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships" 
           Id="rId{$rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties" Target="docProps/custom.xml"/>
       </xsl:if>
@@ -353,7 +356,8 @@
   <xsl:template mode="hub:merge" match="w:containerProps">
     <xsl:copy>
       <xsl:apply-templates  mode="#current" select="* except customProps:Properties"/>
-      <xsl:if test="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property">
+      <xsl:if test="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property  
+                    or $use-template-custom">
         <Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties">
           <xsl:if test="*[1]/@xml:base">
             <xsl:variable name="prelim" as="attribute(xml:base)">
