@@ -366,7 +366,7 @@
             <xsl:apply-templates select="$prelim" mode="docx2hub:modify"/><!-- out dir -->
           </xsl:if>
           <xsl:apply-templates  mode="#current"
-            select="collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property"/>
+            select="(collection($collection-uri)/w:root_converted/w:containerProps/customProps:Properties/customProps:property, customProps:Properties/customProps:property)"/>
         </Properties>
       </xsl:if>
     </xsl:copy>
